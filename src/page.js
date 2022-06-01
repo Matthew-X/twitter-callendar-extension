@@ -1,9 +1,9 @@
 const save_file = 'save_file';
 
 let base_user_data = {
-    Name: Element,
-    UserID: Element,
-    BirthdayDate: Element
+    Name: Object,
+    UserID: Object,
+    BirthdayDate: Object
 }
 
 //chrome.storage.sync.clear();
@@ -12,7 +12,7 @@ let base_user_data = {
 //chrome.storage.sync.get('bitch', function(result) { console.log(result) });
 
 {
-    chrome.storage.sync.get(save_file, function(result) {
+    chromeGetValue(save_file).then(result => {
         if (result == null) {
             chrome.storage.sync.set({ save_file: base_user_data });
             console.log("created base");
@@ -23,11 +23,11 @@ let base_user_data = {
 
 function chromeGetValue(key) {
     return new Promise((resolve, reject) => {
-        chrome.storage.sync.get(key, (items) => {
+        chrome.storage.sync.get([key], (items) => {
             if (chrome.runtime.lastError) {
                 return reject(chrome.runtime.lastError);
             }
-            resolve(items);
+            resolve(items[key]);
         });
     });
 }
@@ -82,23 +82,27 @@ function UpdateData(usersArray = [base_user_data], user_data = base_user_data) {
     console.log(user_data.UserID.children[0].innerText);
     if (usersArray.length >= 0) {
         if (usersArray == 0 ||
-            usersArray.find(el => el.UserID.children[0].innerText == user_data.UserID.children[0].innerText) == null ||
-            usersArray.find(el => el.UserID.children[0].innerText == user_data.UserID.children[0].innerText) == 0) {
+            usersArray.find(el => el.UserID == user_data.UserID) == null ||
+            usersArray.find(el => el.UserID == user_data.UserID) == 0) {
             usersArray.push(user_data);
             chrome.storage.sync.set({ save_file: usersArray });
             return console.log('Saved new data')
         } else {
-            var temp = usersArray.find(el => el.UserID.children[0].innerText == user_data.UserID.children[0].innerText);
-            console.log(usersArray)
+            var temp = usersArray.find(el => el.UserID == user_data.UserID);
+            console.log(usersArray);
             temp = user_data;
             chrome.storage.sync.set({ save_file: usersArray });
-            return console.log('Data updated')
+            chromeGetValue(save_file).then(result => { console.log(result) });
+            return console.log('Data updated');
         }
     } else {
-        let temp = [user_data];
-        console.log(temp)
-        chrome.storage.sync.set({ save_file: user_data });
-        chrome.storage.sync.get(save_file, function(result) { console.log(result) });
+        chrome.storage.sync.set({ save_file: [user_data] });
+        chromeGetValue(save_file).then(result => {
+            console.log(result);
+            console.log(typeof result[0]);
+        });
+
+        console.log(typeof user_data);
     }
 }
 
@@ -112,17 +116,17 @@ function setupBDB(BDBElement) {
         birthday_button.onclick = function() {
             {
                 var arrPrimary = Array.from(document.querySelectorAll('[data-testid="UserBirthdate"]'));
-                user_data.BirthdayDate = arrPrimary.find(el => el.getElementsByTagName('span')).cloneNode(true);
+                user_data.BirthdayDate = arrPrimary.find(el => el.getElementsByTagName('span')).innerText;
             }
 
             {
                 var arrPrimary = Array.from(document.querySelectorAll('[data-testid="UserName"]'));
-                user_data.Name = arrPrimary.find(el => el.getElementsByTagName('div')).children[0].children[0].children[0].cloneNode(true);
+                user_data.Name = arrPrimary.find(el => el.getElementsByTagName('div')).children[0].children[0].children[0].innerText;
             }
 
             {
                 var arrPrimary = Array.from(document.querySelectorAll('[data-testid="UserName"]'));
-                user_data.UserID = arrPrimary.find(el => el.getElementsByTagName('div')).children[0].children[0].children[1].cloneNode(true);
+                user_data.UserID = arrPrimary.find(el => el.getElementsByTagName('div')).children[0].children[0].children[1].innerText;
             }
 
             chromeGetValue(save_file).then(result => {
@@ -130,7 +134,7 @@ function setupBDB(BDBElement) {
                 UpdateData(result, user_data);
             });
             chrome.storage.sync.get(save_file, function(result) { console.log(result) });
-            console.log(user_data.UserID.children[0].innerText);
+            console.log(user_data.UserID.children[0].innerText).innerText;
         }
 
         birthday_button.appendChild(BDBElement.cloneNode(true));
