@@ -1,0 +1,105 @@
+@font-face {
+    font-family: GoogleSans;
+    src: url('chrome-extension://__MSG_@@extension_id__/assets/fonts/ProductSans-Regular.ttf');
+}
+
+* {
+    font-family: GoogleSans !important;
+}
+
+:root {
+    --aquamarine-primary: #A1E9D3;
+    --dark-background: #121212;
+    --dark-1: #1A1A1A;
+    --dark-2: #212121;
+    --dark-3: #303030;
+    --aquamarine-shadow: 0px 0px 5px 0 rgb(161 233 211 / 50%);
+    --aquamarine-shadow-2: 0px 0px 5px 0 rgb(161 233 211 / 100%);
+    --dark-1-shadow: 0px 0px 10px 0 rgb(33 33 33);
+    --text-white-outline: -0.2px -0.2px 1.5px rgb(231, 233, 234), 0.2px -0.2px 1.5px rgb(231, 233, 234), -0.2px 0.2px 1.5px rgb(231, 233, 234), 0.2px 0.2px 1.5px rgb(231, 233, 234);
+}
+
+.Calendar_button_holder {
+    width: 100%;
+    padding-bottom: 4px;
+    padding-top: 4px;
+    cursor: pointer;
+}
+
+.Calendar_button {
+    display: flex;
+    height: fit-content;
+    width: fit-content;
+    border-radius: 100vh;
+    background-color: transparent;
+    text-decoration: none;
+    text-align: center;
+    justify-content: center;
+    transition: background-color 0.2s;
+    padding: 12px;
+}
+
+.Calendar_button_holder:hover .Calendar_button {
+    background-color: rgba(231, 233, 234, 0.1);
+}
+
+.Calendar_button_holder a {
+    font-weight: normal;
+    transition: font-weight 0.2s;
+    text-shadow: none;
+    transition: text-shadow 0.2;
+}
+
+.Calendar_button_holder:hover .Calendar_button a {
+    font-weight: bold;
+}
+
+.Calendar_button a {
+    color: rgb(231, 233, 234);
+    font-size: 20px;
+    font-family: GoogleSans;
+    margin-right: 16px;
+    margin-left: 20px;
+}
+
+.Calendar_button img {
+    height: 1.75rem;
+    padding: 0px;
+    margin: 0px;
+}
+
+.Birthday_button {
+    display: flex;
+    height: fit-content;
+    width: fit-content;
+    border-radius: 100vh;
+    background-color: rgba(231, 233, 234, 0.1);
+    text-decoration: none;
+    text-align: center;
+    justify-content: center;
+    box-shadow: transparent;
+    transition: background-color 0.2s, box-shadow 0.2s ease-in-out;
+    padding: 2px 7px 2px 3px;
+    margin: 2px;
+    cursor: pointer;
+}
+
+.Birthday_button * {
+    margin: 0px !important;
+}
+
+.Birthday_button:hover {
+    box-shadow: var(--aquamarine-shadow);
+}
+
+html {
+    -ms-text-size-adjust: 100%;
+    -webkit-text-size-adjust: 100%;
+    -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+}
+
+@media only screen and (max-width: 1300px) {
+    .Calendar_button a {
+        display: none;
+    }
+}
