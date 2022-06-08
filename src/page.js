@@ -1,9 +1,10 @@
 const save_file = 'save_file';
 
 let base_user_data = {
-    Name: Object,
-    UserID: Object,
-    BirthdayDate: Object
+    Icon: "",
+    Name: "",
+    UserID: "",
+    BirthdayDate: ""
 }
 
 //chrome.storage.sync.clear();
@@ -78,18 +79,16 @@ function initBDB() {
 }
 
 function UpdateData(usersArray = [base_user_data], user_data = base_user_data) {
-    console.log(usersArray);
-    console.log(user_data.UserID.children[0].innerText);
     if (usersArray.length >= 0) {
         if (usersArray == 0 ||
             usersArray.find(el => el.UserID == user_data.UserID) == null ||
             usersArray.find(el => el.UserID == user_data.UserID) == 0) {
             usersArray.push(user_data);
             chrome.storage.sync.set({ save_file: usersArray });
+            chromeGetValue(save_file).then(result => { console.log(result) });
             return console.log('Saved new data')
         } else {
             var temp = usersArray.find(el => el.UserID == user_data.UserID);
-            console.log(usersArray);
             temp = user_data;
             chrome.storage.sync.set({ save_file: usersArray });
             chromeGetValue(save_file).then(result => { console.log(result) });
@@ -97,12 +96,7 @@ function UpdateData(usersArray = [base_user_data], user_data = base_user_data) {
         }
     } else {
         chrome.storage.sync.set({ save_file: [user_data] });
-        chromeGetValue(save_file).then(result => {
-            console.log(result);
-            console.log(typeof result[0]);
-        });
-
-        console.log(typeof user_data);
+        chromeGetValue(save_file).then(result => {});
     }
 }
 
@@ -115,6 +109,11 @@ function setupBDB(BDBElement) {
 
         birthday_button.onclick = function() {
             {
+                var arrPrimary = Array.from(document.querySelectorAll('[alt="Opens profile photo"]'));
+                user_data.Icon = arrPrimary.find(el => el.getElementsByTagName('img')).src;
+            }
+
+            {
                 var arrPrimary = Array.from(document.querySelectorAll('[data-testid="UserBirthdate"]'));
                 user_data.BirthdayDate = arrPrimary.find(el => el.getElementsByTagName('span')).innerText;
             }
@@ -126,7 +125,7 @@ function setupBDB(BDBElement) {
 
             {
                 var arrPrimary = Array.from(document.querySelectorAll('[data-testid="UserName"]'));
-                user_data.UserID = arrPrimary.find(el => el.getElementsByTagName('div')).children[0].children[0].children[1].innerText;
+                user_data.UserID = arrPrimary.find(el => el.getElementsByTagName('div')).children[0].children[0].children[1].children[0].innerText;
             }
 
             chromeGetValue(save_file).then(result => {
@@ -134,7 +133,7 @@ function setupBDB(BDBElement) {
                 UpdateData(result, user_data);
             });
             chrome.storage.sync.get(save_file, function(result) { console.log(result) });
-            console.log(user_data.UserID.children[0].innerText).innerText;
+            console.log(user_data.UserID);
         }
 
         birthday_button.appendChild(BDBElement.cloneNode(true));
@@ -166,7 +165,9 @@ function setupCalendar(parentElement) {
         CalendarButton.onclick = function() {
             var mainElement = getMainParent();
             if (mainElement != null) {
-                calendarPage(mainElement);
+                chromeGetValue(save_file).then(result => {
+                    calendarPage(mainElement, result);
+                })
             }
             calendarPage()
         }
@@ -184,22 +185,68 @@ function setupCalendar(parentElement) {
 
 var active = false;
 
-function calendarPage(mainElement) {
+function calendarPage(mainElement, users_db = [base_user_data]) {
     if (!active) {
         if (mainElement != null) {
             console.log(mainElement)
             mainElement.getElementsByTagName('div')[0].getElementsByTagName('div')[0].style.display = "none";
             active = !active;
-
+            createCalendarPage(users_db);
+            mainElement.getElementsByTagName('div')[0].getElementsByTagName('div')[0].append
         } else {
-            console.log(csvFile)
+            chromeGetValue(save_file).then(result => { console.log(result) })
         }
     } else {
         if (mainElement != null) {
             mainElement.getElementsByTagName('div')[0].getElementsByTagName('div')[0].style.display = "flex";
             active = !active;
-        } else {
-            console.log(active)
-        }
+        } else {}
     }
+}
+
+function createCalendarPage(array = [base_user_data]) {
+    const page_div = document.createElement("div").classList.add('page_div');
+    const suggestions = document.createElement("div").classList.add('suggestions_div');
+    const wrapper = document.createElement("div").classList.add('wrapper');
+    const list_wrap = document.createElement("div").classList.add('list_wrap');
+    const ul = document.createElement("ul");
+
+    array.forEach((x, i) =>
+        ul.appendChild(createListItem(x))
+    );
+
+
+    page_div
+        .append(
+            wrapper
+            .appendChild(list_wrap
+                .appendChild(ul)),
+            suggestions);
+
+    return page_div;
+}
+
+function createListItem(user_object = base_user_data) {
+    const li = document.createElement("li").classList.add('user');
+    const list = document.createElement("div").classList.add('list');
+    const icon = document.createElement("div").classList.add('icon');
+    const content = document.createElement("div").classList.add('content');
+    const id = document.createElement("a").classList.add('list_item_id');
+    const name = document.createElement("p").classList.add('list_item_name');
+    const birthday_date = document.createElement("p").classList.add('list_item_bd');
+
+    id.textContent = user_object.UserID;
+    name.textContent = user_object.Name;
+    birthday_date.textContent = user_object.BirthdayDate;
+    icon.src = user_object.Icon;
+
+    li.appendChild(
+        list
+        .appendChild(icon)
+        .appendChild(content
+            .appendChild(document
+                .createElement("div")
+                .append(name, id))
+            .appendChild(birthday_date)));
+    return li;
 }
