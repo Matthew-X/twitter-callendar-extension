@@ -227,13 +227,20 @@ function createCalendarPage(array = [base_user_data]) {
 }
 
 function createListItem(user_object = base_user_data) {
-    const li = document.createElement("li").classList.add('user');
-    const list = document.createElement("div").classList.add('list');
-    const icon = document.createElement("div").classList.add('icon');
-    const content = document.createElement("div").classList.add('content');
-    const id = document.createElement("a").classList.add('list_item_id');
-    const name = document.createElement("p").classList.add('list_item_name');
-    const birthday_date = document.createElement("p").classList.add('list_item_bd');
+    const li = document.createElement("li")
+    li.classList.add('user')
+    const list = document.createElement("div")
+    list.classList.add('list')
+    const icon = document.createElement("div")
+    icon.classList.add('icon')
+    const content = document.createElement("div")
+    content.classList.add('content')
+    const id = document.createElement("a")
+    id.classList.add('list_item_id')
+    const name = document.createElement("p")
+    name.classList.add('list_item_name')
+    const birthday_date = document.createElement("p")
+    birthday_date.classList.add('list_item_bd')
 
     id.textContent = user_object.UserID;
     name.textContent = user_object.Name;
@@ -244,9 +251,8 @@ function createListItem(user_object = base_user_data) {
         list
         .appendChild(icon)
         .appendChild(content
-            .appendChild(document
+            .append(document
                 .createElement("div")
-                .append(name, id))
-            .appendChild(birthday_date)));
+                .append(name, id), birthday_date)));
     return li;
 }
