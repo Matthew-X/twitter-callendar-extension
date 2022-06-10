@@ -69,7 +69,7 @@
 }
 
 .Birthday_button {
-    display: flex;
+    display: flexbox;
     height: fit-content;
     width: fit-content;
     border-radius: 100vh;
@@ -96,6 +96,102 @@ html {
     -ms-text-size-adjust: 100%;
     -webkit-text-size-adjust: 100%;
     -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+}
+
+.page_div {
+    display: flex;
+    align-items: center;
+}
+
+.suggestions_div {
+    display: flex;
+    align-items: center;
+}
+
+.wrapper {
+    display: flex;
+    align-items: center;
+    width: 600px;
+}
+
+.list_wrap {
+    display: flex;
+    align-items: center;
+    width: 100%;
+}
+
+.list_wrap ul {
+    display: flexbox;
+    align-items: center;
+    width: 100%;
+}
+
+.user {
+    display: flex;
+    align-items: center;
+    width: 100%;
+}
+
+.list {
+    display: flex;
+    align-items: center;
+    width: 100%;
+}
+
+.icon {
+    display: flex;
+    align-items: center;
+    height: 50px;
+    border-radius: 50px;
+    margin: 7px;
+}
+
+.content {
+    display: flex;
+    align-items: center;
+    width: 100%;
+}
+
+.n_id_div {
+    display: flexbox;
+    text-align: center;
+    width: 100%;
+}
+
+.list_item_id {
+    display: flexbox;
+    align-items: center;
+    color: rgb(231, 233, 234);
+    font-size: 20px;
+    font-family: GoogleSans;
+    text-align: center;
+    width: 100%;
+    height: 100%;
+    margin: 7px;
+}
+
+.list_item_name {
+    display: flexbox;
+    align-items: center;
+    color: rgb(231, 233, 234);
+    font-size: 20px;
+    font-family: GoogleSans;
+    text-align: center;
+    width: 100%;
+    height: 100%;
+    margin: 7px;
+}
+
+.list_item_bd {
+    display: flexbox;
+    align-items: center;
+    color: rgb(231, 233, 234);
+    font-size: 20px;
+    font-family: GoogleSans;
+    text-align: center;
+    width: 100%;
+    height: 100%;
+    margin: 7px;
 }
 
 @media only screen and (max-width: 1300px) {

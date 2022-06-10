@@ -68,6 +68,11 @@ function initCalendarButton() {
 
 requestAnimationFrame(initBDB);
 
+window.addEventListener('hashchange', function() {
+    console.log("that b#tch changed");
+    initBDB;
+});
+
 function initBDB() {
     var BDBElement = getBDBParent();
 
@@ -191,8 +196,7 @@ function calendarPage(mainElement, users_db = [base_user_data]) {
             console.log(mainElement)
             mainElement.getElementsByTagName('div')[0].getElementsByTagName('div')[0].style.display = "none";
             active = !active;
-            createCalendarPage(users_db);
-            mainElement.getElementsByTagName('div')[0].getElementsByTagName('div')[0].append
+            mainElement.getElementsByTagName('div')[0].append(createCalendarPage(users_db));
         } else {
             chromeGetValue(save_file).then(result => { console.log(result) })
         }
@@ -205,40 +209,52 @@ function calendarPage(mainElement, users_db = [base_user_data]) {
 }
 
 function createCalendarPage(array = [base_user_data]) {
-    const page_div = document.createElement("div").classList.add('page_div');
-    const suggestions = document.createElement("div").classList.add('suggestions_div');
-    const wrapper = document.createElement("div").classList.add('wrapper');
-    const list_wrap = document.createElement("div").classList.add('list_wrap');
+    const page_div = document.createElement("div");
+    page_div.classList.add('page_div');
+    const suggestions = document.createElement("div");
+    suggestions.classList.add('suggestions_div');
+    const wrapper = document.createElement("div");
+    wrapper.classList.add('wrapper');
+    const list_wrap = document.createElement("div");
+    list_wrap.classList.add('list_wrap');
     const ul = document.createElement("ul");
 
     array.forEach((x, i) =>
         ul.appendChild(createListItem(x))
     );
 
+    list_wrap.appendChild(ul);
+    wrapper.appendChild(list_wrap);
+    page_div.append(wrapper, suggestions);
 
-    page_div
-        .append(
-            wrapper
-            .appendChild(list_wrap
-                .appendChild(ul)),
-            suggestions);
 
+    console.log(page_div)
     return page_div;
 }
 
 function createListItem(user_object = base_user_data) {
+
     const li = document.createElement("li")
     li.classList.add('user')
+
     const list = document.createElement("div")
     list.classList.add('list')
-    const icon = document.createElement("div")
+
+    const icon = document.createElement("img")
     icon.classList.add('icon')
+
     const content = document.createElement("div")
     content.classList.add('content')
+
+    const n_id_div = document.createElement("div")
+    n_id_div.classList.add('n_id_div')
+
     const id = document.createElement("a")
     id.classList.add('list_item_id')
+
     const name = document.createElement("p")
     name.classList.add('list_item_name')
+
     const birthday_date = document.createElement("p")
     birthday_date.classList.add('list_item_bd')
 
@@ -247,12 +263,11 @@ function createListItem(user_object = base_user_data) {
     birthday_date.textContent = user_object.BirthdayDate;
     icon.src = user_object.Icon;
 
-    li.appendChild(
-        list
-        .appendChild(icon)
-        .appendChild(content
-            .append(document
-                .createElement("div")
-                .append(name, id), birthday_date)));
+    n_id_div.append(name, id);
+    content.append(n_id_div, birthday_date);
+    list.append(icon, content);
+    li.appendChild(list);
+
+    console.log(user_object.Icon)
     return li;
 }
