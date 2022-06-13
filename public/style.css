@@ -1,201 +1,259 @@
 @font-face {
-    font-family: GoogleSans;
-    src: url('chrome-extension://__MSG_@@extension_id__/assets/fonts/ProductSans-Regular.ttf');
+  font-family: GoogleSans;
+  src: url("chrome-extension://__MSG_@@extension_id__/assets/fonts/ProductSans-Regular.ttf");
 }
 
 * {
-    font-family: GoogleSans !important;
+  font-family: GoogleSans !important;
 }
 
 :root {
-    --aquamarine-primary: #A1E9D3;
-    --dark-background: #121212;
-    --dark-1: #1A1A1A;
-    --dark-2: #212121;
-    --dark-3: #303030;
-    --aquamarine-shadow: 0px 0px 5px 0 rgb(161 233 211 / 50%);
-    --aquamarine-shadow-2: 0px 0px 5px 0 rgb(161 233 211 / 100%);
-    --dark-1-shadow: 0px 0px 10px 0 rgb(33 33 33);
-    --text-white-outline: -0.2px -0.2px 1.5px rgb(231, 233, 234), 0.2px -0.2px 1.5px rgb(231, 233, 234), -0.2px 0.2px 1.5px rgb(231, 233, 234), 0.2px 0.2px 1.5px rgb(231, 233, 234);
+  --aquamarine-primary: #a1e9d3;
+  --dark-background: #121212;
+  --dark-1: #1a1a1a;
+  --dark-2: #212121;
+  --dark-3: #303030;
+  --aquamarine-shadow: 0px 0px 5px 0 rgb(161 233 211 / 50%);
+  --aquamarine-shadow-2: 0px 0px 5px 0 rgb(161 233 211 / 100%);
+  --dark-1-shadow: 0px 0px 10px 0 rgb(33 33 33);
+  --text-white-outline: -0.2px -0.2px 1.5px rgb(231, 233, 234),
+    0.2px -0.2px 1.5px rgb(231, 233, 234), -0.2px 0.2px 1.5px rgb(231, 233, 234),
+    0.2px 0.2px 1.5px rgb(231, 233, 234);
 }
 
 .Calendar_button_holder {
-    width: 100%;
-    padding-bottom: 4px;
-    padding-top: 4px;
-    cursor: pointer;
+  width: 100%;
+  padding-bottom: 4px;
+  padding-top: 4px;
+  cursor: pointer;
 }
 
 .Calendar_button {
-    display: flex;
-    height: fit-content;
-    width: fit-content;
-    border-radius: 100vh;
-    background-color: transparent;
-    text-decoration: none;
-    text-align: center;
-    justify-content: center;
-    transition: background-color 0.2s;
-    padding: 12px;
+  display: flex;
+  height: fit-content;
+  width: fit-content;
+  border-radius: 100vh;
+  background-color: transparent;
+  text-decoration: none;
+  text-align: center;
+  justify-content: center;
+  transition: background-color 0.2s;
+  padding: 12px;
 }
 
 .Calendar_button_holder:hover .Calendar_button {
-    background-color: rgba(231, 233, 234, 0.1);
+  background-color: rgba(231, 233, 234, 0.1);
 }
 
 .Calendar_button_holder a {
-    font-weight: normal;
-    transition: font-weight 0.2s;
-    text-shadow: none;
-    transition: text-shadow 0.2;
+  font-weight: normal;
+  transition: font-weight 0.2s;
+  text-shadow: none;
+  transition: text-shadow 0.2;
 }
 
 .Calendar_button_holder:hover .Calendar_button a {
-    font-weight: bold;
+  font-weight: bold;
 }
 
 .Calendar_button a {
-    color: rgb(231, 233, 234);
-    font-size: 20px;
-    font-family: GoogleSans;
-    margin-right: 16px;
-    margin-left: 20px;
+  color: rgb(231, 233, 234);
+  font-size: 20px;
+  font-family: GoogleSans;
+  margin-right: 16px;
+  margin-left: 20px;
 }
 
 .Calendar_button img {
-    height: 1.75rem;
-    padding: 0px;
-    margin: 0px;
+  height: 1.75rem;
+  padding: 0px;
+  margin: 0px;
 }
 
 .Birthday_button {
-    display: flexbox;
-    height: fit-content;
-    width: fit-content;
-    border-radius: 100vh;
-    background-color: rgba(231, 233, 234, 0.1);
-    text-decoration: none;
-    text-align: center;
-    justify-content: center;
-    box-shadow: transparent;
-    transition: background-color 0.2s, box-shadow 0.2s ease-in-out;
-    padding: 2px 7px 2px 3px;
-    margin: 2px;
-    cursor: pointer;
+  display: flexbox;
+  height: fit-content;
+  width: fit-content;
+  border-radius: 100vh;
+  background-color: rgba(231, 233, 234, 0.1);
+  text-decoration: none;
+  text-align: center;
+  justify-content: center;
+  box-shadow: transparent;
+  transition: background-color 0.2s, box-shadow 0.2s ease-in-out;
+  padding: 2px 7px 2px 3px;
+  margin: 2px;
+  cursor: pointer;
 }
 
 .Birthday_button * {
-    margin: 0px !important;
+  margin: 0px !important;
 }
 
 .Birthday_button:hover {
-    box-shadow: var(--aquamarine-shadow);
+  box-shadow: var(--aquamarine-shadow);
 }
 
 html {
-    -ms-text-size-adjust: 100%;
-    -webkit-text-size-adjust: 100%;
-    -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+  -ms-text-size-adjust: 100%;
+  -webkit-text-size-adjust: 100%;
+  -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
 }
 
 .page_div {
-    display: flex;
-    align-items: center;
+  display: flex;
+  align-items: center;
+  width: 100%;
+  max-width: 600px;
 }
 
 .suggestions_div {
-    display: flex;
-    align-items: center;
+  display: flex;
+  align-items: center;
 }
 
 .wrapper {
-    display: flex;
-    align-items: center;
-    width: 600px;
+  display: flex;
+  align-items: center;
+  width: 100%;
+  max-width: 600px;
 }
 
 .list_wrap {
-    display: flex;
-    align-items: center;
-    width: 100%;
+  display: flex;
+  align-items: center;
+  width: 100%;
 }
 
 .list_wrap ul {
-    display: flexbox;
-    align-items: center;
-    width: 100%;
+  display: flexbox;
+  align-items: center;
+  padding: 0px;
+  margin: 10px;
+  width: 100%;
 }
 
 .user {
-    display: flex;
-    align-items: center;
-    width: 100%;
+  display: flex;
+  align-items: center;
+  margin: 10px 0px 10px 0px;
+  width: 100%;
+}
+
+.user a:first-child {
+  display: flex;
+  width: 100%;
+  text-decoration: none;
 }
 
 .list {
-    display: flex;
-    align-items: center;
-    width: 100%;
+  display: flex;
+  align-items: center;
+  width: 100%;
+  background-color: rgba(231, 233, 234, 0.1);
+  border-radius: 100vh;
+  transition: background-color 0.2s, box-shadow 0.2s ease-in-out;
+  cursor: pointer;
+}
+
+.list:hover {
+  box-shadow: var(--aquamarine-shadow);
+  background-color: rgba(231, 233, 234, 0.2);
 }
 
 .icon {
-    display: flex;
-    align-items: center;
-    height: 50px;
-    border-radius: 50px;
-    margin: 7px;
+  display: flex;
+  align-items: center;
+  height: 50px;
+  border-radius: 50px;
+  margin: 7px;
 }
 
 .content {
-    display: flex;
-    align-items: center;
-    width: 100%;
+  display: flex;
+  align-items: center;
+  width: 100%;
 }
 
 .n_id_div {
-    display: flexbox;
-    text-align: center;
-    width: 100%;
+  display: flexbox;
+  text-align: center;
+  width: 100%;
 }
 
 .list_item_id {
-    display: flexbox;
-    align-items: center;
-    color: rgb(231, 233, 234);
-    font-size: 20px;
-    font-family: GoogleSans;
-    text-align: center;
-    width: 100%;
-    height: 100%;
-    margin: 7px;
+  display: flexbox;
+  align-items: center;
+  color: rgb(113, 118, 123);
+  font-size: 16px;
+  font-family: GoogleSans;
+  text-align: center;
+  width: 100%;
+  height: 100%;
+  margin: 7px 0px 7px 0px;
+  font-weight: lighter;
 }
 
 .list_item_name {
-    display: flexbox;
-    align-items: center;
-    color: rgb(231, 233, 234);
-    font-size: 20px;
-    font-family: GoogleSans;
-    text-align: center;
-    width: 100%;
-    height: 100%;
-    margin: 7px;
+  display: flexbox;
+  align-items: center;
+  color: rgb(231, 233, 234);
+  font-size: 20px;
+  font-family: GoogleSans;
+  text-align: center;
+  width: 100%;
+  height: 100%;
+  margin: 7px 0px 7px 0px;
 }
 
 .list_item_bd {
-    display: flexbox;
-    align-items: center;
-    color: rgb(231, 233, 234);
-    font-size: 20px;
-    font-family: GoogleSans;
-    text-align: center;
-    width: 100%;
-    height: 100%;
-    margin: 7px;
+  display: flexbox;
+  align-items: center;
+  color: rgb(231, 233, 234);
+  font-size: 20px;
+  font-family: GoogleSans;
+  text-align: center;
+  width: 100%;
+  height: 100%;
+  margin: 7px;
+}
+
+.delete_button_holder {
+  border-radius: 100vh;
+  background-color: rgba(231, 233, 234, 0.1);
+  transition: background-color 0.2s, box-shadow 0.2s ease-in-out;
+  cursor: pointer;
+  margin: 0px 0px 0px 10px;
+}
+
+.delete_button_holder:hover {
+  box-shadow: var(--aquamarine-shadow);
+  background-color: rgba(231, 233, 234, 0.2);
+}
+
+.delete_button {
+  display: flex;
+  height: fit-content;
+  width: fit-content;
+  border-radius: 100vh;
+  background-color: transparent;
+  text-decoration: none;
+  text-align: center;
+  justify-content: center;
+  transition: background-color 0.2s;
+  padding: 12px;
+}
+
+.delete_svg {
+  height: 1.75rem;
+  padding: 0px;
+  margin: 0px;
+  -webkit-filter: invert(100%);
+  filter: invert(100%);
 }
 
 @media only screen and (max-width: 1300px) {
-    .Calendar_button a {
-        display: none;
-    }
+  .Calendar_button a {
+    display: none;
+  }
 }
