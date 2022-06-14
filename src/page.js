@@ -1,5 +1,7 @@
+// Variable that saves key for chrome.storage to manage data in it.
 const save_file = "save_file";
 
+// Blank for item in data-base.
 let base_user_data = {
   Icon: "",
   Name: "",
@@ -7,21 +9,16 @@ let base_user_data = {
   BirthdayDate: "",
 };
 
-//chrome.storage.sync.clear();
+// A piece of code that creates initial database for user when user launches code for the first time.
+chromeGetValue(save_file).then((result) => {
+  if (result == null) {
+    chrome.storage.sync.set({ save_file: base_user_data });
+    console.log("created base");
+  }
+  console.log(result);
+});
 
-//chrome.storage.sync.set({ 'bitch': "chrome is a bitch" });
-//chrome.storage.sync.get('bitch', function(result) { console.log(result) });
-
-{
-  chromeGetValue(save_file).then((result) => {
-    if (result == null) {
-      chrome.storage.sync.set({ save_file: base_user_data });
-      console.log("created base");
-    }
-    console.log(result);
-  });
-}
-
+// A function that retrieves data from chrome.storage.
 function chromeGetValue(key) {
   return new Promise((resolve, reject) => {
     chrome.storage.sync.get([key], (items) => {
@@ -33,6 +30,7 @@ function chromeGetValue(key) {
   });
 }
 
+// A function that that retrieves a Main-Parent of twitter's left side bar with all the buttons to navigate between pages like (home, messages, bookmarks).
 function getParent() {
   var arrPrimary = Array.from(
     document.querySelectorAll('[aria-label="Primary"]')
@@ -42,6 +40,7 @@ function getParent() {
   return arrPrimary.find((el) => el.getAttribute("role") == "navigation");
 }
 
+// A function that retrieves Main-Parent of the page (everyhting that is on the right from twitter's left side bar).
 function getMainParent() {
   var arrPrimary = Array.from(document.querySelectorAll('[role="main"]'));
   if (arrPrimary == null || arrPrimary.length == 0) return null;
@@ -49,6 +48,7 @@ function getMainParent() {
   return arrPrimary.find((el) => el.getElementsByTagName("div")[0]);
 }
 
+// A function that retrieves a (birthday element that already exists on the page (if exists)) and then returns it's content.
 function getBDBParent() {
   var arrPrimary = Array.from(
     document.querySelectorAll('[data-testid="UserBirthdate"]')
@@ -58,8 +58,10 @@ function getBDBParent() {
   return arrPrimary.find((el) => el.getElementsByTagName("span"));
 }
 
+// A part of code that initiates the piece of code that creates Calendar button.
 requestAnimationFrame(initCalendarButton);
 
+// A function that will keep searching for a twitter's left side bar in order to parse it into the function to inject Calendar button into that bar.
 function initCalendarButton() {
   var parentElement = getParent();
 
@@ -70,10 +72,13 @@ function initCalendarButton() {
   }
 }
 
+// A part of code that initiates piece of code that creates a Birthday save button.
 requestAnimationFrame(initBDB);
 
+// Variable that saves initial page's url/href upon loading on the page.
 var oldHref = document.location.href;
 
+// Piece of code that upon loading starts an observer that tracks every change on the page and upon url change it re-initiates function that make's Birthday button to appear.
 window.onload = function () {
   var bodyList = document.querySelector("body");
 
@@ -94,6 +99,7 @@ window.onload = function () {
   observer.observe(bodyList, config);
 };
 
+// A function that will keep searching for a twitter's birthday date on the page and will create a (save birthday button) upon finding birthday date.
 function initBDB() {
   console.log("BDB initialized");
   var BDBElement = getBDBParent();
@@ -105,6 +111,7 @@ function initBDB() {
   }
 }
 
+// A function that makes creation od html elemnts easier just by parsing a string with html code.
 function elementFromHtml(html) {
   const template = document.createElement("template");
 
@@ -113,6 +120,7 @@ function elementFromHtml(html) {
   return template.content.firstElementChild;
 }
 
+// A function that updates database by updating/creating/adding new items into it.
 function UpdateData(usersArray = [base_user_data], user_data = base_user_data) {
   if (usersArray.length >= 0) {
     if (
@@ -139,6 +147,7 @@ function UpdateData(usersArray = [base_user_data], user_data = base_user_data) {
   }
 }
 
+// A function that replaces Birthday element on friend's page with a Birthday button that upon clicking will save friend's information (Name/ID/Birthday date/Icon) into the calendar.
 function setupBDB(BDBElement) {
   if (BDBElement != null || BDBElement.children > 0) {
     let user_data = base_user_data;
@@ -209,10 +218,9 @@ function setupBDB(BDBElement) {
   }
 }
 
+// A function that creates and injects calendar button into twitter's side bar.
 function setupCalendar(parentElement) {
   if (parentElement != null || parentElement.children > 0) {
-    //let CalendarButton = parentElement.children[4].cloneNode(true);
-
     const calendar_button_holder = document.createElement("a");
     calendar_button_holder.className = "Calendar_button_holder";
 
@@ -249,8 +257,10 @@ function setupCalendar(parentElement) {
   }
 }
 
+// Var to keep in it state of Calendar page if it's being closed or open.
 var active = false;
 
+// A function that creates calendar page by hiding main dif that contains all the content of the current page and will create a list of elements containing all saved data of friends you have saved into your Calendar.
 function calendarPage(mainElement, users_db = [base_user_data]) {
   if (!active) {
     if (mainElement != null) {
@@ -279,6 +289,7 @@ function calendarPage(mainElement, users_db = [base_user_data]) {
   }
 }
 
+// A function that updates calendar page by deleting existing content and creating a new list of elements with updated information as well as it assigns a delete button functions for each element.
 function update_calendar_page(mainElement, users_db) {
   if (
     mainElement
@@ -302,6 +313,7 @@ function update_calendar_page(mainElement, users_db) {
   });
 }
 
+// A function that created the base of the Calendar page that contains all list items.
 function createCalendarPage(array = [base_user_data]) {
   const ul = document.createElement("ul");
 
@@ -319,6 +331,7 @@ function createCalendarPage(array = [base_user_data]) {
   );
 }
 
+// A function that deletes item with matching UserID from database.
 function delete_friend(UserID = base_user_data.UserID) {
   chromeGetValue(save_file).then((result) => {
     const index = result.findIndex((object) => {
@@ -330,6 +343,7 @@ function delete_friend(UserID = base_user_data.UserID) {
   });
 }
 
+// A function that creates each list item that contains all friend's information and UI elements with all it's classes.
 function createListItem(user_object = base_user_data) {
   return elementFromHtml(
     `
