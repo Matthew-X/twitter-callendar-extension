@@ -86,6 +86,12 @@ window.onload = function () {
     mutations.forEach(function (mutation) {
       if (oldHref != document.location.href) {
         oldHref = document.location.href;
+        if (document.querySelector('[class="page_div"]') != null) {
+          document.querySelector('[class="page_div"]').remove();
+        }
+        if (active) {
+          active = !active;
+        }
         initBDB();
       }
     });
@@ -99,9 +105,50 @@ window.onload = function () {
   observer.observe(bodyList, config);
 };
 
+var months = [
+  "January",
+  "February",
+  "March",
+  "April",
+  "May",
+  "June",
+  "July",
+  "August",
+  "September",
+  "October",
+  "November",
+  "December",
+];
+// A function that will allow us to sort dates in order.
+function dateComparison(a, b) {
+  const date1 = new Date(a.BirthdayDate.slice(5));
+  const date2 = new Date(b.BirthdayDate.slice(5));
+  if (
+    !months.some((month) => {
+      return a.BirthdayDate.slice(5).includes(month);
+    })
+  ) {
+    return 1;
+  } else if (
+    !months.some((month) => {
+      return b.BirthdayDate.slice(5).includes(month);
+    })
+  ) {
+    return -1;
+  } else if (
+    date1.getMonth() == date2.getMonth() &&
+    date1.getDate() == date2.getDate()
+  ) {
+    return date2.getFullYear() - date1.getFullYear();
+  } else if (date1.getMonth() == date2.getMonth()) {
+    return date1.getDate() - date2.getDate();
+  } else {
+    return date1.getMonth() - date2.getMonth();
+  }
+}
+
 // A function that will keep searching for a twitter's birthday date on the page and will create a (save birthday button) upon finding birthday date.
 function initBDB() {
-  console.log("BDB initialized");
   var BDBElement = getBDBParent();
 
   if (BDBElement != null) {
@@ -129,18 +176,13 @@ function UpdateData(usersArray = [base_user_data], user_data = base_user_data) {
       usersArray.find((el) => el.UserID == user_data.UserID) == 0
     ) {
       usersArray.push(user_data);
-      chrome.storage.sync.set({ save_file: usersArray });
-      chromeGetValue(save_file).then((result) => {});
       console.log("Saved new data");
     } else {
       var temp = usersArray.find((el) => el.UserID == user_data.UserID);
       temp = user_data;
-      chrome.storage.sync.set({ save_file: usersArray });
-      chromeGetValue(save_file).then((result) => {
-        console.log(result);
-      });
       console.log("Data updated");
     }
+    chrome.storage.sync.set({ save_file: usersArray.sort(dateComparison) });
   } else {
     chrome.storage.sync.set({ save_file: [user_data] });
     chromeGetValue(save_file).then((result) => {});
@@ -193,13 +235,8 @@ function setupBDB(BDBElement) {
       }
 
       chromeGetValue(save_file).then((result) => {
-        console.log(result);
         UpdateData(result, user_data);
       });
-      chrome.storage.sync.get(save_file, function (result) {
-        console.log(result);
-      });
-      console.log(user_data.UserID);
     };
 
     birthday_button.appendChild(BDBElement.cloneNode(true));
@@ -236,6 +273,9 @@ function setupCalendar(parentElement) {
 
     CalendarButton.onclick = function () {
       var mainElement = getMainParent();
+      mainElement
+        .getElementsByTagName("div")[0]
+        .getElementsByTagName("div")[0].style.display = "flex";
       if (mainElement != null) {
         chromeGetValue(save_file).then((result) => {
           calendarPage(mainElement, result);
@@ -271,7 +311,6 @@ function calendarPage(mainElement, users_db = [base_user_data]) {
       active = !active;
 
       update_calendar_page(mainElement, users_db);
-    } else {
     }
   } else {
     if (mainElement != null) {
@@ -284,7 +323,6 @@ function calendarPage(mainElement, users_db = [base_user_data]) {
         .getElementsByClassName("page_div")[0].style.display = "none";
 
       active = !active;
-    } else {
     }
   }
 }
@@ -301,6 +339,10 @@ function update_calendar_page(mainElement, users_db) {
       .getElementsByClassName("page_div")[0]
       .remove();
   }
+  chromeGetValue(save_file).then((result) => {
+    chrome.storage.sync.set({ save_file: result.sort(dateComparison) });
+  });
+
   mainElement
     .getElementsByTagName("div")[0]
     .append(createCalendarPage(users_db));

@@ -151,7 +151,7 @@ html {
   align-items: center;
   width: 100%;
   background-color: rgba(231, 233, 234, 0.1);
-  border-radius: 100vh;
+  border-radius: 32px;
   transition: background-color 0.2s, box-shadow 0.2s ease-in-out;
   cursor: pointer;
 }
