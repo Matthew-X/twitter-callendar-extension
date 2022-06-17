@@ -136,14 +136,35 @@ html {
 .user {
   display: flex;
   align-items: center;
+  flex-direction: column;
   margin: 10px 0px 10px 0px;
   width: 100%;
 }
 
-.user a:first-child {
+.user > div > div {
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  align-self: center;
+  width: 100%;
+  background-color: rgba(231, 233, 234, 0.1);
+  border-radius: 32px;
+  transition: background-color 0.2s, box-shadow 0.2s ease-in-out;
+}
+
+.user > div {
   display: flex;
   width: 100%;
   text-decoration: none;
+  margin: 0px 0px 10px;
+}
+
+.user > div > div > a:first-child {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  text-decoration: none;
+  cursor: pointer;
 }
 
 .list {
@@ -218,7 +239,9 @@ html {
   margin: 7px;
 }
 
-.delete_button_holder {
+.more_button_holder {
+  height: fit-content;
+  align-self: center;
   border-radius: 100vh;
   background-color: rgba(231, 233, 234, 0.1);
   transition: background-color 0.2s, box-shadow 0.2s ease-in-out;
@@ -226,12 +249,12 @@ html {
   margin: 0px 0px 0px 10px;
 }
 
-.delete_button_holder:hover {
+.more_button_holder:hover {
   box-shadow: var(--aquamarine-shadow);
   background-color: rgba(231, 233, 234, 0.2);
 }
 
-.delete_button {
+.calendar_icons_button {
   display: flex;
   height: fit-content;
   width: fit-content;
@@ -244,12 +267,75 @@ html {
   padding: 12px;
 }
 
-.delete_svg {
+.calendar_icons_svg {
   height: 1.75rem;
   padding: 0px;
   margin: 0px;
   -webkit-filter: invert(100%);
   filter: invert(100%);
+}
+
+.edit_field {
+  display: flex;
+  flex-direction: row;
+}
+
+.edit_field div {
+  display: flex;
+  white-space: nowrap;
+  align-self: center;
+  min-width: 100px;
+  color: rgb(231, 233, 234);
+}
+
+.edit_field input {
+  display: flex;
+  color: black;
+  background-color: white;
+  width: 100%;
+  border-radius: 100vh;
+  outline: none;
+  padding: 0.5vh 2vh;
+  margin: 5px 0px 5px 0px;
+}
+
+.edit_fields {
+  display: flex;
+  margin: 10px 7px 10px 32px;
+  flex-direction: column;
+  width: 100%;
+}
+
+.editing_menu {
+  display: flex;
+  align-self: flex-end;
+  width: 100%;
+}
+
+.save_changes {
+  height: fit-content;
+  align-self: center;
+  border-radius: 100vh;
+  background-color: rgba(231, 233, 234, 0.1);
+  transition: background-color 0.2s, box-shadow 0.2s ease-in-out;
+  cursor: pointer;
+  margin: 0px 10px 0px 7px;
+}
+
+.save_changes:hover {
+  box-shadow: var(--aquamarine-shadow);
+  background-color: rgba(231, 233, 234, 0.2);
+}
+
+.save_changes img {
+  display: flex;
+  border-radius: 100vh;
+  background-color: transparent;
+  text-decoration: none;
+  text-align: center;
+  justify-content: center;
+  transition: background-color 0.2s;
+  padding: 12px;
 }
 
 @media only screen and (max-width: 1300px) {
