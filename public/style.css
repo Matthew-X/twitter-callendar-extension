@@ -141,17 +141,6 @@ html {
   width: 100%;
 }
 
-.user > div > div {
-  display: flex;
-  align-items: center;
-  flex-direction: column;
-  align-self: center;
-  width: 100%;
-  background-color: rgba(231, 233, 234, 0.1);
-  border-radius: 32px;
-  transition: background-color 0.2s, box-shadow 0.2s ease-in-out;
-}
-
 .user > div {
   display: flex;
   width: 100%;
@@ -240,8 +229,11 @@ html {
 }
 
 .more_button_holder {
+  display: flex;
+  flex-direction: column;
   height: fit-content;
   align-self: center;
+  align-items: center;
   border-radius: 100vh;
   background-color: rgba(231, 233, 234, 0.1);
   transition: background-color 0.2s, box-shadow 0.2s ease-in-out;
@@ -252,6 +244,32 @@ html {
 .more_button_holder:hover {
   box-shadow: var(--aquamarine-shadow);
   background-color: rgba(231, 233, 234, 0.2);
+}
+
+.more_button_holder .delete_friend {
+  opacity: 0;
+  max-height: 0;
+  padding: 0;
+  transition: 0.2s ease-in-out;
+}
+
+.more_button_holder .delete_friend.is_open {
+  opacity: 1;
+  max-height: 300px;
+  padding: 12px;
+}
+
+.more_button_holder .edit_friend {
+  opacity: 0;
+  max-height: 0;
+  padding: 0;
+  transition: 0.2s ease-in-out;
+}
+
+.more_button_holder .edit_friend.is_open {
+  opacity: 1;
+  max-height: 300px;
+  padding: 12px;
 }
 
 .calendar_icons_button {
@@ -265,6 +283,10 @@ html {
   justify-content: center;
   transition: background-color 0.2s;
   padding: 12px;
+}
+
+.calendar_icons_button:hover {
+  background-color: rgba(231, 233, 234, 0.1);
 }
 
 .calendar_icons_svg {
@@ -308,8 +330,35 @@ html {
 
 .editing_menu {
   display: flex;
+  visibility: collapse;
   align-self: flex-end;
   width: 100%;
+  background-color: transparent;
+  max-height: 0;
+  opacity: 0;
+  transform-origin: bottom;
+  transition: 0.5s ease-in-out;
+}
+
+.editing_menu.is_open {
+  visibility: visible;
+  max-height: 700px;
+  opacity: 1;
+}
+
+.edit_div {
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  align-self: center;
+  width: 100%;
+  background-color: trnsparent;
+  border-radius: 32px;
+  transition: background-color 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+}
+
+.edit_div.is_open {
+  background-color: rgba(231, 233, 234, 0.1);
 }
 
 .save_changes {
