@@ -3,6 +3,7 @@ const save_file = "save_file";
 
 // Blank for item in data-base.
 let base_user_data = {
+  ID: "0",
   Icon: "",
   Name: "",
   UserID: "",
@@ -54,7 +55,15 @@ function getBDBParent() {
   );
   if (arrPrimary == null || arrPrimary.length == 0) return null;
 
-  return arrPrimary.find((el) => el.getElementsByTagName("span"));
+  return arrPrimary.find((el) => {
+    console.log(el.classList.contains("custom_button"));
+    if (el.classList.contains("custom_button")) {
+      console.log(el.getElementsByTagName("span"));
+    } else {
+      console.log(el.getElementsByTagName("span"));
+      return el.getElementsByTagName("span");
+    }
+  });
 }
 
 // A part of code that initiates the piece of code that creates Calendar button.
@@ -91,6 +100,8 @@ window.onload = function () {
         if (active) {
           active = !active;
         }
+
+        console.log("reloading BDB");
         initBDB();
       }
     });
@@ -188,7 +199,11 @@ function dateComparison(a, b) {
       return date1.getMonth() - date2.getMonth();
     }
     if (date1.getMonth() == date2.getMonth()) {
-      return date1.getDate() - date2.getDate();
+      if (date1.getDate() == date2.getDate()) {
+        return date1.getFullYear() - date2.getFullYear();
+      } else {
+        return date1.getDate() - date2.getDate();
+      }
     }
   } else {
     if (!/\d/.test(a.BirthdayDate)) {
@@ -245,20 +260,36 @@ function elementFromHtml(html) {
 
 // A function that updates database by updating/creating/adding new items into it.
 function UpdateData(usersArray = [base_user_data], user_data = base_user_data) {
+  console.log(usersArray.find((el) => el.ID == user_data.ID) == null);
+  console.log(usersArray.find((el) => el.ID == user_data.ID) == 0);
+  console.log(user_data.ID);
   if (usersArray.length >= 0) {
     if (
-      usersArray == 0 ||
-      usersArray.find((el) => el.UserID == user_data.UserID) == null ||
-      usersArray.find((el) => el.UserID == user_data.UserID) == 0
+      (usersArray == 0 ||
+        usersArray.find((el) => el.UserID == user_data.UserID) == null ||
+        usersArray.find((el) => el.UserID == user_data.UserID) == 0) &&
+      usersArray.find((el) => el.ID == user_data.ID) == null
     ) {
       usersArray.push(user_data);
       console.log("Saved new data");
     } else {
-      usersArray[usersArray.findIndex((el) => el.UserID == user_data.UserID)] =
-        user_data;
+      if (usersArray.find((el) => el.UserID == user_data.UserID)) {
+        usersArray[
+          usersArray.findIndex((el) => el.UserID == user_data.UserID)
+        ] = user_data;
+      } else if (usersArray.find((el) => el.ID == user_data.ID)) {
+        usersArray[usersArray.findIndex((el) => el.ID == user_data.ID)] =
+          user_data;
+      }
       console.log("Data updated");
     }
-    chrome.storage.sync.set({ save_file: usersArray.sort(dateComparison) });
+    console.log(usersArray);
+    console.log(user_data);
+    usersArray.sort(dateComparison);
+    usersArray.forEach((value, index) => {
+      value.ID = index + 1;
+    });
+    chrome.storage.sync.set({ save_file: usersArray });
   } else {
     chrome.storage.sync.set({ save_file: [user_data] });
     chromeGetValue(save_file).then((result) => {});
@@ -269,6 +300,8 @@ function UpdateData(usersArray = [base_user_data], user_data = base_user_data) {
 function setupBDB(BDBElement) {
   if (BDBElement != null || BDBElement.children > 0) {
     let user_data = base_user_data;
+
+    user_data.ID = 0;
 
     const birthday_button = document.createElement("a");
     birthday_button.className = "Birthday_button";
@@ -317,14 +350,31 @@ function setupBDB(BDBElement) {
 
     birthday_button.appendChild(BDBElement.cloneNode(true));
 
+    birthday_button.children[0].className = "custom_button";
+
+    console.log(birthday_button);
     if (document.querySelectorAll('[class="Birthday_button"]').length == 0) {
-      BDBElement.children[0].remove();
-      BDBElement.innerHTML = "";
+      BDBElement.style.display = "none";
       Array.from(
         document.querySelectorAll('[data-testid="UserProfileHeader_Items"]')
       )
         .find((el) => el.getElementsByTagName("span"))
-        .replaceChild(birthday_button, BDBElement);
+        .insertBefore(birthday_button, BDBElement);
+      console.log("replaced BDB");
+    } else if (
+      document.querySelectorAll('[class="Birthday_button"]').length != 0
+    ) {
+      console.log(birthday_button);
+      birthday_button.children[0].style.display = "inline";
+      Array.from(
+        document.querySelectorAll('[data-testid="UserProfileHeader_Items"]')
+      )
+        .find((el) => el.getElementsByTagName("span"))
+        .replaceChild(
+          birthday_button,
+          document.querySelector('[class="Birthday_button"]')
+        );
+      console.log("replaced BDB");
     }
   }
 }
@@ -424,19 +474,12 @@ function update_calendar_page(mainElement, users_db) {
   var users = document.querySelectorAll('[class="more_button_holder"]');
 
   users.forEach((value) => {
-    value
-      .querySelector('[tag="more_options"]')
-      .addEventListener("click", function () {
-        if (
-          value.querySelector('[tag="delete_friend"]').style.display == "none"
-        ) {
-          value.querySelector('[tag="delete_friend"]').style.display = "flex";
-          value.querySelector('[tag="edit_friend"]').style.display = "flex";
-        } else {
-          value.querySelector('[tag="delete_friend"]').style.display = "none";
-          value.querySelector('[tag="edit_friend"]').style.display = "none";
-        }
-      });
+    value.addEventListener("click", function () {
+      value
+        .querySelector(`[class*="delete_friend"]`)
+        .classList.toggle("is_open");
+      value.querySelector(`[class*="edit_friend"]`).classList.toggle("is_open");
+    });
 
     // adds onClick functionality for each edit button of each user.
     value
@@ -487,22 +530,14 @@ function delete_friend(UserID = base_user_data.UserID) {
 // A function that opens and closes edit menu as well as it pastes already existing values into the fields for user to edit.
 function edit_friend(UserID = base_user_data.UserID) {
   chromeGetValue(save_file).then((result) => {
-    if (
-      document.querySelector(`[tag="editing_menu_${UserID}"]`).style.display ==
-      "flex"
-    ) {
-      document.querySelector(
-        `[tag="edit_div_${UserID}"]`
-      ).style.backgroundColor = "transparent";
-      document.querySelector(`[tag="editing_menu_${UserID}"]`).style.display =
-        "none";
-    } else {
-      document.querySelector(
-        `[tag="edit_div_${UserID}"]`
-      ).style.backgroundColor = "rgba(231, 233, 234, 0.1)";
-      document.querySelector(`[tag="editing_menu_${UserID}"]`).style.display =
-        "flex";
-    }
+    document
+      .querySelector(`[tag="edit_div_${UserID}"]`)
+      .classList.toggle("is_open");
+
+    document
+      .querySelector(`[tag="editing_menu_${UserID}"]`)
+      .classList.toggle("is_open");
+
     var user_fields = document.querySelector(`[tag="editing_menu_${UserID}"]`);
     var user_fields_values = result.find((value) => {
       return value.UserID == UserID;
@@ -521,15 +556,18 @@ function edit_friend(UserID = base_user_data.UserID) {
     user_fields
       .querySelector('[class="save_changes"]')
       .addEventListener("click", function () {
-        save_edit(user_fields_values.UserID);
+        save_edit(user_fields_values);
       });
   });
 }
 
 // A function that saves all edited data into DataBase.
-function save_edit(UserID) {
-  var user_fields = document.querySelector(`[tag="editing_menu_${UserID}"]`);
+function save_edit(user_fields_values) {
+  var user_fields = document.querySelector(
+    `[tag="editing_menu_${user_fields_values.UserID}"]`
+  );
   var update = base_user_data;
+  update.ID = user_fields_values.ID;
   update.Icon = user_fields.querySelector(`[id="image_link_input"]`).value;
   update.Name = user_fields.querySelector(`[id="name_input"]`).value;
   update.UserID = user_fields.querySelector(`[id="user_id_input"]`).value;
@@ -548,9 +586,7 @@ function createListItem(user_object = base_user_data) {
     `
       <li class="user">
         <div>
-          <div tag="edit_div_${
-            user_object.UserID
-          }" style="background-color: transparent">
+          <div class="edit_div" tag="edit_div_${user_object.UserID}">
             <a href="${"https://twitter.com/" + user_object.UserID}">
               <div class="list">
                 <img class="icon" src="${user_object.Icon}" />
@@ -563,11 +599,7 @@ function createListItem(user_object = base_user_data) {
                 </div>
               </div>
             </a>
-            <div
-              class="editing_menu"
-              tag="editing_menu_${user_object.UserID}"
-              style="display: none;"
-            >
+            <div class="editing_menu" tag="editing_menu_${user_object.UserID}">
               <div class="edit_fields">
                 <div class="edit_field">
                   <div>Image Link:</div>
@@ -596,11 +628,7 @@ function createListItem(user_object = base_user_data) {
           </div>
 
           <a class="more_button_holder" id="${user_object.UserID}">
-            <div
-              class="calendar_icons_button"
-              tag="more_options"
-              style="display: flex;"
-            >
+            <div class="calendar_icons_button more_options" tag="more_options">
               <img
                 class="calendar_icons_svg"
                 src="${chrome.runtime.getURL(
@@ -609,20 +637,15 @@ function createListItem(user_object = base_user_data) {
               />
             </div>
             <div
-              class="calendar_icons_button"
+              class="calendar_icons_button delete_friend"
               tag="delete_friend"
-              style="display: none;"
             >
               <img
                 class="calendar_icons_svg"
                 src="${chrome.runtime.getURL("assets/images/delete_icon.svg")}"
               />
             </div>
-            <div
-              class="calendar_icons_button"
-              tag="edit_friend"
-              style="display: none;"
-            >
+            <div class="calendar_icons_button edit_friend" tag="edit_friend">
               <img
                 class="calendar_icons_svg"
                 src="${chrome.runtime.getURL("assets/images/edit_icon.svg")}"
