@@ -55,7 +55,15 @@ function getBDBParent() {
   );
   if (arrPrimary == null || arrPrimary.length == 0) return null;
 
-  return arrPrimary.find((el) => el.getElementsByTagName("span"));
+  return arrPrimary.find((el) => {
+    console.log(el.classList.contains("custom_button"));
+    if (el.classList.contains("custom_button")) {
+      console.log(el.getElementsByTagName("span"));
+    } else {
+      console.log(el.getElementsByTagName("span"));
+      return el.getElementsByTagName("span");
+    }
+  });
 }
 
 // A part of code that initiates the piece of code that creates Calendar button.
@@ -92,6 +100,8 @@ window.onload = function () {
         if (active) {
           active = !active;
         }
+
+        console.log("reloading BDB");
         initBDB();
       }
     });
@@ -340,14 +350,31 @@ function setupBDB(BDBElement) {
 
     birthday_button.appendChild(BDBElement.cloneNode(true));
 
+    birthday_button.children[0].className = "custom_button";
+
+    console.log(birthday_button);
     if (document.querySelectorAll('[class="Birthday_button"]').length == 0) {
-      BDBElement.children[0].remove();
-      BDBElement.innerHTML = "";
+      BDBElement.style.display = "none";
       Array.from(
         document.querySelectorAll('[data-testid="UserProfileHeader_Items"]')
       )
         .find((el) => el.getElementsByTagName("span"))
-        .replaceChild(birthday_button, BDBElement);
+        .insertBefore(birthday_button, BDBElement);
+      console.log("replaced BDB");
+    } else if (
+      document.querySelectorAll('[class="Birthday_button"]').length != 0
+    ) {
+      console.log(birthday_button);
+      birthday_button.children[0].style.display = "inline";
+      Array.from(
+        document.querySelectorAll('[data-testid="UserProfileHeader_Items"]')
+      )
+        .find((el) => el.getElementsByTagName("span"))
+        .replaceChild(
+          birthday_button,
+          document.querySelector('[class="Birthday_button"]')
+        );
+      console.log("replaced BDB");
     }
   }
 }
