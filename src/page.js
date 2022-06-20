@@ -189,7 +189,11 @@ function dateComparison(a, b) {
       return date1.getMonth() - date2.getMonth();
     }
     if (date1.getMonth() == date2.getMonth()) {
-      return date1.getDate() - date2.getDate();
+      if (date1.getDate() == date2.getDate()) {
+        return date1.getFullYear() - date2.getFullYear();
+      } else {
+        return date1.getDate() - date2.getDate();
+      }
     }
   } else {
     if (!/\d/.test(a.BirthdayDate)) {
