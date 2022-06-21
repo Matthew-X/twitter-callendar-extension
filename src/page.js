@@ -10,13 +10,9 @@ let base_user_data = {
   BirthdayDate: "",
 };
 
+// chrome.storage.sync.clear(save_edit);
+
 // A piece of code that creates initial database for user when user launches code for the first time.
-chromeGetValue(save_file).then((result) => {
-  if (result == null) {
-    chrome.storage.sync.set({ save_file: base_user_data });
-    console.log("created base");
-  }
-});
 
 // A function that retrieves data from chrome.storage.
 function chromeGetValue(key) {
@@ -58,7 +54,9 @@ function getBDBParent() {
   return arrPrimary.find((el) => {
     console.log(el.classList.contains("custom_button"));
     if (el.classList.contains("custom_button")) {
-      console.log(el.getElementsByTagName("span"));
+      if (arrPrimary.length == 1) {
+        document.querySelector('[class="Birthday_button"]').remove();
+      }
     } else {
       console.log(el.getElementsByTagName("span"));
       return el.getElementsByTagName("span");
@@ -96,6 +94,15 @@ window.onload = function () {
         oldHref = document.location.href;
         if (document.querySelector('[class="page_div"]') != null) {
           document.querySelector('[class="page_div"]').remove();
+          if (
+            getMainParent()
+              .getElementsByTagName("div")[0]
+              .getElementsByTagName("div")[0].style.display == "none"
+          ) {
+            getMainParent()
+              .getElementsByTagName("div")[0]
+              .getElementsByTagName("div")[0].style.display = "flex";
+          }
         }
         if (active) {
           active = !active;
@@ -260,10 +267,10 @@ function elementFromHtml(html) {
 
 // A function that updates database by updating/creating/adding new items into it.
 function UpdateData(usersArray = [base_user_data], user_data = base_user_data) {
-  console.log(usersArray.find((el) => el.ID == user_data.ID) == null);
-  console.log(usersArray.find((el) => el.ID == user_data.ID) == 0);
-  console.log(user_data.ID);
   if (usersArray.length >= 0) {
+    console.log(usersArray.find((el) => el.ID == user_data.ID) == null);
+    console.log(usersArray.find((el) => el.ID == user_data.ID) == 0);
+    console.log(user_data.ID);
     if (
       (usersArray == 0 ||
         usersArray.find((el) => el.UserID == user_data.UserID) == null ||
@@ -291,8 +298,7 @@ function UpdateData(usersArray = [base_user_data], user_data = base_user_data) {
     });
     chrome.storage.sync.set({ save_file: usersArray });
   } else {
-    chrome.storage.sync.set({ save_file: [user_data] });
-    chromeGetValue(save_file).then((result) => {});
+    console.log("No bitches?");
   }
 }
 
@@ -393,7 +399,7 @@ function setupCalendar(parentElement) {
     calendar_button_img.src = chrome.runtime.getURL(
       "assets/images/calendar_icon.svg"
     );
-    a.innerText = "Calendar";
+    a.innerText = "Planner";
 
     CalendarButton.onclick = function () {
       var mainElement = getMainParent();
@@ -463,7 +469,9 @@ function update_calendar_page(mainElement, users_db) {
       .remove();
   }
   chromeGetValue(save_file).then((result) => {
-    chrome.storage.sync.set({ save_file: result.sort(dateComparison) });
+    if (result != null) {
+      chrome.storage.sync.set({ save_file: result.sort(dateComparison) });
+    }
   });
 
   mainElement
@@ -501,7 +509,10 @@ function update_calendar_page(mainElement, users_db) {
 function createCalendarPage(array = [base_user_data]) {
   const ul = document.createElement("ul");
 
-  array.forEach((x, i) => ul.appendChild(createListItem(x)));
+  console.log(array);
+  if (array.length > 0 && array[0].ID != 0) {
+    array.forEach((x, i) => ul.appendChild(createListItem(x)));
+  }
 
   return elementFromHtml(
     `
@@ -562,22 +573,24 @@ function edit_friend(UserID = base_user_data.UserID) {
 }
 
 // A function that saves all edited data into DataBase.
-function save_edit(user_fields_values) {
-  var user_fields = document.querySelector(
-    `[tag="editing_menu_${user_fields_values.UserID}"]`
-  );
-  var update = base_user_data;
-  update.ID = user_fields_values.ID;
-  update.Icon = user_fields.querySelector(`[id="image_link_input"]`).value;
-  update.Name = user_fields.querySelector(`[id="name_input"]`).value;
-  update.UserID = user_fields.querySelector(`[id="user_id_input"]`).value;
-  update.BirthdayDate = user_fields.querySelector(
-    `[id="birthday_date_input"]`
-  ).value;
-  chromeGetValue(save_file).then((result) => {
-    UpdateData(result, update);
-    update_calendar_page(getMainParent(), result);
-  });
+function save_edit(user_fields_values = base_user_data) {
+  if (user_fields_values.ID != 0) {
+    var user_fields = document.querySelector(
+      `[tag="editing_menu_${user_fields_values.UserID}"]`
+    );
+    var update = base_user_data;
+    update.ID = user_fields_values.ID;
+    update.Icon = user_fields.querySelector(`[id="image_link_input"]`).value;
+    update.Name = user_fields.querySelector(`[id="name_input"]`).value;
+    update.UserID = user_fields.querySelector(`[id="user_id_input"]`).value;
+    update.BirthdayDate = user_fields.querySelector(
+      `[id="birthday_date_input"]`
+    ).value;
+    chromeGetValue(save_file).then((result) => {
+      UpdateData(result, update);
+      update_calendar_page(getMainParent(), result);
+    });
+  }
 }
 
 // A function that creates each list item that contains all friend's information and UI elements with all it's classes.
