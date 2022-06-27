@@ -137,6 +137,7 @@ function dateComparison(a, b) {
   let date1 = new Date(a.BirthdayDate);
   let date2 = new Date(b.BirthdayDate);
 
+  // All "Trash dates" get sorted down
   if (
     !months.some((month) => {
       return a.BirthdayDate.includes(month);
@@ -170,6 +171,7 @@ function dateComparison(a, b) {
       return -1;
     }
   } else if (
+    // All "Year only" dates get sorted down but above trash dates.
     !months.some((month) => {
       return a.BirthdayDate.includes(month);
     })
@@ -198,8 +200,36 @@ function dateComparison(a, b) {
       return date2.getFullYear() - date1.getFullYear();
     }
   } else if (/\d/.test(a.BirthdayDate) && /\d/.test(b.BirthdayDate)) {
+    // All normal months with dates get sorted includeing sorted by year with the same date
     if (date1.getMonth() != date2.getMonth()) {
-      return date1.getMonth() - date2.getMonth();
+      console.log(a.BirthdayDate + " | " + b.BirthdayDate);
+      console.log(
+        date1.getMonth() +
+          " | " +
+          date2.getMonth() +
+          " | " +
+          new Date().getMonth()
+      );
+      if (new Date().getMonth() > date1.getMonth()) {
+        return 1;
+      } else if (new Date().getMonth() > date2.getMonth()) {
+        return -1;
+      } else if (
+        new Date().getMonth() == date1.getMonth() &&
+        new Date().getDate() > date1.getDate()
+      ) {
+        console.log("equal Down");
+        return 1;
+      } else if (
+        new Date().getMonth() == date2.getMonth() &&
+        new Date().getDate() > date2.getDate()
+      ) {
+        console.log("equal Up");
+        return -1;
+      } else {
+        console.log("Sorted");
+        return date1.getMonth() - date2.getMonth();
+      }
     }
     if (date1.getMonth() == date2.getMonth()) {
       if (date1.getDate() == date2.getDate()) {
@@ -209,6 +239,7 @@ function dateComparison(a, b) {
       }
     }
   } else {
+    // All months without dates get sorted under months.
     if (!/\d/.test(a.BirthdayDate)) {
       date1 = new Date(
         months.find((month) => {
@@ -380,10 +411,49 @@ function setupCalendar(parentElement) {
 
     const a = document.createElement("a");
     const calendar_button_img = document.createElement("img");
+    const closest_date = document.createElement("a");
+    closest_date.className = "closest_date";
     calendar_button_img.src = chrome.runtime.getURL(
       "assets/images/calendar_icon.svg"
     );
     a.innerText = "Planner";
+
+    chromeGetValue(save_file).then((result) => {
+      var year =
+        new Date(result.sort(dateComparison)[0].BirthdayDate).getMonth() <
+        new Date()
+          ? 0
+          : 1;
+
+      console.log(
+        new Date(result.sort(dateComparison)[0].BirthdayDate).getTime()
+      );
+
+      console.log(
+        new Date(
+          new Date().setFullYear(
+            new Date(result.sort(dateComparison)[0].BirthdayDate).getFullYear()
+          )
+        ).getTime()
+      );
+
+      console.log(year);
+
+      console.log(result.sort(dateComparison)[0].BirthdayDate);
+      closest_date.innerText =
+        "" +
+        Math.ceil(
+          (new Date(result.sort(dateComparison)[0].BirthdayDate).getTime() -
+            new Date(
+              new Date().setFullYear(
+                new Date(
+                  result.sort(dateComparison)[0].BirthdayDate
+                ).getFullYear() - year
+              )
+            ).getTime()) /
+            (1000 * 3600 * 24)
+        );
+    });
 
     CalendarButton.onclick = function () {
       var mainElement = getMainParent();
@@ -399,6 +469,7 @@ function setupCalendar(parentElement) {
 
     CalendarButton.appendChild(calendar_button_img);
     CalendarButton.appendChild(a);
+    CalendarButton.append(closest_date);
 
     calendar_button_holder.appendChild(CalendarButton);
 

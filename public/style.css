@@ -32,13 +32,14 @@
   display: flex;
   height: fit-content;
   width: fit-content;
+  align-items: center;
   border-radius: 100vh;
   background-color: transparent;
   text-decoration: none;
   text-align: center;
   justify-content: center;
   transition: background-color 0.2s;
-  padding: 12px;
+  padding: 5px 5px 5px 12px;
 }
 
 .Calendar_button_holder:hover .Calendar_button {
@@ -52,7 +53,7 @@
   transition: text-shadow 0.2;
 }
 
-.Calendar_button_holder:hover .Calendar_button a {
+.Calendar_button_holder:hover .Calendar_button * {
   font-weight: bold;
 }
 
@@ -62,6 +63,17 @@
   font-family: GoogleSans;
   margin-right: 16px;
   margin-left: 20px;
+}
+
+.Calendar_button .closest_date {
+  color: rgb(231, 233, 234);
+  background-color: rgba(231, 233, 234, 0.1);
+  border-radius: 100vh;
+  font-size: 20px;
+  font-family: GoogleSans;
+  margin-right: 0px;
+  margin-left: 0px;
+  padding: 7px 12px 7px 12px;
 }
 
 .Calendar_button img {
