@@ -78,6 +78,7 @@
 
 .Calendar_button img {
   height: 1.75rem;
+  filter: invert(100%);
   padding: 0px;
   margin: 0px;
   padding: 12px 0px;

@@ -104,6 +104,11 @@ window.onload = function () {
         }
         if (active) {
           active = !active;
+          document
+            .querySelector('[class="Calendar_button"]')
+            .querySelector("img").src = chrome.runtime.getURL(
+            "assets/images/calendar_icon.svg"
+          );
         }
         initBDB();
       }
@@ -430,6 +435,19 @@ function setupCalendar(parentElement) {
     a.innerText = "Planner";
 
     CalendarButton.onclick = function () {
+      if (!active) {
+        document
+          .querySelector('[class="Calendar_button"]')
+          .querySelector("img").src = chrome.runtime.getURL(
+          "assets/images/calendar_icon_fill.svg"
+        );
+      } else {
+        document
+          .querySelector('[class="Calendar_button"]')
+          .querySelector("img").src = chrome.runtime.getURL(
+          "assets/images/calendar_icon.svg"
+        );
+      }
       var mainElement = getMainParent();
       mainElement
         .getElementsByTagName("div")[0]
