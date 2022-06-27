@@ -435,7 +435,7 @@ function setupCalendar(parentElement) {
     );
     a.innerText = "Planner";
 
-    CalendarButton.onclick = function () {
+    calendar_button_holder.onclick = function () {
       if (!active) {
         document
           .querySelector('[class="Calendar_button"]')
@@ -589,6 +589,12 @@ function createCalendarPage(array = [base_user_data]) {
   const ul = document.createElement("ul");
 
   var new_year = true;
+
+  const svg_arrow_down = document.createElement("img");
+
+  svg_arrow_down.src = chrome.runtime.getURL(
+    "assets/images/arrow_downward_icon.svg"
+  );
   if (array.length > 0 && array[0].ID != 0) {
     array.forEach((x, i) => {
       if (
@@ -600,6 +606,7 @@ function createCalendarPage(array = [base_user_data]) {
             `
               <div class="new_year_div">
                 <div>Next Year</div>
+                ${svg_arrow_down.outerHTML}
               </div>
             `
           )
