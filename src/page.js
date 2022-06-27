@@ -131,6 +131,18 @@ var months = [
   "October",
   "November",
   "December",
+  "Jan",
+  "Feb",
+  "Mar",
+  "Apr",
+  "May",
+  "Jun",
+  "Jul",
+  "Aug",
+  "Sep",
+  "Oct",
+  "Nov",
+  "Dec",
 ];
 // A function that will allow us to sort dates in order.
 function dateComparison(a, b) {
