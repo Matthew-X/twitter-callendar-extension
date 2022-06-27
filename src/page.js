@@ -575,8 +575,26 @@ function update_calendar_page(mainElement, users_db) {
 function createCalendarPage(array = [base_user_data]) {
   const ul = document.createElement("ul");
 
+  var new_year = true;
   if (array.length > 0 && array[0].ID != 0) {
-    array.forEach((x, i) => ul.appendChild(createListItem(x)));
+    array.forEach((x, i) => {
+      if (
+        new_year &&
+        new Date(x.BirthdayDate).getMonth() < new Date().getMonth()
+      ) {
+        ul.appendChild(
+          elementFromHtml(
+            `
+              <div class="new_year_div">
+                <div>Next Year</div>
+              </div>
+            `
+          )
+        );
+        new_year = false;
+      }
+      ul.appendChild(createListItem(x));
+    });
   }
 
   return elementFromHtml(
