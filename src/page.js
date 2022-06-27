@@ -52,13 +52,11 @@ function getBDBParent() {
   if (arrPrimary == null || arrPrimary.length == 0) return null;
 
   return arrPrimary.find((el) => {
-    console.log(el.classList.contains("custom_button"));
     if (el.classList.contains("custom_button")) {
       if (arrPrimary.length == 1) {
         document.querySelector('[class="Birthday_button"]').remove();
       }
     } else {
-      console.log(el.getElementsByTagName("span"));
       return el.getElementsByTagName("span");
     }
   });
@@ -107,8 +105,6 @@ window.onload = function () {
         if (active) {
           active = !active;
         }
-
-        console.log("reloading BDB");
         initBDB();
       }
     });
@@ -268,9 +264,6 @@ function elementFromHtml(html) {
 // A function that updates database by updating/creating/adding new items into it.
 function UpdateData(usersArray = [base_user_data], user_data = base_user_data) {
   if (usersArray.length >= 0) {
-    console.log(usersArray.find((el) => el.ID == user_data.ID) == null);
-    console.log(usersArray.find((el) => el.ID == user_data.ID) == 0);
-    console.log(user_data.ID);
     if (
       (usersArray == 0 ||
         usersArray.find((el) => el.UserID == user_data.UserID) == null ||
@@ -278,7 +271,6 @@ function UpdateData(usersArray = [base_user_data], user_data = base_user_data) {
       usersArray.find((el) => el.ID == user_data.ID) == null
     ) {
       usersArray.push(user_data);
-      console.log("Saved new data");
     } else {
       if (usersArray.find((el) => el.UserID == user_data.UserID)) {
         usersArray[
@@ -288,17 +280,13 @@ function UpdateData(usersArray = [base_user_data], user_data = base_user_data) {
         usersArray[usersArray.findIndex((el) => el.ID == user_data.ID)] =
           user_data;
       }
-      console.log("Data updated");
     }
-    console.log(usersArray);
-    console.log(user_data);
     usersArray.sort(dateComparison);
     usersArray.forEach((value, index) => {
       value.ID = index + 1;
     });
     chrome.storage.sync.set({ save_file: usersArray });
   } else {
-    console.log("No bitches?");
   }
 }
 
@@ -358,7 +346,6 @@ function setupBDB(BDBElement) {
 
     birthday_button.children[0].className = "custom_button";
 
-    console.log(birthday_button);
     if (document.querySelectorAll('[class="Birthday_button"]').length == 0) {
       BDBElement.style.display = "none";
       Array.from(
@@ -366,11 +353,9 @@ function setupBDB(BDBElement) {
       )
         .find((el) => el.getElementsByTagName("span"))
         .insertBefore(birthday_button, BDBElement);
-      console.log("replaced BDB");
     } else if (
       document.querySelectorAll('[class="Birthday_button"]').length != 0
     ) {
-      console.log(birthday_button);
       birthday_button.children[0].style.display = "inline";
       Array.from(
         document.querySelectorAll('[data-testid="UserProfileHeader_Items"]')
@@ -380,7 +365,6 @@ function setupBDB(BDBElement) {
           birthday_button,
           document.querySelector('[class="Birthday_button"]')
         );
-      console.log("replaced BDB");
     }
   }
 }
@@ -423,7 +407,6 @@ function setupCalendar(parentElement) {
       parentElement.children[4]
     );
   } else {
-    console.log("it was null");
   }
 }
 
@@ -509,7 +492,6 @@ function update_calendar_page(mainElement, users_db) {
 function createCalendarPage(array = [base_user_data]) {
   const ul = document.createElement("ul");
 
-  console.log(array);
   if (array.length > 0 && array[0].ID != 0) {
     array.forEach((x, i) => ul.appendChild(createListItem(x)));
   }
