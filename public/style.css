@@ -23,8 +23,7 @@
 
 .Calendar_button_holder {
   width: 100%;
-  padding-bottom: 4px;
-  padding-top: 4px;
+  padding: 4px 0px;
   cursor: pointer;
 }
 
@@ -39,7 +38,7 @@
   text-align: center;
   justify-content: center;
   transition: background-color 0.2s;
-  padding: 5px 5px 5px 12px;
+  padding: 0px 0px 0px 12px;
 }
 
 .Calendar_button_holder:hover .Calendar_button {
@@ -74,12 +73,14 @@
   margin-right: 0px;
   margin-left: 0px;
   padding: 7px 12px 7px 12px;
+  margin: 0px 5.25px 0px 0px;
 }
 
 .Calendar_button img {
   height: 1.75rem;
   padding: 0px;
   margin: 0px;
+  padding: 12px 0px;
 }
 
 .Birthday_button {

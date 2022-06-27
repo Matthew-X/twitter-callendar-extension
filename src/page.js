@@ -329,6 +329,7 @@ function UpdateData(usersArray = [base_user_data], user_data = base_user_data) {
       value.ID = index + 1;
     });
     chrome.storage.sync.set({ save_file: usersArray });
+    update_closest_date();
   } else {
   }
 }
@@ -423,49 +424,10 @@ function setupCalendar(parentElement) {
 
     const a = document.createElement("a");
     const calendar_button_img = document.createElement("img");
-    const closest_date = document.createElement("a");
-    closest_date.className = "closest_date";
     calendar_button_img.src = chrome.runtime.getURL(
       "assets/images/calendar_icon.svg"
     );
     a.innerText = "Planner";
-
-    chromeGetValue(save_file).then((result) => {
-      var year =
-        new Date(result.sort(dateComparison)[0].BirthdayDate).getMonth() <
-        new Date()
-          ? 0
-          : 1;
-
-      console.log(
-        new Date(result.sort(dateComparison)[0].BirthdayDate).getTime()
-      );
-
-      console.log(
-        new Date(
-          new Date().setFullYear(
-            new Date(result.sort(dateComparison)[0].BirthdayDate).getFullYear()
-          )
-        ).getTime()
-      );
-
-      console.log(year);
-
-      console.log(result.sort(dateComparison)[0].BirthdayDate);
-      closest_date.innerText =
-        "" +
-        Math.ceil(
-          (new Date(result.sort(dateComparison)[0].BirthdayDate).getTime() -
-            new Date(
-              new Date().setFullYear(
-                new Date(
-                  result.sort(dateComparison)[0].BirthdayDate
-                ).getFullYear() - year
-              )
-            ).getTime()) /
-            (1000 * 3600 * 24)
-        );
-    });
 
     CalendarButton.onclick = function () {
       var mainElement = getMainParent();
@@ -481,7 +443,6 @@ function setupCalendar(parentElement) {
 
     CalendarButton.appendChild(calendar_button_img);
     CalendarButton.appendChild(a);
-    CalendarButton.append(closest_date);
 
     calendar_button_holder.appendChild(CalendarButton);
 
@@ -489,8 +450,40 @@ function setupCalendar(parentElement) {
       calendar_button_holder,
       parentElement.children[4]
     );
+
+    update_closest_date();
   } else {
   }
+}
+
+function update_closest_date() {
+  const closest_date = document.createElement("a");
+  closest_date.className = "closest_date";
+  chromeGetValue(save_file).then((result) => {
+    var year =
+      new Date(result.sort(dateComparison)[0].BirthdayDate).getMonth() <
+      new Date()
+        ? 0
+        : 1;
+
+    closest_date.innerText =
+      "" +
+      Math.ceil(
+        (new Date(result.sort(dateComparison)[0].BirthdayDate).getTime() -
+          new Date(
+            new Date().setFullYear(
+              new Date(
+                result.sort(dateComparison)[0].BirthdayDate
+              ).getFullYear() - year
+            )
+          ).getTime()) /
+          (1000 * 3600 * 24)
+      );
+  });
+  if (document.querySelector('[class="closest_date"]') != null) {
+    document.querySelector('[class="closest_date"]').remove();
+  }
+  document.querySelector('[class="Calendar_button"]').append(closest_date);
 }
 
 // Var to keep in it state of Calendar page if it's being closed or open.
