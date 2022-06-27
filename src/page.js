@@ -123,6 +123,7 @@ window.onload = function () {
   observer.observe(bodyList, config);
 };
 
+// Array of months for tests.
 var months = [
   "January",
   "February",
@@ -474,6 +475,7 @@ function setupCalendar(parentElement) {
   }
 }
 
+// A function that updates number of days that is left untill next event.
 function update_closest_date() {
   const closest_date = document.createElement("a");
   closest_date.className = "closest_date";
