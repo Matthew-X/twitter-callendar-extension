@@ -267,6 +267,7 @@ html {
 }
 
 .more_button_holder .delete_friend {
+  visibility: collapse;
   opacity: 0;
   max-height: 0;
   padding: 0;
@@ -274,12 +275,14 @@ html {
 }
 
 .more_button_holder .delete_friend.is_open {
+  visibility: visible;
   opacity: 1;
   max-height: 300px;
   padding: 12px;
 }
 
 .more_button_holder .edit_friend {
+  visibility: collapse;
   opacity: 0;
   max-height: 0;
   padding: 0;
@@ -287,6 +290,7 @@ html {
 }
 
 .more_button_holder .edit_friend.is_open {
+  visibility: visible;
   opacity: 1;
   max-height: 300px;
   padding: 12px;
