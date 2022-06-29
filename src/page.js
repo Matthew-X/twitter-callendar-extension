@@ -1,5 +1,13 @@
 // Variable that saves key for chrome.storage to manage data in it.
 const save_file = "save_file";
+const settings_key = "settings";
+
+let settings_base = {
+  notification: true,
+  initial_start: 10,
+  once: false,
+  daily: true,
+};
 
 // Blank for item in data-base.
 let base_user_data = {
@@ -8,6 +16,7 @@ let base_user_data = {
   Name: "",
   UserID: "",
   BirthdayDate: "",
+  settings: settings_base,
 };
 
 // chrome.storage.sync.clear(save_edit);
@@ -25,6 +34,12 @@ function chromeGetValue(key) {
     });
   });
 }
+
+chromeGetValue(settings_key).then((results) => {
+  if (results == null) {
+    console.log("Settings are null");
+  }
+});
 
 // A function that that retrieves a Main-Parent of twitter's left side bar with all the buttons to navigate between pages like (home, messages, bookmarks).
 function getParent() {
@@ -315,30 +330,34 @@ function elementFromHtml(html) {
 }
 
 // A function that updates database by updating/creating/adding new items into it.
-function UpdateData(usersArray = [base_user_data], user_data = base_user_data) {
-  if (usersArray.length >= 0) {
+function UpdateData(
+  eventsDatabase = [base_user_data],
+  user_data = base_user_data
+) {
+  if (eventsDatabase.length >= 0) {
     if (
-      (usersArray == 0 ||
-        usersArray.find((el) => el.UserID == user_data.UserID) == null ||
-        usersArray.find((el) => el.UserID == user_data.UserID) == 0) &&
-      usersArray.find((el) => el.ID == user_data.ID) == null
+      (eventsDatabase == 0 ||
+        eventsDatabase.find((el) => el.UserID == user_data.UserID) == null ||
+        eventsDatabase.find((el) => el.UserID == user_data.UserID) == 0) &&
+      eventsDatabase.find((el) => el.ID == user_data.ID) == null
     ) {
-      usersArray.push(user_data);
+      eventsDatabase.push(user_data);
     } else {
-      if (usersArray.find((el) => el.UserID == user_data.UserID)) {
-        usersArray[
-          usersArray.findIndex((el) => el.UserID == user_data.UserID)
+      if (eventsDatabase.find((el) => el.UserID == user_data.UserID)) {
+        eventsDatabase[
+          eventsDatabase.findIndex((el) => el.UserID == user_data.UserID)
         ] = user_data;
-      } else if (usersArray.find((el) => el.ID == user_data.ID)) {
-        usersArray[usersArray.findIndex((el) => el.ID == user_data.ID)] =
-          user_data;
+      } else if (eventsDatabase.find((el) => el.ID == user_data.ID)) {
+        eventsDatabase[
+          eventsDatabase.findIndex((el) => el.ID == user_data.ID)
+        ] = user_data;
       }
     }
-    usersArray.sort(dateComparison);
-    usersArray.forEach((value, index) => {
+    eventsDatabase.sort(dateComparison);
+    eventsDatabase.forEach((value, index) => {
       value.ID = index + 1;
     });
-    chrome.storage.sync.set({ save_file: usersArray });
+    chrome.storage.sync.set({ save_file: eventsDatabase });
     update_closest_date();
   } else {
   }
@@ -484,30 +503,32 @@ function update_closest_date() {
   const closest_date = document.createElement("a");
   closest_date.className = "closest_date";
   chromeGetValue(save_file).then((result) => {
-    var year =
-      new Date(result.sort(dateComparison)[0].BirthdayDate).getMonth() <
-      new Date()
-        ? 0
-        : 1;
+    if (result != null) {
+      var year =
+        new Date(result.sort(dateComparison)[0].BirthdayDate).getMonth() <
+        new Date()
+          ? 0
+          : 1;
 
-    closest_date.innerText =
-      "" +
-      Math.ceil(
-        (new Date(result.sort(dateComparison)[0].BirthdayDate).getTime() -
-          new Date(
-            new Date().setFullYear(
-              new Date(
-                result.sort(dateComparison)[0].BirthdayDate
-              ).getFullYear() - year
-            )
-          ).getTime()) /
-          (1000 * 3600 * 24)
-      );
+      closest_date.innerText =
+        "" +
+        Math.ceil(
+          (new Date(result.sort(dateComparison)[0].BirthdayDate).getTime() -
+            new Date(
+              new Date().setFullYear(
+                new Date(
+                  result.sort(dateComparison)[0].BirthdayDate
+                ).getFullYear() - year
+              )
+            ).getTime()) /
+            (1000 * 3600 * 24)
+        );
+      if (document.querySelector('[class="closest_date"]') != null) {
+        document.querySelector('[class="closest_date"]').remove();
+      }
+      document.querySelector('[class="Calendar_button"]').append(closest_date);
+    }
   });
-  if (document.querySelector('[class="closest_date"]') != null) {
-    document.querySelector('[class="closest_date"]').remove();
-  }
-  document.querySelector('[class="Calendar_button"]').append(closest_date);
 }
 
 // Var to keep in it state of Calendar page if it's being closed or open.
@@ -645,6 +666,9 @@ function update_calendar_page(mainElement, users_db) {
         });
       }
     });
+  document
+    .querySelector('[tag="settings"]')
+    .addEventListener("click", function () {});
 
   document
     .querySelector('[tag*="add_birthday_event"]')
@@ -671,13 +695,21 @@ function update_calendar_page(mainElement, users_db) {
         .querySelector(`[class*="delete_friend"]`)
         .classList.toggle("is_open");
       value.querySelector(`[class*="edit_friend"]`).classList.toggle("is_open");
+      value
+        .querySelector(`[class*="event_settings_button"]`)
+        .classList.toggle("is_open");
     });
 
     // adds onClick functionality for each edit button of each user.
     value
       .querySelector('[tag="edit_friend"]')
       .addEventListener("click", function () {
-        edit_friend(value.id);
+        if (
+          !document
+            .querySelector(`[tag="menu_div_${value.id}"]`)
+            .classList.toggle("is_open")
+        )
+          edit_friend(value.id);
       });
 
     // adds onClick functionality for each delete button of each user.
@@ -685,6 +717,84 @@ function update_calendar_page(mainElement, users_db) {
       .querySelector('[tag="delete_friend"]')
       .addEventListener("click", function () {
         delete_friend(value.id);
+      });
+
+    value
+      .querySelector('[tag="event_settings_button"]')
+      .addEventListener("click", function () {
+        if (
+          !document
+            .querySelector(`[tag="menu_div_${value.id}"]`)
+            .classList.toggle("is_open")
+        )
+          openSettings(value.id);
+      });
+  });
+}
+
+function openSettings(UserID) {
+  chromeGetValue(save_file).then((result) => {
+    document
+      .querySelector(`[tag="menu_div_${UserID}"]`)
+      .classList.toggle("is_open");
+
+    document
+      .querySelector(`[class*="event_settings_${UserID}"]`)
+      .classList.toggle("is_open");
+
+    var user_fields = document.querySelector(
+      `[class*="event_settings_${UserID}"]`
+    );
+    var user_fields_values = result.find((value) => {
+      return value.UserID == UserID;
+    });
+
+    console.log(user_fields.getElementsByTagName(`input`)[0].checked);
+
+    user_fields.getElementsByTagName(`input`)[0].checked =
+      user_fields_values.settings.notification;
+    user_fields.getElementsByTagName(`input`)[1].value =
+      user_fields_values.settings.initial_start;
+    user_fields.getElementsByTagName(`input`)[2].checked =
+      user_fields_values.settings.once;
+    user_fields.getElementsByTagName(`input`)[3].checked =
+      user_fields_values.settings.daily;
+
+    user_fields
+      .getElementsByTagName(`input`)[0]
+      .addEventListener("change", function () {
+        console.log("changed 0");
+        user_fields_values.settings.notification =
+          user_fields.getElementsByTagName(`input`)[0].checked;
+        console.log(user_fields_values.settings.notification);
+        UpdateData(result, user_fields_values);
+      });
+    user_fields
+      .getElementsByTagName(`input`)[1]
+      .addEventListener("input", function () {
+        console.log("changed 1");
+        user_fields_values.settings.initial_start =
+          user_fields.getElementsByTagName(`input`)[1].value;
+        console.log(user_fields_values.settings.initial_start);
+        UpdateData(result, user_fields_values);
+      });
+    user_fields
+      .getElementsByTagName(`input`)[2]
+      .addEventListener("change", function () {
+        console.log("changed 2");
+        user_fields_values.settings.once =
+          user_fields.getElementsByTagName(`input`)[2].checked;
+        console.log(user_fields_values.settings.once);
+        UpdateData(result, user_fields_values);
+      });
+    user_fields
+      .getElementsByTagName(`input`)[3]
+      .addEventListener("change", function () {
+        console.log("changed 3");
+        user_fields_values.settings.daily =
+          user_fields.getElementsByTagName(`input`)[3].checked;
+        console.log(user_fields_values.settings.daily);
+        UpdateData(result, user_fields_values);
       });
   });
 }
@@ -764,7 +874,9 @@ function createCalendarPage(array = [base_user_data]) {
                 </div>
                 <div class="name_of_utility_holder">
                   <div class="name_settings utility_name">Settings</div>
-                  <div class="name_add_birthday utility_name">Add New Birthday</div>
+                  <div class="name_add_birthday utility_name">
+                    Add New Birthday
+                  </div>
                 </div>
               </div>
               <div class="settings"></div>
@@ -822,7 +934,7 @@ function delete_friend(UserID = base_user_data.UserID) {
 function edit_friend(UserID = base_user_data.UserID) {
   chromeGetValue(save_file).then((result) => {
     document
-      .querySelector(`[tag="edit_div_${UserID}"]`)
+      .querySelector(`[tag="menu_div_${UserID}"]`)
       .classList.toggle("is_open");
 
     document
@@ -884,7 +996,7 @@ function createListItem(user_object = base_user_data) {
     `
       <li class="user">
         <div>
-          <div class="edit_div" tag="edit_div_${user_object.UserID}">
+          <div class="edit_div" tag="menu_div_${user_object.UserID}">
             <a href="${"https://twitter.com/" + user_object.UserID}">
               <div class="list">
                 <img class="icon" src="${user_object.Icon}" />
@@ -923,6 +1035,27 @@ function createListItem(user_object = base_user_data) {
                 />
               </div>
             </div>
+            <div class="event_settings event_settings_${user_object.UserID}">
+              <div>
+                <label class="toggle_container"
+                  >Notifications:
+                  <input type="checkbox" checked="checked" />
+                  <span class="checkmark"></span>
+                </label>
+                <p>When do you want to start recieving notifications?<input type="number" id="notif_start" step="1" min="1" max="365" placeholder="1 - 365"/>
+                </p>
+                <label class="toggle_container"
+                  >Onece
+                  <input type="checkbox" checked="checked" />
+                  <span class="checkmark"></span>
+                </label>
+                <label class="toggle_container"
+                  >Daily
+                  <input type="checkbox" checked="checked" />
+                  <span class="checkmark"></span>
+                </label>
+              </div>
+            </div>
           </div>
 
           <a class="more_button_holder" id="${user_object.UserID}">
@@ -935,7 +1068,7 @@ function createListItem(user_object = base_user_data) {
               />
             </div>
             <div
-              class="calendar_icons_button delete_friend"
+              class="calendar_icons_button options_button delete_friend"
               tag="delete_friend"
             >
               <img
@@ -943,10 +1076,25 @@ function createListItem(user_object = base_user_data) {
                 src="${chrome.runtime.getURL("assets/images/delete_icon.svg")}"
               />
             </div>
-            <div class="calendar_icons_button edit_friend" tag="edit_friend">
+            <div
+              class="calendar_icons_button options_button edit_friend"
+              tag="edit_friend"
+            >
               <img
                 class="calendar_icons_svg"
                 src="${chrome.runtime.getURL("assets/images/edit_icon.svg")}"
+              />
+            </div>
+
+            <div
+              class="calendar_icons_button options_button event_settings_button"
+              tag="event_settings_button"
+            >
+              <img
+                class="calendar_icons_svg"
+                src="${chrome.runtime.getURL(
+                  "assets/images/settings_icon.svg"
+                )}"
               />
             </div>
           </a>

@@ -266,7 +266,7 @@ html {
   background-color: rgba(231, 233, 234, 0.2);
 }
 
-.more_button_holder .delete_friend {
+.more_button_holder .options_button {
   visibility: collapse;
   opacity: 0;
   max-height: 0;
@@ -274,22 +274,7 @@ html {
   transition: 0.2s ease-in-out;
 }
 
-.more_button_holder .delete_friend.is_open {
-  visibility: visible;
-  opacity: 1;
-  max-height: 300px;
-  padding: 12px;
-}
-
-.more_button_holder .edit_friend {
-  visibility: collapse;
-  opacity: 0;
-  max-height: 0;
-  padding: 0;
-  transition: 0.2s ease-in-out;
-}
-
-.more_button_holder .edit_friend.is_open {
+.more_button_holder .options_button.is_open {
   visibility: visible;
   opacity: 1;
   max-height: 300px;
@@ -343,7 +328,7 @@ html {
   width: 100%;
   border-radius: 100vh;
   outline: none;
-  padding: 0.5vh 2vh;
+  padding: 2px 10px;
   margin: 5px 0px 5px 0px;
 }
 
@@ -357,7 +342,7 @@ html {
 .editing_menu {
   display: flex;
   visibility: collapse;
-  align-self: flex-end;
+  align-self: collapse;
   width: 100%;
   background-color: transparent;
   max-height: 0;
@@ -562,6 +547,57 @@ html {
   border: 2px solid rgb(255, 77, 77);
   box-shadow: 0px 0px 5px 0 rgb(255, 130, 130);
   background-color: rgb(255, 199, 199);
+}
+
+.event_settings {
+  display: flex;
+  visibility: collapse;
+  flex-direction: column;
+  align-self: center;
+  width: 100%;
+  background-color: transparent;
+  max-height: 0;
+  opacity: 0;
+  transition: 0.5s ease-in-out;
+  margin: 0px;
+}
+
+.event_settings.is_open {
+  visibility: visible;
+  max-height: 700px;
+  opacity: 1;
+  margin: 10px 0px 10px 0px;
+}
+
+.event_settings div {
+  margin: 0px 32px;
+}
+
+.event_settings * {
+  color: rgb(231, 233, 234);
+}
+
+.event_settings input {
+  display: flex;
+  border: none;
+  color: black;
+  background-color: white;
+  text-align: center;
+  width: 40px;
+  border-radius: 100vh;
+  outline: none;
+  padding: 2px 10px;
+  margin: 5px 0px 5px 0px;
+}
+
+.event_settings .toggle_container {
+  display: inline-flex;
+  margin: 10px 10px 10px 0px;
+}
+
+.toggle_container input {
+  margin: 0px 0px 0px 5px;
+  accent-color: rgb(8, 160, 233);
 }
 
 @media only screen and (max-width: 1300px) {
