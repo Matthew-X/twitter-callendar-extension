@@ -694,6 +694,7 @@ function createCalendarPage(array = [base_user_data]) {
   const ul = document.createElement("ul");
 
   var new_year = true;
+  var unknown = true;
 
   const svg_arrow_down = document.createElement("img");
 
@@ -709,7 +710,7 @@ function createCalendarPage(array = [base_user_data]) {
         ul.appendChild(
           elementFromHtml(
             `
-              <div class="new_year_div">
+              <div class="dates_div">
                 <div>Next Year</div>
                 ${svg_arrow_down.outerHTML}
               </div>
@@ -717,6 +718,24 @@ function createCalendarPage(array = [base_user_data]) {
           )
         );
         new_year = false;
+      }
+      if (
+        unknown &&
+        !months.some((month) => {
+          return x.BirthdayDate.includes(month);
+        }) &&
+        !/\d/.test(x.BirthdayDate)
+      ) {
+        ul.appendChild(
+          elementFromHtml(
+            `
+              <div class="dates_div">
+                <div>Unknown Dates</div>
+                ${svg_arrow_down.outerHTML}
+              </div>
+            `
+          )
+        );
       }
       ul.appendChild(createListItem(x));
     });

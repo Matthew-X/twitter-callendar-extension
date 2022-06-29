@@ -328,6 +328,7 @@ html {
   align-self: center;
   min-width: 100px;
   color: rgb(231, 233, 234);
+  cursor: default;
 }
 
 .edit_field input {
@@ -412,20 +413,20 @@ html {
   white-space: nowrap;
 }
 
-.new_year_div {
+.dates_div {
   display: flex;
   align-items: center;
   justify-content: center;
   width: 100%;
-  background-color: rgba(197, 255, 252, 0.3);
-  box-shadow: 0px 0px 5px 0 rgba(197, 255, 252, 0.3);
+  background-color: transparent;
+  border: 2px solid rgba(231, 233, 234, 0.3);
   border-radius: 32px;
   transition: background-color 0.2s, box-shadow 0.2s ease-in-out;
   padding: 5px 0px 5px 0px;
   margin: 0px 0px 20px 0px;
 }
 
-.new_year_div div {
+.dates_div div {
   display: flex;
   align-self: center;
   color: rgb(231, 233, 234);
@@ -434,9 +435,10 @@ html {
   text-align: center;
   height: 100%;
   margin: 0px 12px;
+  cursor: default;
 }
 
-.new_year_div img {
+.dates_div img {
   display: flex;
   align-self: center;
   height: 1.75rem;
@@ -515,6 +517,7 @@ html {
   opacity: 0;
   margin: 0px;
   transform-origin: bottom;
+  cursor: default;
   transition: max-width 0.5s ease-in-out, visibility 0.2s ease-out,
     opacity 0.2s ease-in-out, margin 0.5s ease-in-out;
 }
