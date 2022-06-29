@@ -763,37 +763,29 @@ function openSettings(UserID) {
     user_fields
       .getElementsByTagName(`input`)[0]
       .addEventListener("change", function () {
-        console.log("changed 0");
         user_fields_values.settings.notification =
           user_fields.getElementsByTagName(`input`)[0].checked;
-        console.log(user_fields_values.settings.notification);
         UpdateData(result, user_fields_values);
       });
     user_fields
       .getElementsByTagName(`input`)[1]
       .addEventListener("input", function () {
-        console.log("changed 1");
         user_fields_values.settings.initial_start =
           user_fields.getElementsByTagName(`input`)[1].value;
-        console.log(user_fields_values.settings.initial_start);
         UpdateData(result, user_fields_values);
       });
     user_fields
       .getElementsByTagName(`input`)[2]
       .addEventListener("change", function () {
-        console.log("changed 2");
         user_fields_values.settings.once =
           user_fields.getElementsByTagName(`input`)[2].checked;
-        console.log(user_fields_values.settings.once);
         UpdateData(result, user_fields_values);
       });
     user_fields
       .getElementsByTagName(`input`)[3]
       .addEventListener("change", function () {
-        console.log("changed 3");
         user_fields_values.settings.daily =
           user_fields.getElementsByTagName(`input`)[3].checked;
-        console.log(user_fields_values.settings.daily);
         UpdateData(result, user_fields_values);
       });
   });
