@@ -13,7 +13,7 @@
   --dark-1: #1a1a1a;
   --dark-2: #212121;
   --dark-3: #303030;
-  --aquamarine-shadow: 0px 0px 5px 0 rgb(161 233 211 / 50%);
+  --aquamarine-shadow: 0px 0px 5px 0 rgb(161, 233, 211);
   --aquamarine-shadow-2: 0px 0px 5px 0 rgb(161 233 211 / 100%);
   --dark-1-shadow: 0px 0px 10px 0 rgb(33 33 33);
   --text-white-outline: -0.2px -0.2px 1.5px rgb(231, 233, 234),
@@ -140,6 +140,7 @@ html {
 
 .list_wrap {
   display: flex;
+  flex-direction: column;
   align-items: center;
   width: 100%;
 }
@@ -331,6 +332,7 @@ html {
 
 .edit_field input {
   display: flex;
+  border: none;
   color: black;
   background-color: white;
   width: 100%;
@@ -439,6 +441,120 @@ html {
   align-self: center;
   height: 1.75rem;
   filter: invert(100%);
+}
+
+.utilities {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  max-width: 150px;
+  background-color: transparent;
+  border-radius: 32px;
+  margin: 20px 10px 0px 0px;
+  transition: 0.5s ease-out;
+}
+
+.utilities.is_open {
+  background-color: rgba(231, 233, 234, 0.1);
+  max-width: 700px;
+}
+
+.util_tab {
+  display: flex;
+  align-self: center;
+  width: fit-content;
+  max-width: 100%;
+  background-color: rgba(231, 233, 234, 0.1);
+  border-radius: 32px;
+  transition: 0.2s ease-in-out;
+}
+
+.util_tab .icon_holder {
+  display: flex;
+  height: fit-content;
+  width: fit-content;
+  border-radius: 100vh;
+  box-shadow: none;
+  background-color: rgba(231, 233, 234, 0.1);
+  justify-content: center;
+  transition: 0.2s ease-in-out;
+  padding: 12px;
+  margin: 5px;
+  cursor: pointer;
+}
+
+.util_tab .icon_holder:hover {
+  box-shadow: var(--aquamarine-shadow);
+  background-color: rgba(231, 233, 234, 0.2);
+}
+
+.utilities img {
+  height: 30px;
+  filter: invert(100%);
+}
+
+.name_of_utility_holder {
+  display: flex;
+  visibility: collapse;
+  justify-self: center;
+  align-self: center;
+  width: 100%;
+}
+
+.name_of_utility_holder .utility_name {
+  display: flex;
+  visibility: collapse;
+  color: rgb(231, 233, 234);
+  font-size: 20px;
+  font-family: GoogleSans;
+  justify-self: center;
+  align-self: center;
+  white-space: nowrap;
+  width: 100%;
+  max-width: 0px;
+  opacity: 0;
+  margin: 0px;
+  transform-origin: bottom;
+  transition: max-width 0.5s ease-in-out, visibility 0.2s ease-out,
+    opacity 0.2s ease-in-out, margin 0.5s ease-in-out;
+}
+
+.name_of_utility_holder .utility_name.is_open {
+  visibility: visible;
+  max-width: 300px;
+  width: inherit;
+  opacity: 1;
+  margin: 5px 20px 5px 5px;
+  transition: max-width 0.5s ease-in-out, visibility 1s ease-in-out,
+    opacity 1s ease-in-out, margin 0.5s ease-in-out;
+}
+
+.birthday_event_creating_menu {
+  display: flex;
+  visibility: collapse;
+  align-self: center;
+  width: 100%;
+  background-color: transparent;
+  max-height: 0;
+  max-width: 0;
+  opacity: 0;
+  transition: max-height 0.5s ease-in-out, max-width 0.5s ease-in-out,
+    visibility 0.2s ease-out, opacity 0.2s ease-in-out, margin 0.5s ease-in-out;
+}
+
+.birthday_event_creating_menu.is_open {
+  visibility: visible;
+  max-width: 900px;
+  max-height: 700px;
+  opacity: 1;
+  transition: max-height 0.5s ease-in-out, max-width 0.5s ease-in-out,
+    visibility 1s ease-in-out, opacity 1s ease-in-out, margin 0.5s ease-in-out;
+}
+
+.edit_field input.error {
+  border: 2px solid rgb(255, 77, 77);
+  box-shadow: 0px 0px 5px 0 rgb(255, 130, 130);
+  background-color: rgb(255, 199, 199);
 }
 
 @media only screen and (max-width: 1300px) {

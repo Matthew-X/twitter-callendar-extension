@@ -220,14 +220,14 @@ function dateComparison(a, b) {
   } else if (/\d/.test(a.BirthdayDate) && /\d/.test(b.BirthdayDate)) {
     // All normal months with dates get sorted includeing sorted by year with the same date
     if (date1.getMonth() != date2.getMonth()) {
-      console.log(a.BirthdayDate + " | " + b.BirthdayDate);
-      console.log(
-        date1.getMonth() +
-          " | " +
-          date2.getMonth() +
-          " | " +
-          new Date().getMonth()
-      );
+      // console.log(a.BirthdayDate + " | " + b.BirthdayDate);
+      // console.log(
+      //   date1.getMonth() +
+      //     " | " +
+      //     date2.getMonth() +
+      //     " | " +
+      //     new Date().getMonth()
+      // );
       if (new Date().getMonth() > date1.getMonth()) {
         return 1;
       } else if (new Date().getMonth() > date2.getMonth()) {
@@ -290,14 +290,18 @@ function dateComparison(a, b) {
   }
 }
 
+var initBDB_timer = 0;
 // A function that will keep searching for a twitter's birthday date on the page and will create a (save birthday button) upon finding birthday date.
 function initBDB() {
   var BDBElement = getBDBParent();
+  initBDB_timer++;
 
   if (BDBElement != null) {
     setupBDB(BDBElement);
-  } else {
+  } else if (initBDB_timer <= 300) {
     requestAnimationFrame(initBDB);
+  } else {
+    initBDB_timer = 0;
   }
 }
 
@@ -535,6 +539,65 @@ function calendarPage(mainElement, users_db = [base_user_data]) {
   }
 }
 
+function check_fields(fields = base_user_data, user_fields) {
+  user_fields
+    .querySelector(`[id="birthday_date_input"]`)
+    .classList.toggle("error", false);
+
+  user_fields
+    .querySelector(`[id="image_link_input"]`)
+    .classList.toggle("error", false);
+
+  user_fields
+    .querySelector(`[id="name_input"]`)
+    .classList.toggle("error", false);
+
+  user_fields
+    .querySelector(`[id="user_id_input"]`)
+    .classList.toggle("error", false);
+
+  var issues = [false, false, false, false];
+  if (fields.BirthdayDate == "") {
+    issues[0] = true;
+  }
+  if (fields.Icon == "") {
+    user_fields.querySelector(`[id="image_link_input"]`).value =
+      "https://c.tenor.com/bQuWIFsZWEgAAAAM/thurston-waffles-meow.gif";
+  } else if (
+    !/\.(jpg|jpeg|png|webp|avif|gif|svg)$/.test(
+      user_fields.querySelector(`[id="image_link_input"]`).value
+    )
+  ) {
+    issues[1] = true;
+  }
+  if (fields.Name == "") {
+    issues[2] = true;
+  }
+  if (fields.UserID == "" || !/@/.test(fields.UserID)) {
+    issues[3] = true;
+  }
+
+  if (issues[0]) {
+    user_fields
+      .querySelector(`[id="birthday_date_input"]`)
+      .classList.toggle("error");
+  }
+  if (issues[1]) {
+    user_fields
+      .querySelector(`[id="image_link_input"]`)
+      .classList.toggle("error");
+  }
+  if (issues[2]) {
+    user_fields.querySelector(`[id="name_input"]`).classList.toggle("error");
+  }
+  if (issues[3]) {
+    user_fields.querySelector(`[id="user_id_input"]`).classList.toggle("error");
+  }
+  return issues;
+}
+
+var errors_check;
+
 // A function that updates calendar page by deleting existing content and creating a new list of elements with updated information as well as it assigns a delete button functions for each element.
 function update_calendar_page(mainElement, users_db) {
   if (
@@ -556,6 +619,48 @@ function update_calendar_page(mainElement, users_db) {
   mainElement
     .getElementsByTagName("div")[0]
     .append(createCalendarPage(users_db.sort(dateComparison)));
+
+  document
+    .querySelector('[tag="save_new_birthday"]')
+    .addEventListener("click", function () {
+      var user_fields = document.querySelector(
+        `[class*="birthday_event_creating_menu"]`
+      );
+
+      var update = base_user_data;
+      update.ID = 0;
+      update.Icon = user_fields.querySelector(`[id="image_link_input"]`).value;
+      update.Name = user_fields.querySelector(`[id="name_input"]`).value;
+      update.UserID = user_fields.querySelector(`[id="user_id_input"]`).value;
+      update.BirthdayDate = user_fields.querySelector(
+        `[id="birthday_date_input"]`
+      ).value;
+
+      errors_check = check_fields(update, user_fields);
+
+      if (!errors_check.find((e) => e == true)) {
+        chromeGetValue(save_file).then((result) => {
+          UpdateData(result, update);
+          update_calendar_page(getMainParent(), result);
+        });
+      }
+    });
+
+  document
+    .querySelector('[tag*="add_birthday_event"]')
+    .addEventListener("click", function () {
+      document
+        .querySelector('[class*="birthday_event_creating_menu"]')
+        .classList.toggle("is_open");
+
+      document
+        .querySelector('[class*="name_add_birthday"]')
+        .classList.toggle("is_open");
+
+      document
+        .querySelector('[class*="utilities"]')
+        .classList.toggle("is_open");
+    });
 
   // finds and makes "more options" button to make options visible or hiding them depending on their state.
   var users = document.querySelectorAll('[class="more_button_holder"]');
@@ -621,7 +726,60 @@ function createCalendarPage(array = [base_user_data]) {
     `
       <div class="page_div">
         <div class="wrapper">
-          <div class="list_wrap">${ul.outerHTML}</div>
+          <div class="list_wrap">
+            <div class="utilities">
+              <div class="util_tab">
+                <div class="icon_holder" tag="settings">
+                  <img
+                    src="${chrome.runtime.getURL(
+                      "assets/images/settings_icon.svg"
+                    )}"
+                  />
+                </div>
+                <div class="icon_holder" tag="add_birthday_event">
+                  <img
+                    src="${chrome.runtime.getURL(
+                      "assets/images/add_new_user_icon.svg"
+                    )}"
+                  />
+                </div>
+                <div class="name_of_utility_holder">
+                  <div class="name_settings utility_name">Settings</div>
+                  <div class="name_add_birthday utility_name">Add New Birthday</div>
+                </div>
+              </div>
+              <div class="settings"></div>
+              <div class="birthday_event_creating_menu">
+                <div class="edit_fields">
+                  <div class="edit_field">
+                    <div>Image Link:</div>
+                    <input id="image_link_input" />
+                  </div>
+                  <div class="edit_field">
+                    <div>Name:</div>
+                    <input id="name_input" />
+                  </div>
+                  <div class="edit_field">
+                    <div>User ID:</div>
+                    <input id="user_id_input" />
+                  </div>
+                  <div class="edit_field">
+                    <div>Birthday date:</div>
+                    <input id="birthday_date_input" />
+                  </div>
+                </div>
+                <div class="save_changes" tag="save_new_birthday">
+                  <img
+                    class="calendar_icons_svg"
+                    src="${chrome.runtime.getURL(
+                      "assets/images/save_icon.svg"
+                    )}"
+                  />
+                </div>
+              </div>
+            </div>
+            ${ul.outerHTML}
+          </div>
         </div>
         <div class="suggestions_div"></div>
       </div>
@@ -689,10 +847,15 @@ function save_edit(user_fields_values = base_user_data) {
     update.BirthdayDate = user_fields.querySelector(
       `[id="birthday_date_input"]`
     ).value;
-    chromeGetValue(save_file).then((result) => {
-      UpdateData(result, update);
-      update_calendar_page(getMainParent(), result);
-    });
+
+    errors_check = check_fields(update, user_fields);
+
+    if (!errors_check.find((e) => e == true)) {
+      chromeGetValue(save_file).then((result) => {
+        UpdateData(result, update);
+        update_calendar_page(getMainParent(), result);
+      });
+    }
   }
 }
 
