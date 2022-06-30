@@ -1,7 +1,7 @@
 // Variable that saves key for chrome.storage to manage data in it.
 const save_file = "save_file";
 
-let settings_base = {
+const settings_base = {
   notification: true,
   initial_start: 10,
   once: false,
@@ -9,7 +9,7 @@ let settings_base = {
 };
 
 // Blank for item in data-base.
-let base_user_data = {
+const base_user_data = {
   ID: "0",
   Icon: "",
   Name: "",
@@ -323,10 +323,7 @@ function elementFromHtml(html) {
 }
 
 // A function that updates database by updating/creating/adding new items into it.
-function UpdateData(
-  eventsDatabase = [base_user_data],
-  user_data = base_user_data
-) {
+function UpdateData(eventsDatabase = [], user_data = { ...base_user_data }) {
   if (eventsDatabase.length >= 0) {
     if (
       (eventsDatabase == 0 ||
@@ -352,14 +349,13 @@ function UpdateData(
     });
     chrome.storage.sync.set({ save_file: eventsDatabase });
     update_closest_date();
-  } else {
   }
 }
 
 // A function that replaces Birthday element on friend's page with a Birthday button that upon clicking will save friend's information (Name/ID/Birthday date/Icon) into the calendar.
 function setupBDB(BDBElement) {
   if (BDBElement != null || BDBElement.children > 0) {
-    let user_data = base_user_data;
+    let user_data = { ...base_user_data };
 
     user_data.ID = 0;
 
@@ -496,7 +492,7 @@ function update_closest_date() {
   const closest_date = document.createElement("a");
   closest_date.className = "closest_date";
   chromeGetValue(save_file).then((result) => {
-    if (result != null) {
+    if (result != null && result.length > 0) {
       var year =
         new Date(result.sort(dateComparison)[0].BirthdayDate).getMonth() <
         new Date()
@@ -528,7 +524,7 @@ function update_closest_date() {
 var active = false;
 
 // A function that creates calendar page by hiding main dif that contains all the content of the current page and will create a list of elements containing all saved data of friends you have saved into your Calendar.
-function calendarPage(mainElement, users_db = [base_user_data]) {
+function calendarPage(mainElement, users_db = []) {
   if (!active) {
     if (mainElement != null) {
       mainElement
@@ -553,7 +549,7 @@ function calendarPage(mainElement, users_db = [base_user_data]) {
   }
 }
 
-function check_fields(fields = base_user_data, user_fields) {
+function check_fields(fields = { ...base_user_data }, user_fields) {
   user_fields
     .querySelector(`[id="birthday_date_input"]`)
     .classList.toggle("error", false);
@@ -611,6 +607,7 @@ function check_fields(fields = base_user_data, user_fields) {
 }
 
 var errors_check;
+var b_util_menu = { settings: false, add_birthday: false };
 
 // A function that updates calendar page by deleting existing content and creating a new list of elements with updated information as well as it assigns a delete button functions for each element.
 function update_calendar_page(mainElement, users_db) {
@@ -625,14 +622,19 @@ function update_calendar_page(mainElement, users_db) {
       .remove();
   }
   chromeGetValue(save_file).then((result) => {
-    if (result != null) {
+    if (result != null && result.length > 1)
       chrome.storage.sync.set({ save_file: result.sort(dateComparison) });
-    }
   });
 
   mainElement
     .getElementsByTagName("div")[0]
-    .append(createCalendarPage(users_db.sort(dateComparison)));
+    .append(
+      createCalendarPage(
+        users_db != null && users_db.length > 1
+          ? users_db.sort(dateComparison)
+          : users_db
+      )
+    );
 
   document
     .querySelector('[tag="save_new_birthday"]')
@@ -641,7 +643,7 @@ function update_calendar_page(mainElement, users_db) {
         `[class*="birthday_event_creating_menu"]`
       );
 
-      var update = base_user_data;
+      var update = { ...base_user_data };
       update.ID = 0;
       update.Icon = user_fields.querySelector(`[id="image_link_input"]`).value;
       update.Name = user_fields.querySelector(`[id="name_input"]`).value;
@@ -654,18 +656,69 @@ function update_calendar_page(mainElement, users_db) {
 
       if (!errors_check.find((e) => e == true)) {
         chromeGetValue(save_file).then((result) => {
-          UpdateData(result, update);
           update_calendar_page(getMainParent(), result);
         });
       }
     });
-  document
-    .querySelector('[tag="settings"]')
-    .addEventListener("click", function () {});
 
+  document
+    .querySelector('[class*="reset_button"]')
+    .addEventListener("click", function () {
+      chrome.storage.sync.clear(save_file);
+      chromeGetValue(save_file).then((result) => {
+        update_calendar_page(getMainParent(), result);
+      });
+    });
+
+  // assigns functionality for settings button to open it's menus
+  document
+    .querySelector('[tag*="settings"]')
+    .addEventListener("click", function () {
+      if (b_util_menu.add_birthday) {
+        document
+          .querySelector('[class*="birthday_event_creating_menu"]')
+          .classList.toggle("is_open", false);
+
+        document
+          .querySelector('[class*="name_add_birthday"]')
+          .classList.toggle("is_open", false);
+
+        document
+          .querySelector('[class*="utilities"]')
+          .classList.toggle("is_open", false);
+        b_util_menu.add_birthday = !b_util_menu.add_birthday;
+      }
+      document
+        .querySelector('[class*="main_settings_menu"]')
+        .classList.toggle("is_open");
+
+      document
+        .querySelector('[class*="name_settings"]')
+        .classList.toggle("is_open");
+
+      document
+        .querySelector('[class*="utilities"]')
+        .classList.toggle("is_open");
+      b_util_menu.settings = !b_util_menu.settings;
+    });
+  // assigns for add birthdays button in the utilities menu functionality to open menus
   document
     .querySelector('[tag*="add_birthday_event"]')
     .addEventListener("click", function () {
+      if (b_util_menu.settings) {
+        document
+          .querySelector('[class*="main_settings_menu"]')
+          .classList.toggle("is_open", false);
+
+        document
+          .querySelector('[class*="name_settings"]')
+          .classList.toggle("is_open", false);
+
+        document
+          .querySelector('[class*="utilities"]')
+          .classList.toggle("is_open", false);
+        b_util_menu.settings = !b_util_menu.settings;
+      }
       document
         .querySelector('[class*="birthday_event_creating_menu"]')
         .classList.toggle("is_open");
@@ -677,6 +730,7 @@ function update_calendar_page(mainElement, users_db) {
       document
         .querySelector('[class*="utilities"]')
         .classList.toggle("is_open");
+      b_util_menu.add_birthday = !b_util_menu.add_birthday;
     });
 
   // finds and makes "more options" button to make options visible or hiding them depending on their state.
@@ -697,12 +751,7 @@ function update_calendar_page(mainElement, users_db) {
     value
       .querySelector('[tag="edit_friend"]')
       .addEventListener("click", function () {
-        if (
-          !document
-            .querySelector(`[tag="menu_div_${value.id}"]`)
-            .classList.toggle("is_open")
-        )
-          edit_friend(value.id);
+        edit_friend(value.id);
       });
 
     // adds onClick functionality for each delete button of each user.
@@ -712,21 +761,27 @@ function update_calendar_page(mainElement, users_db) {
         delete_friend(value.id);
       });
 
+    // adds onClick functionality for each settings button of each user.
     value
       .querySelector('[tag="event_settings_button"]')
       .addEventListener("click", function () {
-        if (
-          !document
-            .querySelector(`[tag="menu_div_${value.id}"]`)
-            .classList.toggle("is_open")
-        )
-          openSettings(value.id);
+        openSettings(value.id);
       });
   });
 }
 
+var b_more_options_menu = { edit: false, settings: false };
+
 function openSettings(UserID) {
   chromeGetValue(save_file).then((result) => {
+    if (b_more_options_menu.edit) {
+      document
+        .querySelector(`[tag="menu_div_${UserID}"]`)
+        .classList.toggle("is_open", false);
+      b_more_options_menu.settings = !b_more_options_menu.settings;
+    } else {
+      b_more_options_menu.settings = !b_more_options_menu.settings;
+    }
     document
       .querySelector(`[tag="menu_div_${UserID}"]`)
       .classList.toggle("is_open");
@@ -785,7 +840,7 @@ function openSettings(UserID) {
 }
 
 // A function that created the base of the Calendar page that contains all list items.
-function createCalendarPage(array = [base_user_data]) {
+function createCalendarPage(array = []) {
   const ul = document.createElement("ul");
 
   var new_year = true;
@@ -796,6 +851,8 @@ function createCalendarPage(array = [base_user_data]) {
   svg_arrow_down.src = chrome.runtime.getURL(
     "assets/images/arrow_downward_icon.svg"
   );
+
+  console.log(array);
   if (array.length > 0 && array[0].ID != 0) {
     array.forEach((x, i) => {
       if (
@@ -864,7 +921,11 @@ function createCalendarPage(array = [base_user_data]) {
                   </div>
                 </div>
               </div>
-              <div class="settings"></div>
+              <div class="settings">
+                <div class="main_settings_menu">
+                  <button class="reset_button">Reset All</button>
+                </div>
+              </div>
               <div class="birthday_event_creating_menu">
                 <div class="edit_fields">
                   <div class="edit_field">
@@ -904,7 +965,7 @@ function createCalendarPage(array = [base_user_data]) {
 }
 
 // A function that deletes item with matching UserID from database.
-function delete_friend(UserID = base_user_data.UserID) {
+function delete_friend(UserID = { ...base_user_data }.UserID) {
   chromeGetValue(save_file).then((result) => {
     const index = result.findIndex((object) => {
       return object.UserID == UserID;
@@ -916,8 +977,16 @@ function delete_friend(UserID = base_user_data.UserID) {
 }
 
 // A function that opens and closes edit menu as well as it pastes already existing values into the fields for user to edit.
-function edit_friend(UserID = base_user_data.UserID) {
+function edit_friend(UserID = { ...base_user_data }.UserID) {
   chromeGetValue(save_file).then((result) => {
+    if (b_more_options_menu.settings) {
+      document
+        .querySelector(`[tag="menu_div_${UserID}"]`)
+        .classList.toggle("is_open", false);
+      b_more_options_menu.edit = !b_more_options_menu.edit;
+    } else {
+      b_more_options_menu.edit = !b_more_options_menu.edit;
+    }
     document
       .querySelector(`[tag="menu_div_${UserID}"]`)
       .classList.toggle("is_open");
@@ -950,12 +1019,12 @@ function edit_friend(UserID = base_user_data.UserID) {
 }
 
 // A function that saves all edited data into DataBase.
-function save_edit(user_fields_values = base_user_data) {
+function save_edit(user_fields_values = { ...base_user_data }) {
   if (user_fields_values.ID != 0) {
     var user_fields = document.querySelector(
       `[tag="editing_menu_${user_fields_values.UserID}"]`
     );
-    var update = base_user_data;
+    var update = { ...base_user_data };
     update.ID = user_fields_values.ID;
     update.Icon = user_fields.querySelector(`[id="image_link_input"]`).value;
     update.Name = user_fields.querySelector(`[id="name_input"]`).value;
@@ -976,7 +1045,7 @@ function save_edit(user_fields_values = base_user_data) {
 }
 
 // A function that creates each list item that contains all friend's information and UI elements with all it's classes.
-function createListItem(user_object = base_user_data) {
+function createListItem(user_object = { ...base_user_data }) {
   return elementFromHtml(
     `
       <li class="user">

@@ -600,6 +600,49 @@ html {
   accent-color: rgb(8, 160, 233);
 }
 
+.reset_button {
+  display: flexbox;
+  height: fit-content;
+  width: fit-content;
+  border: none;
+  border-radius: 100vh;
+  background-color: rgba(231, 233, 234, 0.1);
+  text-decoration: none;
+  text-align: center;
+  font-size: 20px;
+  color: rgb(231, 233, 234);
+  justify-content: center;
+  box-shadow: transparent;
+  transition: 0.2s ease-in-out;
+  padding: 5px 10px;
+  margin: 15px;
+  cursor: pointer;
+}
+
+.reset_button:hover {
+  box-shadow: var(--aquamarine-shadow);
+}
+
+.reset_button:active {
+  box-shadow: 0px 0px 1000px 0 rgb(161 233 211 / 100%);
+  background-color: rgba(231, 233, 234, 0.2);
+}
+
+.main_settings_menu {
+  display: flex;
+  justify-content: center;
+  max-height: 0px;
+  visibility: collapse;
+  opacity: 0;
+  transition: 0.5s ease-in-out;
+}
+
+.main_settings_menu.is_open {
+  max-height: 300px;
+  opacity: 1;
+  visibility: visible;
+}
+
 @media only screen and (max-width: 1300px) {
   .Calendar_button a {
     display: none;
