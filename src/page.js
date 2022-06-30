@@ -1,6 +1,5 @@
 // Variable that saves key for chrome.storage to manage data in it.
 const save_file = "save_file";
-const settings_key = "settings";
 
 let settings_base = {
   notification: true,
@@ -34,12 +33,6 @@ function chromeGetValue(key) {
     });
   });
 }
-
-chromeGetValue(settings_key).then((results) => {
-  if (results == null) {
-    console.log("Settings are null");
-  }
-});
 
 // A function that that retrieves a Main-Parent of twitter's left side bar with all the buttons to navigate between pages like (home, messages, bookmarks).
 function getParent() {
