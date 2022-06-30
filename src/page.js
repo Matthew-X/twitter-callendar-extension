@@ -573,6 +573,8 @@ function check_fields(fields = { ...base_user_data }, user_fields) {
   if (fields.Icon == "") {
     user_fields.querySelector(`[id="image_link_input"]`).value =
       "https://c.tenor.com/bQuWIFsZWEgAAAAM/thurston-waffles-meow.gif";
+    fields.Icon =
+      "https://c.tenor.com/bQuWIFsZWEgAAAAM/thurston-waffles-meow.gif";
   } else if (
     !/\.(jpg|jpeg|png|webp|avif|gif|svg)$/.test(
       user_fields.querySelector(`[id="image_link_input"]`).value
@@ -655,6 +657,7 @@ function update_calendar_page(mainElement, users_db) {
       errors_check = check_fields(update, user_fields);
 
       if (!errors_check.find((e) => e == true)) {
+        UpdateData(users_db, update);
         chromeGetValue(save_file).then((result) => {
           update_calendar_page(getMainParent(), result);
         });
@@ -797,8 +800,6 @@ function openSettings(UserID) {
       return value.UserID == UserID;
     });
 
-    console.log(user_fields.getElementsByTagName(`input`)[0].checked);
-
     user_fields.getElementsByTagName(`input`)[0].checked =
       user_fields_values.settings.notification;
     user_fields.getElementsByTagName(`input`)[1].value =
@@ -852,7 +853,6 @@ function createCalendarPage(array = []) {
     "assets/images/arrow_downward_icon.svg"
   );
 
-  console.log(array);
   if (array.length > 0 && array[0].ID != 0) {
     array.forEach((x, i) => {
       if (
