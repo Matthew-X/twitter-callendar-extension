@@ -516,6 +516,8 @@ function update_closest_date() {
         document.querySelector('[class="closest_date"]').remove();
       }
       document.querySelector('[class="Calendar_button"]').append(closest_date);
+    } else if (document.querySelector('[class="closest_date"]') != null) {
+      document.querySelector('[class="closest_date"]').remove();
     }
   });
 }
@@ -771,6 +773,7 @@ function update_calendar_page(mainElement, users_db) {
         openSettings(value.id);
       });
   });
+  update_closest_date();
 }
 
 var b_more_options_menu = { edit: false, settings: false };
