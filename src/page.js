@@ -878,8 +878,7 @@ function createCalendarPage(array = []) {
         unknown &&
         !months.some((month) => {
           return x.BirthdayDate.includes(month);
-        }) &&
-        !/\d/.test(x.BirthdayDate)
+        })
       ) {
         ul.appendChild(
           elementFromHtml(
@@ -891,6 +890,7 @@ function createCalendarPage(array = []) {
             `
           )
         );
+        unknown = false;
       }
       ul.appendChild(createListItem(x));
     });
