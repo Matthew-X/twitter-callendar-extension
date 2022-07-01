@@ -252,14 +252,6 @@ function dateComparison(a, b) {
   } else if (/\d/.test(a.BirthdayDate) && /\d/.test(b.BirthdayDate)) {
     // All normal months with dates get sorted includeing sorted by year with the same date
     if (date1.getMonth() != date2.getMonth()) {
-      // console.log(a.BirthdayDate + " | " + b.BirthdayDate);
-      // console.log(
-      //   date1.getMonth() +
-      //     " | " +
-      //     date2.getMonth() +
-      //     " | " +
-      //     new Date().getMonth()
-      // );
       if (new Date().getMonth() > date1.getMonth()) {
         return 1;
       } else if (new Date().getMonth() > date2.getMonth()) {
@@ -274,10 +266,8 @@ function dateComparison(a, b) {
         new Date().getMonth() == date2.getMonth() &&
         new Date().getDate() > date2.getDate()
       ) {
-        console.log("equal Up");
         return -1;
       } else {
-        console.log("Sorted");
         return date1.getMonth() - date2.getMonth();
       }
     }
