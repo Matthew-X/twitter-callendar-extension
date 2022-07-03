@@ -16,7 +16,9 @@ const base_user_data = {
   UserID: "",
   BirthdayDate: "",
   settings: settings_base,
-  notification: new Date("1980"),
+  notification: {
+    last_date: new Date("1980").getTime(),
+  },
 };
 
 // chrome.storage.sync.clear(save_edit);
@@ -76,45 +78,66 @@ requestAnimationFrame(function () {
   initCalendarButton();
   initBDB();
 
-  // chromeGetValue(save_file).then((result = [{ ...base_user_data }]) => {
-  //   if (result != null && result.length > 0) {
-  //     result.forEach(function (v = { ...base_user_data }, i) {
-  //       var yesterday = new Date();
-  //       yesterday.setDate(yesterday.getDate() - 1);
-  //       console.log(v);
-  //       console.log(yesterday.getTime());
-  //       console.log(result.notification);
-  //       if (!result.notification.getTime() > yesterday.getTime()) {
-  //         var year =
-  //           new Date(result.sort(dateComparison)[0].BirthdayDate).getMonth() <
-  //           new Date()
-  //             ? 0
-  //             : 1;
+  chromeGetValue(save_file).then((result = [{ ...base_user_data }]) => {
+    if (result != null && result.length > 0 && result[0].ID != 0) {
+      result.forEach(function (v = { ...base_user_data }, i) {
+        var yesterday = new Date();
+        yesterday.setDate(yesterday.getDate() - 1);
+        console.log(v);
+        if (
+          v.settings.notification &&
+          !(v.notification.last_date > yesterday.getTime()) &&
+          months.some((month) => {
+            return v.BirthdayDate.includes(month);
+          }) &&
+          new Date(
+            new Date().setFullYear(new Date(v.BirthdayDate).getFullYear())
+          ) >=
+            new Date(
+              new Date(v.BirthdayDate).setDate(
+                new Date(v.BirthdayDate).getDate() - v.settings.initial_start
+              )
+            ) &&
+          new Date(
+            new Date().setFullYear(new Date(v.BirthdayDate).getFullYear())
+          ) <= new Date(v.BirthdayDate) &&
+          ((v.settings.once &&
+            new Date(v.notification.last_date).getFullYear() <
+              new Date().getFullYear()) ||
+            v.settings.daily)
+        ) {
+          var year = new Date(v.BirthdayDate).getMonth() < new Date() ? 0 : 1;
 
-  //         var days_left = Math.ceil(
-  //           (new Date(result.sort(dateComparison)[0].BirthdayDate).getTime() -
-  //             new Date(
-  //               new Date().setFullYear(
-  //                 new Date(
-  //                   result.sort(dateComparison)[0].BirthdayDate
-  //                 ).getFullYear() - year
-  //               )
-  //             ).getTime()) /
-  //             (1000 * 3600 * 24)
-  //         );
-  //         if (days_left > 0) {
-  //           const notification = new Notification(
-  //             `${v.Name}'s Birthday will be in ${days_left}`
-  //           );
-  //         } else {
-  //           const notification = new Notification(
-  //             `today is ${v.Name}'s Birthday`
-  //           );
-  //         }
-  //       }
-  //     });
-  //   }
-  // });
+          var days_left = Math.ceil(
+            (new Date(v.BirthdayDate).getTime() -
+              new Date(
+                new Date().setFullYear(
+                  new Date(v.BirthdayDate).getFullYear() - year
+                )
+              ).getTime()) /
+              (1000 * 3600 * 24)
+          );
+
+          if (days_left > 0) {
+            new Notification(
+              `${v.Name}'s Birthday will be in ${days_left} days`,
+              {
+                body: `If you had anything planned for that, you better get started`,
+                icon: v.Icon,
+              }
+            );
+          } else {
+            new Notification(`Today is ${v.Name}'s Birthday`, {
+              body: `Horay! Wish that person a Happy Birthday or whatever you wanted to do this day`,
+              icon: v.Icon,
+            });
+          }
+          v.notification.last_date = new Date().getTime();
+          chrome.storage.sync.set({ save_file: result });
+        }
+      });
+    }
+  });
 });
 
 // A function that will keep searching for a twitter's left side bar in order to parse it into the function to inject Calendar button into that bar.
@@ -825,11 +848,11 @@ function update_calendar_page(mainElement, users_db) {
 
     // adds onClick functionality for each settings button of each user.
 
-    // value
-    //   .querySelector('[tag="event_settings_button"]')
-    //   .addEventListener("click", function () {
-    //     openSettings(value.id);
-    //   });
+    value
+      .querySelector('[tag="event_settings_button"]')
+      .addEventListener("click", function () {
+        openSettings(value.id);
+      });
   });
   update_closest_date();
 }

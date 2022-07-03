@@ -643,9 +643,9 @@ html {
   visibility: visible;
 }
 
-.event_settings_button {
+/* .event_settings_button {
   display: none;
-}
+} */
 
 @media only screen and (max-width: 1300px) {
   .Calendar_button a {
