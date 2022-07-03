@@ -16,6 +16,7 @@ const base_user_data = {
   UserID: "",
   BirthdayDate: "",
   settings: settings_base,
+  notification: new Date("1980"),
 };
 
 // chrome.storage.sync.clear(save_edit);
@@ -70,8 +71,51 @@ function getBDBParent() {
   });
 }
 
-// A part of code that initiates the piece of code that creates Calendar button.
-requestAnimationFrame(initCalendarButton);
+// A part of code that initiates the piece of code that creates Calendar button & Birthday save button.
+requestAnimationFrame(function () {
+  initCalendarButton();
+  initBDB();
+
+  // chromeGetValue(save_file).then((result = [{ ...base_user_data }]) => {
+  //   if (result != null && result.length > 0) {
+  //     result.forEach(function (v = { ...base_user_data }, i) {
+  //       var yesterday = new Date();
+  //       yesterday.setDate(yesterday.getDate() - 1);
+  //       console.log(v);
+  //       console.log(yesterday.getTime());
+  //       console.log(result.notification);
+  //       if (!result.notification.getTime() > yesterday.getTime()) {
+  //         var year =
+  //           new Date(result.sort(dateComparison)[0].BirthdayDate).getMonth() <
+  //           new Date()
+  //             ? 0
+  //             : 1;
+
+  //         var days_left = Math.ceil(
+  //           (new Date(result.sort(dateComparison)[0].BirthdayDate).getTime() -
+  //             new Date(
+  //               new Date().setFullYear(
+  //                 new Date(
+  //                   result.sort(dateComparison)[0].BirthdayDate
+  //                 ).getFullYear() - year
+  //               )
+  //             ).getTime()) /
+  //             (1000 * 3600 * 24)
+  //         );
+  //         if (days_left > 0) {
+  //           const notification = new Notification(
+  //             `${v.Name}'s Birthday will be in ${days_left}`
+  //           );
+  //         } else {
+  //           const notification = new Notification(
+  //             `today is ${v.Name}'s Birthday`
+  //           );
+  //         }
+  //       }
+  //     });
+  //   }
+  // });
+});
 
 // A function that will keep searching for a twitter's left side bar in order to parse it into the function to inject Calendar button into that bar.
 function initCalendarButton() {
@@ -83,9 +127,6 @@ function initCalendarButton() {
     requestAnimationFrame(initCalendarButton);
   }
 }
-
-// A part of code that initiates piece of code that creates a Birthday save button.
-requestAnimationFrame(initBDB);
 
 // Variable that saves initial page's url/href upon loading on the page.
 var oldHref = document.location.href;
@@ -654,6 +695,7 @@ function update_calendar_page(mainElement, users_db) {
       )
     );
 
+  // Sets click listener for saving new birthday buttons
   document
     .querySelector('[tag="save_new_birthday"]')
     .addEventListener("click", function () {
@@ -680,6 +722,7 @@ function update_calendar_page(mainElement, users_db) {
       }
     });
 
+  // Button to delete all events from database
   document
     .querySelector('[class*="reset_button"]')
     .addEventListener("click", function () {
@@ -781,11 +824,12 @@ function update_calendar_page(mainElement, users_db) {
       });
 
     // adds onClick functionality for each settings button of each user.
-    value
-      .querySelector('[tag="event_settings_button"]')
-      .addEventListener("click", function () {
-        openSettings(value.id);
-      });
+
+    // value
+    //   .querySelector('[tag="event_settings_button"]')
+    //   .addEventListener("click", function () {
+    //     openSettings(value.id);
+    //   });
   });
   update_closest_date();
 }
