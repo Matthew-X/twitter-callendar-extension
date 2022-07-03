@@ -78,6 +78,7 @@ requestAnimationFrame(function () {
   initCalendarButton();
   initBDB();
 
+  // notifications initialization
   chromeGetValue(save_file).then((result = [{ ...base_user_data }]) => {
     if (result != null && result.length > 0 && result[0].ID != 0) {
       result.forEach(function (v = { ...base_user_data }, i) {
@@ -821,7 +822,9 @@ function update_calendar_page(mainElement, users_db) {
   // finds and makes "more options" button to make options visible or hiding them depending on their state.
   var users = document.querySelectorAll('[class="more_button_holder"]');
 
+  // sets all onClick events for "more" buttons
   users.forEach((value) => {
+    // makes other buttons visible
     value.addEventListener("click", function () {
       value
         .querySelector(`[class*="delete_friend"]`)
@@ -884,6 +887,15 @@ function openSettings(UserID) {
       return value.UserID == UserID;
     });
 
+    if (!user_fields_values.settings.notification) {
+      console.log(
+        user_fields.querySelectorAll(`[tag*="notifications_settings"]`)
+      );
+      user_fields.getElementsByTagName(`input`)[1].disabled = true;
+      user_fields.getElementsByTagName(`input`)[2].disabled = true;
+      user_fields.getElementsByTagName(`input`)[3].disabled = true;
+    }
+
     user_fields.getElementsByTagName(`input`)[0].checked =
       user_fields_values.settings.notification;
     user_fields.getElementsByTagName(`input`)[1].value =
@@ -899,6 +911,12 @@ function openSettings(UserID) {
         user_fields_values.settings.notification =
           user_fields.getElementsByTagName(`input`)[0].checked;
         UpdateData(result, user_fields_values);
+        user_fields.getElementsByTagName(`input`)[1].disabled =
+          !user_fields.getElementsByTagName(`input`)[1].disabled;
+        user_fields.getElementsByTagName(`input`)[2].disabled =
+          !user_fields.getElementsByTagName(`input`)[2].disabled;
+        user_fields.getElementsByTagName(`input`)[3].disabled =
+          !user_fields.getElementsByTagName(`input`)[3].disabled;
       });
     user_fields
       .getElementsByTagName(`input`)[1]
@@ -912,6 +930,10 @@ function openSettings(UserID) {
       .addEventListener("change", function () {
         user_fields_values.settings.once =
           user_fields.getElementsByTagName(`input`)[2].checked;
+        user_fields_values.settings.daily =
+          !user_fields.getElementsByTagName(`input`)[2].checked;
+        user_fields.getElementsByTagName(`input`)[3].checked =
+          !user_fields.getElementsByTagName(`input`)[2].checked;
         UpdateData(result, user_fields_values);
       });
     user_fields
@@ -919,6 +941,10 @@ function openSettings(UserID) {
       .addEventListener("change", function () {
         user_fields_values.settings.daily =
           user_fields.getElementsByTagName(`input`)[3].checked;
+        user_fields_values.settings.once =
+          !user_fields.getElementsByTagName(`input`)[3].checked;
+        user_fields.getElementsByTagName(`input`)[2].checked =
+          !user_fields.getElementsByTagName(`input`)[3].checked;
         UpdateData(result, user_fields_values);
       });
   });
@@ -1180,14 +1206,22 @@ function createListItem(user_object = { ...base_user_data }) {
                   <input type="checkbox" checked="checked" />
                   <span class="checkmark"></span>
                 </label>
-                <p>When do you want to start recieving notifications?<input type="number" id="notif_start" step="1" min="1" max="365" placeholder="1 - 365"/>
+                <p tag="notifications_settings">
+                  When do you want to start recieving notifications?<input
+                    type="number"
+                    id="notif_start"
+                    step="1"
+                    min="1"
+                    max="365"
+                    placeholder="1 - 365"
+                  />
                 </p>
-                <label class="toggle_container"
+                <label tag="notifications_settings" class="toggle_container"
                   >Onece
                   <input type="checkbox" checked="checked" />
                   <span class="checkmark"></span>
                 </label>
-                <label class="toggle_container"
+                <label tag="notifications_settings" class="toggle_container"
                   >Daily
                   <input type="checkbox" checked="checked" />
                   <span class="checkmark"></span>
