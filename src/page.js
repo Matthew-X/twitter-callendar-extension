@@ -977,7 +977,7 @@ function openSettings(UserID) {
 function createCalendarPage(array = []) {
   const ul = document.createElement("ul");
 
-  var new_year = true;
+  var next_year = true;
   var unknown = true;
 
   const svg_arrow_down = document.createElement("img");
@@ -997,7 +997,10 @@ function createCalendarPage(array = []) {
         );
       }
       if (
-        new_year &&
+        next_year &&
+        months.some((month) => {
+          return x.BirthdayDate.includes(month);
+        }) &&
         (date.getMonth() < new Date().getMonth() ||
           (date.getMonth() == new Date().getMonth() &&
             new Date().getDate() > date.getDate()))
@@ -1012,7 +1015,7 @@ function createCalendarPage(array = []) {
             `
           )
         );
-        new_year = false;
+        next_year = false;
       }
       if (
         unknown &&
