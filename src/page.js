@@ -369,13 +369,32 @@ function dateComparison(a, b) {
         new Date().getMonth() == date1.getMonth() &&
         new Date().getDate() > date1.getDate()
       ) {
+        if (
+          new Date().getMonth() == date2.getMonth() &&
+          new Date().getDate() > date2.getDate()
+        ) {
+          return date1.getDate() - date2.getDate();
+        }
         return 1;
       } else if (
         new Date().getMonth() == date2.getMonth() &&
         new Date().getDate() > date2.getDate()
       ) {
+        if (
+          new Date().getMonth() == date1.getMonth() &&
+          new Date().getDate() > date1.getDate()
+        ) {
+          return date1.getDate() - date2.getDate();
+        }
         return -1;
       }
+      console.log(date1.getDate() + " | " + date2.getDate());
+      // if (date1.getDate() == date2.getDate() && !/\d/.test(a.BirthdayDate)) {
+      //   return -1;
+      // }
+      // if (date1.getDate() == date2.getDate() && !/\d/.test(b.BirthdayDate)) {
+      //   return 1;
+      // }
       return date1.getDate() - date2.getDate();
     }
   }
