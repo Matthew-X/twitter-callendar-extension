@@ -314,37 +314,7 @@ function dateComparison(a, b) {
     } else {
       return date2.getFullYear() - date1.getFullYear();
     }
-  } else if (/\d/.test(a.BirthdayDate) && /\d/.test(b.BirthdayDate)) {
-    // All normal months with dates get sorted includeing sorted by year with the same date
-    if (date1.getMonth() != date2.getMonth()) {
-      if (new Date().getMonth() > date1.getMonth()) {
-        return 1;
-      } else if (new Date().getMonth() > date2.getMonth()) {
-        return -1;
-      } else if (
-        new Date().getMonth() == date1.getMonth() &&
-        new Date().getDate() > date1.getDate()
-      ) {
-        console.log("equal Down");
-        return 1;
-      } else if (
-        new Date().getMonth() == date2.getMonth() &&
-        new Date().getDate() > date2.getDate()
-      ) {
-        return -1;
-      } else {
-        return date1.getMonth() - date2.getMonth();
-      }
-    }
-    if (date1.getMonth() == date2.getMonth()) {
-      if (date1.getDate() == date2.getDate()) {
-        return date1.getFullYear() - date2.getFullYear();
-      } else {
-        return date1.getDate() - date2.getDate();
-      }
-    }
   } else {
-    // All months without dates get sorted under months.
     if (!/\d/.test(a.BirthdayDate)) {
       date1 = new Date(
         months.find((month) => {
@@ -359,20 +329,54 @@ function dateComparison(a, b) {
         }) + "1"
       );
     }
-    if (date1.getMonth() < date2.getMonth()) {
-      return -1;
-    } else if (date1.getMonth() > date2.getMonth()) {
-      return 1;
-    } else if (
-      date1.getMonth() == date2.getMonth() &&
-      !/\d/.test(a.BirthdayDate)
-    ) {
-      return 1;
-    } else if (
-      date1.getMonth() == date2.getMonth() &&
-      !/\d/.test(b.BirthdayDate)
-    ) {
-      return -1;
+    // All normal months with dates get sorted includeing sorted by year with the same date
+    if (date1.getMonth() != date2.getMonth()) {
+      if (new Date().getMonth() > date1.getMonth()) {
+        if (
+          new Date().getMonth() > date1.getMonth() &&
+          new Date().getMonth() > date2.getMonth()
+        ) {
+          return date1.getMonth() - date2.getMonth();
+        }
+        return 1;
+      } else if (new Date().getMonth() > date2.getMonth()) {
+        if (
+          new Date().getMonth() > date1.getMonth() &&
+          new Date().getMonth() > date2.getMonth()
+        ) {
+          return date1.getMonth() - date2.getMonth();
+        }
+        return -1;
+      } else if (
+        new Date().getMonth() == date1.getMonth() &&
+        new Date().getDate() > date1.getDate()
+      ) {
+        return 1;
+      } else if (
+        new Date().getMonth() == date2.getMonth() &&
+        new Date().getDate() > date2.getDate()
+      ) {
+        return -1;
+      } else {
+        return date1.getMonth() - date2.getMonth();
+      }
+    }
+    if (date1.getMonth() == date2.getMonth()) {
+      if (date1.getDate() == date2.getDate()) {
+        return date1.getFullYear() - date2.getFullYear();
+      }
+      if (
+        new Date().getMonth() == date1.getMonth() &&
+        new Date().getDate() > date1.getDate()
+      ) {
+        return 1;
+      } else if (
+        new Date().getMonth() == date2.getMonth() &&
+        new Date().getDate() > date2.getDate()
+      ) {
+        return -1;
+      }
+      return date1.getDate() - date2.getDate();
     }
   }
 }
@@ -887,13 +891,13 @@ function openSettings(UserID) {
       return value.UserID == UserID;
     });
 
-    if (!user_fields_values.settings.notification) {
-      console.log(
-        user_fields.querySelectorAll(`[tag*="notifications_settings"]`)
-      );
-      user_fields.getElementsByTagName(`input`)[1].disabled = true;
-      user_fields.getElementsByTagName(`input`)[2].disabled = true;
-      user_fields.getElementsByTagName(`input`)[3].disabled = true;
+    if (user_fields_values.settings.notification) {
+      user_fields
+        .querySelectorAll(`[class*="notifications_settings"]`)[0]
+        .classList.toggle("is_open", true);
+      user_fields
+        .querySelectorAll(`[class*="notifications_settings"]`)[1]
+        .classList.toggle("is_open", true);
     }
 
     user_fields.getElementsByTagName(`input`)[0].checked =
@@ -911,12 +915,12 @@ function openSettings(UserID) {
         user_fields_values.settings.notification =
           user_fields.getElementsByTagName(`input`)[0].checked;
         UpdateData(result, user_fields_values);
-        user_fields.getElementsByTagName(`input`)[1].disabled =
-          !user_fields.getElementsByTagName(`input`)[1].disabled;
-        user_fields.getElementsByTagName(`input`)[2].disabled =
-          !user_fields.getElementsByTagName(`input`)[2].disabled;
-        user_fields.getElementsByTagName(`input`)[3].disabled =
-          !user_fields.getElementsByTagName(`input`)[3].disabled;
+        user_fields
+          .querySelectorAll(`[class*="notifications_settings"]`)[0]
+          .classList.toggle("is_open");
+        user_fields
+          .querySelectorAll(`[class*="notifications_settings"]`)[1]
+          .classList.toggle("is_open");
       });
     user_fields
       .getElementsByTagName(`input`)[1]
@@ -965,9 +969,19 @@ function createCalendarPage(array = []) {
 
   if (array.length > 0 && array[0].ID != 0) {
     array.forEach((x, i) => {
+      var date = new Date(x.BirthdayDate);
+      if (!/\d/.test(x.BirthdayDate)) {
+        date = new Date(
+          months.find((month) => {
+            return x.BirthdayDate.includes(month);
+          }) + " 1"
+        );
+      }
       if (
         new_year &&
-        new Date(x.BirthdayDate).getMonth() < new Date().getMonth()
+        (date.getMonth() < new Date().getMonth() ||
+          (date.getMonth() == new Date().getMonth() &&
+            new Date().getDate() > date.getDate()))
       ) {
         ul.appendChild(
           elementFromHtml(
@@ -1206,26 +1220,28 @@ function createListItem(user_object = { ...base_user_data }) {
                   <input type="checkbox" checked="checked" />
                   <span class="checkmark"></span>
                 </label>
-                <p tag="notifications_settings">
+                <p class="notifications_settings">
                   When do you want to start recieving notifications?<input
+                  class="notif_start"
                     type="number"
-                    id="notif_start"
                     step="1"
                     min="1"
                     max="365"
                     placeholder="1 - 365"
                   />
                 </p>
-                <label tag="notifications_settings" class="toggle_container"
+                <div class="notifications_settings">
+                <label class="toggle_container"
                   >Onece
                   <input type="checkbox" checked="checked" />
                   <span class="checkmark"></span>
                 </label>
-                <label tag="notifications_settings" class="toggle_container"
+                <label class="toggle_container"
                   >Daily
                   <input type="checkbox" checked="checked" />
                   <span class="checkmark"></span>
                 </label>
+                </div>
               </div>
             </div>
           </div>

@@ -569,7 +569,9 @@ html {
   margin: 10px 0px 10px 0px;
 }
 
-.event_settings div {
+.event_settings > div {
+  display: inline-flex;
+  flex-direction: column;
   margin: 0px 32px;
 }
 
@@ -641,6 +643,27 @@ html {
   max-height: 300px;
   opacity: 1;
   visibility: visible;
+}
+
+.notifications_settings.is_open {
+  visibility: visible;
+  max-height: 900px;
+  opacity: 1;
+}
+
+.notifications_settings {
+  display: inline-flex;
+  visibility: collapse;
+  max-height: 0px;
+  opacity: 0;
+  margin: 0px;
+  transition: 0.5s ease-in-out;
+}
+
+.notif_start {
+  margin: 0px 0px 0px 15px !important;
+  height: fit-content;
+  align-self: center;
 }
 
 /* .event_settings_button {
