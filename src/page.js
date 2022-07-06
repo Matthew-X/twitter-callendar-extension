@@ -89,7 +89,8 @@ requestAnimationFrame(function () {
           v.settings.notification &&
           !(v.notification.last_date > yesterday.getTime()) &&
           months.some((month) => {
-            return v.BirthdayDate.includes(month);
+            var RegExMonth = new RegExp("\\b" + month + "\\b");
+            return RegExMonth.test(v.BirthdayDate.toLowerCase());
           }) &&
           new Date(
             new Date().setFullYear(new Date(v.BirthdayDate).getFullYear())
@@ -198,18 +199,6 @@ window.onload = function () {
 
 // Array of months for tests.
 var months = [
-  "January",
-  "February",
-  "March",
-  "April",
-  "May",
-  "June",
-  "July",
-  "August",
-  "September",
-  "October",
-  "November",
-  "December",
   "january",
   "february",
   "march",
@@ -222,18 +211,6 @@ var months = [
   "october",
   "november",
   "december",
-  "Jan",
-  "Feb",
-  "Mar",
-  "Apr",
-  "May",
-  "Jun",
-  "Jul",
-  "Aug",
-  "Sep",
-  "Oct",
-  "Nov",
-  "Dec",
   "jan",
   "feb",
   "mar",
@@ -255,13 +232,15 @@ function dateComparison(a, b) {
   // All "Trash dates" get sorted down
   if (
     !months.some((month) => {
-      return a.BirthdayDate.includes(month);
+      var RegExMonth = new RegExp("\\b" + month + "\\b");
+      return RegExMonth.test(a.BirthdayDate.toLowerCase());
     }) &&
     !/\d/.test(a.BirthdayDate)
   ) {
     if (
       !months.some((month) => {
-        return b.BirthdayDate.includes(month);
+        var RegExMonth = new RegExp("\\b" + month + "\\b");
+        return RegExMonth.test(b.BirthdayDate.toLowerCase());
       }) &&
       !/\d/.test(b.BirthdayDate)
     ) {
@@ -271,13 +250,15 @@ function dateComparison(a, b) {
     }
   } else if (
     !months.some((month) => {
-      return b.BirthdayDate.includes(month);
+      var RegExMonth = new RegExp("\\b" + month + "\\b");
+      return RegExMonth.test(b.BirthdayDate.toLowerCase());
     }) &&
     !/\d/.test(b.BirthdayDate)
   ) {
     if (
       !months.some((month) => {
-        return a.BirthdayDate.includes(month);
+        var RegExMonth = new RegExp("\\b" + month + "\\b");
+        return RegExMonth.test(a.BirthdayDate.toLowerCase());
       }) &&
       !/\d/.test(a.BirthdayDate)
     ) {
@@ -288,12 +269,14 @@ function dateComparison(a, b) {
   } else if (
     // All "Year only" dates get sorted down but above trash dates.
     !months.some((month) => {
-      return a.BirthdayDate.includes(month);
+      var RegExMonth = new RegExp("\\b" + month + "\\b");
+      return RegExMonth.test(a.BirthdayDate.toLowerCase());
     })
   ) {
     if (
       months.some((month) => {
-        return b.BirthdayDate.includes(month);
+        var RegExMonth = new RegExp("\\b" + month + "\\b");
+        return RegExMonth.test(b.BirthdayDate.toLowerCase());
       })
     ) {
       return 1;
@@ -302,12 +285,14 @@ function dateComparison(a, b) {
     }
   } else if (
     !months.some((month) => {
-      return b.BirthdayDate.includes(month);
+      var RegExMonth = new RegExp("\\b" + month + "\\b");
+      return RegExMonth.test(b.BirthdayDate.toLowerCase());
     })
   ) {
     if (
       months.some((month) => {
-        return a.BirthdayDate.includes(month);
+        var RegExMonth = new RegExp("\\b" + month + "\\b");
+        return RegExMonth.test(a.BirthdayDate.toLowerCase());
       })
     ) {
       return -1;
@@ -318,14 +303,16 @@ function dateComparison(a, b) {
     if (!/\d/.test(a.BirthdayDate)) {
       date1 = new Date(
         months.find((month) => {
-          return a.BirthdayDate.includes(month);
+          var RegExMonth = new RegExp("\\b" + month + "\\b");
+          return RegExMonth.test(a.BirthdayDate.toLowerCase());
         }) + "1"
       );
     }
     if (!/\d/.test(b.BirthdayDate)) {
       date2 = new Date(
         months.find((month) => {
-          return b.BirthdayDate.includes(month);
+          var RegExMonth = new RegExp("\\b" + month + "\\b");
+          return RegExMonth.test(b.BirthdayDate.toLowerCase());
         }) + "1"
       );
     }
@@ -388,13 +375,6 @@ function dateComparison(a, b) {
         }
         return -1;
       }
-      console.log(date1.getDate() + " | " + date2.getDate());
-      // if (date1.getDate() == date2.getDate() && !/\d/.test(a.BirthdayDate)) {
-      //   return -1;
-      // }
-      // if (date1.getDate() == date2.getDate() && !/\d/.test(b.BirthdayDate)) {
-      //   return 1;
-      // }
       return date1.getDate() - date2.getDate();
     }
   }
@@ -856,6 +836,22 @@ function update_calendar_page(mainElement, users_db) {
       value
         .querySelector(`[class*="event_settings_button"]`)
         .classList.toggle("is_open");
+
+      // disables event settings button for events without any specified date
+      users_db.forEach((x, i) => {
+        if (
+          value.id == x.UserID &&
+          !months.some((month) => {
+            var RegExMonth = new RegExp("\\b" + month + "\\b");
+            return RegExMonth.test(x.BirthdayDate.toLowerCase());
+          }) &&
+          /\d/.test(x.BirthdayDate)
+        ) {
+          value
+            .querySelector(`[class*="event_settings_button"]`)
+            .classList.toggle("is_open", false);
+        }
+      });
     });
 
     // adds onClick functionality for each edit button of each user.
@@ -992,14 +988,16 @@ function createCalendarPage(array = []) {
       if (!/\d/.test(x.BirthdayDate)) {
         date = new Date(
           months.find((month) => {
-            return x.BirthdayDate.includes(month);
+            var RegExMonth = new RegExp("\\b" + month + "\\b");
+            return RegExMonth.test(x.BirthdayDate.toLowerCase());
           }) + " 1"
         );
       }
       if (
         next_year &&
         months.some((month) => {
-          return x.BirthdayDate.includes(month);
+          var RegExMonth = new RegExp("\\b" + month + "\\b");
+          return RegExMonth.test(x.BirthdayDate.toLowerCase());
         }) &&
         (date.getMonth() < new Date().getMonth() ||
           (date.getMonth() == new Date().getMonth() &&
@@ -1020,7 +1018,8 @@ function createCalendarPage(array = []) {
       if (
         unknown &&
         !months.some((month) => {
-          return x.BirthdayDate.includes(month);
+          var RegExMonth = new RegExp("\\b" + month + "\\b");
+          return RegExMonth.test(x.BirthdayDate.toLowerCase());
         })
       ) {
         ul.appendChild(
