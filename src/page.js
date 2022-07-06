@@ -879,17 +879,36 @@ function update_calendar_page(mainElement, users_db) {
   update_closest_date();
 }
 
-var b_more_options_menu = { edit: false, settings: false };
+var a_more_options_menus = [];
 
 function openSettings(UserID) {
   chromeGetValue(save_file).then((result) => {
-    if (b_more_options_menu.edit) {
+    if (
+      !a_more_options_menus.some((x, i) => {
+        x.ID == UserID;
+      })
+    ) {
+      a_more_options_menus.push({ ID: UserID, edit: false, settings: false });
+    }
+    if (
+      a_more_options_menus.find((x, i) => {
+        return x.ID == UserID;
+      }).edit
+    ) {
       document
         .querySelector(`[tag="menu_div_${UserID}"]`)
         .classList.toggle("is_open", false);
-      b_more_options_menu.settings = !b_more_options_menu.settings;
+      a_more_options_menus.find((x, i) => {
+        return x.ID == UserID;
+      }).settings = !a_more_options_menus.find((x, i) => {
+        return x.ID == UserID;
+      }).settings;
     } else {
-      b_more_options_menu.settings = !b_more_options_menu.settings;
+      a_more_options_menus.find((x, i) => {
+        return x.ID == UserID;
+      }).settings = !a_more_options_menus.find((x, i) => {
+        return x.ID == UserID;
+      }).settings;
     }
     document
       .querySelector(`[tag="menu_div_${UserID}"]`)
@@ -1124,13 +1143,32 @@ function delete_friend(UserID = { ...base_user_data }.UserID) {
 // A function that opens and closes edit menu as well as it pastes already existing values into the fields for user to edit.
 function edit_friend(UserID = { ...base_user_data }.UserID) {
   chromeGetValue(save_file).then((result) => {
-    if (b_more_options_menu.settings) {
+    if (
+      !a_more_options_menus.some((x, i) => {
+        x.ID == UserID;
+      })
+    ) {
+      a_more_options_menus.push({ ID: UserID, edit: false, settings: false });
+    }
+    if (
+      a_more_options_menus.find((x, i) => {
+        return x.ID == UserID;
+      }).settings
+    ) {
       document
         .querySelector(`[tag="menu_div_${UserID}"]`)
         .classList.toggle("is_open", false);
-      b_more_options_menu.edit = !b_more_options_menu.edit;
+      a_more_options_menus.find((x, i) => {
+        return x.ID == UserID;
+      }).edit = !a_more_options_menus.find((x, i) => {
+        return x.ID == UserID;
+      }).edit;
     } else {
-      b_more_options_menu.edit = !b_more_options_menu.edit;
+      a_more_options_menus.find((x, i) => {
+        return x.ID == UserID;
+      }).edit = !a_more_options_menus.find((x, i) => {
+        return x.ID == UserID;
+      }).edit;
     }
     document
       .querySelector(`[tag="menu_div_${UserID}"]`)
