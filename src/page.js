@@ -1,13 +1,24 @@
 // Variable that saves key for chrome.storage to manage data in it.
 const save_file = "save_file";
 
+const settings_base = {
+  notification: true,
+  initial_start: 10,
+  once: false,
+  daily: true,
+};
+
 // Blank for item in data-base.
-let base_user_data = {
+const base_user_data = {
   ID: "0",
   Icon: "",
   Name: "",
   UserID: "",
   BirthdayDate: "",
+  settings: settings_base,
+  notification: {
+    last_date: new Date("1980").getTime(),
+  },
 };
 
 // chrome.storage.sync.clear(save_edit);
@@ -62,8 +73,74 @@ function getBDBParent() {
   });
 }
 
-// A part of code that initiates the piece of code that creates Calendar button.
-requestAnimationFrame(initCalendarButton);
+// A part of code that initiates the piece of code that creates Calendar button & Birthday save button.
+requestAnimationFrame(function () {
+  initCalendarButton();
+  initBDB();
+
+  // notifications initialization
+  chromeGetValue(save_file).then((result = [{ ...base_user_data }]) => {
+    if (result != null && result.length > 0 && result[0].ID != 0) {
+      result.forEach(function (v = { ...base_user_data }, i) {
+        var yesterday = new Date();
+        yesterday.setDate(yesterday.getDate() - 1);
+        console.log(v);
+        if (
+          v.settings.notification &&
+          !(v.notification.last_date > yesterday.getTime()) &&
+          months.some((month) => {
+            var RegExMonth = new RegExp("\\b" + month + "\\b");
+            return RegExMonth.test(v.BirthdayDate.toLowerCase());
+          }) &&
+          new Date(
+            new Date().setFullYear(new Date(v.BirthdayDate).getFullYear())
+          ) >=
+            new Date(
+              new Date(v.BirthdayDate).setDate(
+                new Date(v.BirthdayDate).getDate() - v.settings.initial_start
+              )
+            ) &&
+          new Date(
+            new Date().setFullYear(new Date(v.BirthdayDate).getFullYear())
+          ) <= new Date(v.BirthdayDate) &&
+          ((v.settings.once &&
+            new Date(v.notification.last_date).getFullYear() <
+              new Date().getFullYear()) ||
+            v.settings.daily)
+        ) {
+          var year = new Date(v.BirthdayDate).getMonth() < new Date() ? 0 : 1;
+
+          var days_left = Math.ceil(
+            (new Date(v.BirthdayDate).getTime() -
+              new Date(
+                new Date().setFullYear(
+                  new Date(v.BirthdayDate).getFullYear() - year
+                )
+              ).getTime()) /
+              (1000 * 3600 * 24)
+          );
+
+          if (days_left > 0) {
+            new Notification(
+              `${v.Name}'s Birthday will be in ${days_left} days`,
+              {
+                body: `If you had anything planned for that, you better get started`,
+                icon: v.Icon,
+              }
+            );
+          } else {
+            new Notification(`Today is ${v.Name}'s Birthday`, {
+              body: `Horay! Wish that person a Happy Birthday or whatever you wanted to do this day`,
+              icon: v.Icon,
+            });
+          }
+          v.notification.last_date = new Date().getTime();
+          chrome.storage.sync.set({ save_file: result });
+        }
+      });
+    }
+  });
+});
 
 // A function that will keep searching for a twitter's left side bar in order to parse it into the function to inject Calendar button into that bar.
 function initCalendarButton() {
@@ -75,9 +152,6 @@ function initCalendarButton() {
     requestAnimationFrame(initCalendarButton);
   }
 }
-
-// A part of code that initiates piece of code that creates a Birthday save button.
-requestAnimationFrame(initBDB);
 
 // Variable that saves initial page's url/href upon loading on the page.
 var oldHref = document.location.href;
@@ -125,30 +199,30 @@ window.onload = function () {
 
 // Array of months for tests.
 var months = [
-  "January",
-  "February",
-  "March",
-  "April",
-  "May",
-  "June",
-  "July",
-  "August",
-  "September",
-  "October",
-  "November",
-  "December",
-  "Jan",
-  "Feb",
-  "Mar",
-  "Apr",
-  "May",
-  "Jun",
-  "Jul",
-  "Aug",
-  "Sep",
-  "Oct",
-  "Nov",
-  "Dec",
+  "january",
+  "february",
+  "march",
+  "april",
+  "may",
+  "june",
+  "july",
+  "august",
+  "september",
+  "october",
+  "november",
+  "december",
+  "jan",
+  "feb",
+  "mar",
+  "apr",
+  "may",
+  "jun",
+  "jul",
+  "aug",
+  "sep",
+  "oct",
+  "nov",
+  "dec",
 ];
 // A function that will allow us to sort dates in order.
 function dateComparison(a, b) {
@@ -158,13 +232,15 @@ function dateComparison(a, b) {
   // All "Trash dates" get sorted down
   if (
     !months.some((month) => {
-      return a.BirthdayDate.includes(month);
+      var RegExMonth = new RegExp("\\b" + month + "\\b");
+      return RegExMonth.test(a.BirthdayDate.toLowerCase());
     }) &&
     !/\d/.test(a.BirthdayDate)
   ) {
     if (
       !months.some((month) => {
-        return b.BirthdayDate.includes(month);
+        var RegExMonth = new RegExp("\\b" + month + "\\b");
+        return RegExMonth.test(b.BirthdayDate.toLowerCase());
       }) &&
       !/\d/.test(b.BirthdayDate)
     ) {
@@ -174,13 +250,15 @@ function dateComparison(a, b) {
     }
   } else if (
     !months.some((month) => {
-      return b.BirthdayDate.includes(month);
+      var RegExMonth = new RegExp("\\b" + month + "\\b");
+      return RegExMonth.test(b.BirthdayDate.toLowerCase());
     }) &&
     !/\d/.test(b.BirthdayDate)
   ) {
     if (
       !months.some((month) => {
-        return a.BirthdayDate.includes(month);
+        var RegExMonth = new RegExp("\\b" + month + "\\b");
+        return RegExMonth.test(a.BirthdayDate.toLowerCase());
       }) &&
       !/\d/.test(a.BirthdayDate)
     ) {
@@ -191,12 +269,14 @@ function dateComparison(a, b) {
   } else if (
     // All "Year only" dates get sorted down but above trash dates.
     !months.some((month) => {
-      return a.BirthdayDate.includes(month);
+      var RegExMonth = new RegExp("\\b" + month + "\\b");
+      return RegExMonth.test(a.BirthdayDate.toLowerCase());
     })
   ) {
     if (
       months.some((month) => {
-        return b.BirthdayDate.includes(month);
+        var RegExMonth = new RegExp("\\b" + month + "\\b");
+        return RegExMonth.test(b.BirthdayDate.toLowerCase());
       })
     ) {
       return 1;
@@ -205,87 +285,97 @@ function dateComparison(a, b) {
     }
   } else if (
     !months.some((month) => {
-      return b.BirthdayDate.includes(month);
+      var RegExMonth = new RegExp("\\b" + month + "\\b");
+      return RegExMonth.test(b.BirthdayDate.toLowerCase());
     })
   ) {
     if (
       months.some((month) => {
-        return a.BirthdayDate.includes(month);
+        var RegExMonth = new RegExp("\\b" + month + "\\b");
+        return RegExMonth.test(a.BirthdayDate.toLowerCase());
       })
     ) {
       return -1;
     } else {
       return date2.getFullYear() - date1.getFullYear();
     }
-  } else if (/\d/.test(a.BirthdayDate) && /\d/.test(b.BirthdayDate)) {
-    // All normal months with dates get sorted includeing sorted by year with the same date
-    if (date1.getMonth() != date2.getMonth()) {
-      // console.log(a.BirthdayDate + " | " + b.BirthdayDate);
-      // console.log(
-      //   date1.getMonth() +
-      //     " | " +
-      //     date2.getMonth() +
-      //     " | " +
-      //     new Date().getMonth()
-      // );
-      if (new Date().getMonth() > date1.getMonth()) {
-        return 1;
-      } else if (new Date().getMonth() > date2.getMonth()) {
-        return -1;
-      } else if (
-        new Date().getMonth() == date1.getMonth() &&
-        new Date().getDate() > date1.getDate()
-      ) {
-        console.log("equal Down");
-        return 1;
-      } else if (
-        new Date().getMonth() == date2.getMonth() &&
-        new Date().getDate() > date2.getDate()
-      ) {
-        console.log("equal Up");
-        return -1;
-      } else {
-        console.log("Sorted");
-        return date1.getMonth() - date2.getMonth();
-      }
-    }
-    if (date1.getMonth() == date2.getMonth()) {
-      if (date1.getDate() == date2.getDate()) {
-        return date1.getFullYear() - date2.getFullYear();
-      } else {
-        return date1.getDate() - date2.getDate();
-      }
-    }
   } else {
-    // All months without dates get sorted under months.
     if (!/\d/.test(a.BirthdayDate)) {
       date1 = new Date(
         months.find((month) => {
-          return a.BirthdayDate.includes(month);
+          var RegExMonth = new RegExp("\\b" + month + "\\b");
+          return RegExMonth.test(a.BirthdayDate.toLowerCase());
         }) + "1"
       );
     }
     if (!/\d/.test(b.BirthdayDate)) {
       date2 = new Date(
         months.find((month) => {
-          return b.BirthdayDate.includes(month);
+          var RegExMonth = new RegExp("\\b" + month + "\\b");
+          return RegExMonth.test(b.BirthdayDate.toLowerCase());
         }) + "1"
       );
     }
-    if (date1.getMonth() < date2.getMonth()) {
-      return -1;
-    } else if (date1.getMonth() > date2.getMonth()) {
-      return 1;
-    } else if (
-      date1.getMonth() == date2.getMonth() &&
-      !/\d/.test(a.BirthdayDate)
-    ) {
-      return 1;
-    } else if (
-      date1.getMonth() == date2.getMonth() &&
-      !/\d/.test(b.BirthdayDate)
-    ) {
-      return -1;
+    // All normal months with dates get sorted includeing sorted by year with the same date
+    if (date1.getMonth() != date2.getMonth()) {
+      if (new Date().getMonth() > date1.getMonth()) {
+        if (
+          new Date().getMonth() > date1.getMonth() &&
+          new Date().getMonth() > date2.getMonth()
+        ) {
+          return date1.getMonth() - date2.getMonth();
+        }
+        return 1;
+      } else if (new Date().getMonth() > date2.getMonth()) {
+        if (
+          new Date().getMonth() > date1.getMonth() &&
+          new Date().getMonth() > date2.getMonth()
+        ) {
+          return date1.getMonth() - date2.getMonth();
+        }
+        return -1;
+      } else if (
+        new Date().getMonth() == date1.getMonth() &&
+        new Date().getDate() > date1.getDate()
+      ) {
+        return 1;
+      } else if (
+        new Date().getMonth() == date2.getMonth() &&
+        new Date().getDate() > date2.getDate()
+      ) {
+        return -1;
+      } else {
+        return date1.getMonth() - date2.getMonth();
+      }
+    }
+    if (date1.getMonth() == date2.getMonth()) {
+      if (date1.getDate() == date2.getDate()) {
+        return date1.getFullYear() - date2.getFullYear();
+      }
+      if (
+        new Date().getMonth() == date1.getMonth() &&
+        new Date().getDate() > date1.getDate()
+      ) {
+        if (
+          new Date().getMonth() == date2.getMonth() &&
+          new Date().getDate() > date2.getDate()
+        ) {
+          return date1.getDate() - date2.getDate();
+        }
+        return 1;
+      } else if (
+        new Date().getMonth() == date2.getMonth() &&
+        new Date().getDate() > date2.getDate()
+      ) {
+        if (
+          new Date().getMonth() == date1.getMonth() &&
+          new Date().getDate() > date1.getDate()
+        ) {
+          return date1.getDate() - date2.getDate();
+        }
+        return -1;
+      }
+      return date1.getDate() - date2.getDate();
     }
   }
 }
@@ -315,39 +405,39 @@ function elementFromHtml(html) {
 }
 
 // A function that updates database by updating/creating/adding new items into it.
-function UpdateData(usersArray = [base_user_data], user_data = base_user_data) {
-  if (usersArray.length >= 0) {
+function UpdateData(eventsDatabase = [], user_data = { ...base_user_data }) {
+  if (eventsDatabase.length >= 0) {
     if (
-      (usersArray == 0 ||
-        usersArray.find((el) => el.UserID == user_data.UserID) == null ||
-        usersArray.find((el) => el.UserID == user_data.UserID) == 0) &&
-      usersArray.find((el) => el.ID == user_data.ID) == null
+      (eventsDatabase == 0 ||
+        eventsDatabase.find((el) => el.UserID == user_data.UserID) == null ||
+        eventsDatabase.find((el) => el.UserID == user_data.UserID) == 0) &&
+      eventsDatabase.find((el) => el.ID == user_data.ID) == null
     ) {
-      usersArray.push(user_data);
+      eventsDatabase.push(user_data);
     } else {
-      if (usersArray.find((el) => el.UserID == user_data.UserID)) {
-        usersArray[
-          usersArray.findIndex((el) => el.UserID == user_data.UserID)
+      if (eventsDatabase.find((el) => el.UserID == user_data.UserID)) {
+        eventsDatabase[
+          eventsDatabase.findIndex((el) => el.UserID == user_data.UserID)
         ] = user_data;
-      } else if (usersArray.find((el) => el.ID == user_data.ID)) {
-        usersArray[usersArray.findIndex((el) => el.ID == user_data.ID)] =
-          user_data;
+      } else if (eventsDatabase.find((el) => el.ID == user_data.ID)) {
+        eventsDatabase[
+          eventsDatabase.findIndex((el) => el.ID == user_data.ID)
+        ] = user_data;
       }
     }
-    usersArray.sort(dateComparison);
-    usersArray.forEach((value, index) => {
+    eventsDatabase.sort(dateComparison);
+    eventsDatabase.forEach((value, index) => {
       value.ID = index + 1;
     });
-    chrome.storage.sync.set({ save_file: usersArray });
+    chrome.storage.sync.set({ save_file: eventsDatabase });
     update_closest_date();
-  } else {
   }
 }
 
 // A function that replaces Birthday element on friend's page with a Birthday button that upon clicking will save friend's information (Name/ID/Birthday date/Icon) into the calendar.
 function setupBDB(BDBElement) {
   if (BDBElement != null || BDBElement.children > 0) {
-    let user_data = base_user_data;
+    let user_data = { ...base_user_data };
 
     user_data.ID = 0;
 
@@ -484,37 +574,41 @@ function update_closest_date() {
   const closest_date = document.createElement("a");
   closest_date.className = "closest_date";
   chromeGetValue(save_file).then((result) => {
-    var year =
-      new Date(result.sort(dateComparison)[0].BirthdayDate).getMonth() <
-      new Date()
-        ? 0
-        : 1;
+    if (result != null && result.length > 0) {
+      var year =
+        new Date(result.sort(dateComparison)[0].BirthdayDate).getMonth() <
+        new Date()
+          ? 0
+          : 1;
 
-    closest_date.innerText =
-      "" +
-      Math.ceil(
-        (new Date(result.sort(dateComparison)[0].BirthdayDate).getTime() -
-          new Date(
-            new Date().setFullYear(
-              new Date(
-                result.sort(dateComparison)[0].BirthdayDate
-              ).getFullYear() - year
-            )
-          ).getTime()) /
-          (1000 * 3600 * 24)
-      );
+      closest_date.innerText =
+        "" +
+        Math.ceil(
+          (new Date(result.sort(dateComparison)[0].BirthdayDate).getTime() -
+            new Date(
+              new Date().setFullYear(
+                new Date(
+                  result.sort(dateComparison)[0].BirthdayDate
+                ).getFullYear() - year
+              )
+            ).getTime()) /
+            (1000 * 3600 * 24)
+        );
+      if (document.querySelector('[class="closest_date"]') != null) {
+        document.querySelector('[class="closest_date"]').remove();
+      }
+      document.querySelector('[class="Calendar_button"]').append(closest_date);
+    } else if (document.querySelector('[class="closest_date"]') != null) {
+      document.querySelector('[class="closest_date"]').remove();
+    }
   });
-  if (document.querySelector('[class="closest_date"]') != null) {
-    document.querySelector('[class="closest_date"]').remove();
-  }
-  document.querySelector('[class="Calendar_button"]').append(closest_date);
 }
 
 // Var to keep in it state of Calendar page if it's being closed or open.
 var active = false;
 
 // A function that creates calendar page by hiding main dif that contains all the content of the current page and will create a list of elements containing all saved data of friends you have saved into your Calendar.
-function calendarPage(mainElement, users_db = [base_user_data]) {
+function calendarPage(mainElement, users_db = []) {
   if (!active) {
     if (mainElement != null) {
       mainElement
@@ -539,7 +633,7 @@ function calendarPage(mainElement, users_db = [base_user_data]) {
   }
 }
 
-function check_fields(fields = base_user_data, user_fields) {
+function check_fields(fields = { ...base_user_data }, user_fields) {
   user_fields
     .querySelector(`[id="birthday_date_input"]`)
     .classList.toggle("error", false);
@@ -562,6 +656,8 @@ function check_fields(fields = base_user_data, user_fields) {
   }
   if (fields.Icon == "") {
     user_fields.querySelector(`[id="image_link_input"]`).value =
+      "https://c.tenor.com/bQuWIFsZWEgAAAAM/thurston-waffles-meow.gif";
+    fields.Icon =
       "https://c.tenor.com/bQuWIFsZWEgAAAAM/thurston-waffles-meow.gif";
   } else if (
     !/\.(jpg|jpeg|png|webp|avif|gif|svg)$/.test(
@@ -597,6 +693,7 @@ function check_fields(fields = base_user_data, user_fields) {
 }
 
 var errors_check;
+var b_util_menu = { settings: false, add_birthday: false };
 
 // A function that updates calendar page by deleting existing content and creating a new list of elements with updated information as well as it assigns a delete button functions for each element.
 function update_calendar_page(mainElement, users_db) {
@@ -611,15 +708,21 @@ function update_calendar_page(mainElement, users_db) {
       .remove();
   }
   chromeGetValue(save_file).then((result) => {
-    if (result != null) {
+    if (result != null && result.length > 1)
       chrome.storage.sync.set({ save_file: result.sort(dateComparison) });
-    }
   });
 
   mainElement
     .getElementsByTagName("div")[0]
-    .append(createCalendarPage(users_db.sort(dateComparison)));
+    .append(
+      createCalendarPage(
+        users_db != null && users_db.length > 1
+          ? users_db.sort(dateComparison)
+          : users_db
+      )
+    );
 
+  // Sets click listener for saving new birthday buttons
   document
     .querySelector('[tag="save_new_birthday"]')
     .addEventListener("click", function () {
@@ -627,7 +730,7 @@ function update_calendar_page(mainElement, users_db) {
         `[class*="birthday_event_creating_menu"]`
       );
 
-      var update = base_user_data;
+      var update = { ...base_user_data };
       update.ID = 0;
       update.Icon = user_fields.querySelector(`[id="image_link_input"]`).value;
       update.Name = user_fields.querySelector(`[id="name_input"]`).value;
@@ -639,16 +742,72 @@ function update_calendar_page(mainElement, users_db) {
       errors_check = check_fields(update, user_fields);
 
       if (!errors_check.find((e) => e == true)) {
+        UpdateData(users_db, update);
         chromeGetValue(save_file).then((result) => {
-          UpdateData(result, update);
           update_calendar_page(getMainParent(), result);
         });
       }
     });
 
+  // Button to delete all events from database
+  document
+    .querySelector('[class*="reset_button"]')
+    .addEventListener("click", function () {
+      chrome.storage.sync.clear(save_file);
+      chromeGetValue(save_file).then((result) => {
+        update_calendar_page(getMainParent(), result);
+      });
+    });
+
+  // assigns functionality for settings button to open it's menus
+  document
+    .querySelector('[tag*="settings"]')
+    .addEventListener("click", function () {
+      if (b_util_menu.add_birthday) {
+        document
+          .querySelector('[class*="birthday_event_creating_menu"]')
+          .classList.toggle("is_open", false);
+
+        document
+          .querySelector('[class*="name_add_birthday"]')
+          .classList.toggle("is_open", false);
+
+        document
+          .querySelector('[class*="utilities"]')
+          .classList.toggle("is_open", false);
+        b_util_menu.add_birthday = !b_util_menu.add_birthday;
+      }
+      document
+        .querySelector('[class*="main_settings_menu"]')
+        .classList.toggle("is_open");
+
+      document
+        .querySelector('[class*="name_settings"]')
+        .classList.toggle("is_open");
+
+      document
+        .querySelector('[class*="utilities"]')
+        .classList.toggle("is_open");
+      b_util_menu.settings = !b_util_menu.settings;
+    });
+  // assigns for add birthdays button in the utilities menu functionality to open menus
   document
     .querySelector('[tag*="add_birthday_event"]')
     .addEventListener("click", function () {
+      if (b_util_menu.settings) {
+        document
+          .querySelector('[class*="main_settings_menu"]')
+          .classList.toggle("is_open", false);
+
+        document
+          .querySelector('[class*="name_settings"]')
+          .classList.toggle("is_open", false);
+
+        document
+          .querySelector('[class*="utilities"]')
+          .classList.toggle("is_open", false);
+        b_util_menu.settings = !b_util_menu.settings;
+      }
       document
         .querySelector('[class*="birthday_event_creating_menu"]')
         .classList.toggle("is_open");
@@ -660,17 +819,39 @@ function update_calendar_page(mainElement, users_db) {
       document
         .querySelector('[class*="utilities"]')
         .classList.toggle("is_open");
+      b_util_menu.add_birthday = !b_util_menu.add_birthday;
     });
 
   // finds and makes "more options" button to make options visible or hiding them depending on their state.
   var users = document.querySelectorAll('[class="more_button_holder"]');
 
+  // sets all onClick events for "more" buttons
   users.forEach((value) => {
+    // makes other buttons visible
     value.addEventListener("click", function () {
       value
         .querySelector(`[class*="delete_friend"]`)
         .classList.toggle("is_open");
       value.querySelector(`[class*="edit_friend"]`).classList.toggle("is_open");
+      value
+        .querySelector(`[class*="event_settings_button"]`)
+        .classList.toggle("is_open");
+
+      // disables event settings button for events without any specified date
+      users_db.forEach((x, i) => {
+        if (
+          value.id == x.UserID &&
+          !months.some((month) => {
+            var RegExMonth = new RegExp("\\b" + month + "\\b");
+            return RegExMonth.test(x.BirthdayDate.toLowerCase());
+          }) &&
+          /\d/.test(x.BirthdayDate)
+        ) {
+          value
+            .querySelector(`[class*="event_settings_button"]`)
+            .classList.toggle("is_open", false);
+        }
+      });
     });
 
     // adds onClick functionality for each edit button of each user.
@@ -686,14 +867,113 @@ function update_calendar_page(mainElement, users_db) {
       .addEventListener("click", function () {
         delete_friend(value.id);
       });
+
+    // adds onClick functionality for each settings button of each user.
+
+    value
+      .querySelector('[tag="event_settings_button"]')
+      .addEventListener("click", function () {
+        openSettings(value.id);
+      });
+  });
+  update_closest_date();
+}
+
+var b_more_options_menu = { edit: false, settings: false };
+
+function openSettings(UserID) {
+  chromeGetValue(save_file).then((result) => {
+    if (b_more_options_menu.edit) {
+      document
+        .querySelector(`[tag="menu_div_${UserID}"]`)
+        .classList.toggle("is_open", false);
+      b_more_options_menu.settings = !b_more_options_menu.settings;
+    } else {
+      b_more_options_menu.settings = !b_more_options_menu.settings;
+    }
+    document
+      .querySelector(`[tag="menu_div_${UserID}"]`)
+      .classList.toggle("is_open");
+
+    document
+      .querySelector(`[class*="event_settings_${UserID}"]`)
+      .classList.toggle("is_open");
+
+    var user_fields = document.querySelector(
+      `[class*="event_settings_${UserID}"]`
+    );
+    var user_fields_values = result.find((value) => {
+      return value.UserID == UserID;
+    });
+
+    if (user_fields_values.settings.notification) {
+      user_fields
+        .querySelectorAll(`[class*="notifications_settings"]`)[0]
+        .classList.toggle("is_open", true);
+      user_fields
+        .querySelectorAll(`[class*="notifications_settings"]`)[1]
+        .classList.toggle("is_open", true);
+    }
+
+    user_fields.getElementsByTagName(`input`)[0].checked =
+      user_fields_values.settings.notification;
+    user_fields.getElementsByTagName(`input`)[1].value =
+      user_fields_values.settings.initial_start;
+    user_fields.getElementsByTagName(`input`)[2].checked =
+      user_fields_values.settings.once;
+    user_fields.getElementsByTagName(`input`)[3].checked =
+      user_fields_values.settings.daily;
+
+    user_fields
+      .getElementsByTagName(`input`)[0]
+      .addEventListener("change", function () {
+        user_fields_values.settings.notification =
+          user_fields.getElementsByTagName(`input`)[0].checked;
+        UpdateData(result, user_fields_values);
+        user_fields
+          .querySelectorAll(`[class*="notifications_settings"]`)[0]
+          .classList.toggle("is_open");
+        user_fields
+          .querySelectorAll(`[class*="notifications_settings"]`)[1]
+          .classList.toggle("is_open");
+      });
+    user_fields
+      .getElementsByTagName(`input`)[1]
+      .addEventListener("input", function () {
+        user_fields_values.settings.initial_start =
+          user_fields.getElementsByTagName(`input`)[1].value;
+        UpdateData(result, user_fields_values);
+      });
+    user_fields
+      .getElementsByTagName(`input`)[2]
+      .addEventListener("change", function () {
+        user_fields_values.settings.once =
+          user_fields.getElementsByTagName(`input`)[2].checked;
+        user_fields_values.settings.daily =
+          !user_fields.getElementsByTagName(`input`)[2].checked;
+        user_fields.getElementsByTagName(`input`)[3].checked =
+          !user_fields.getElementsByTagName(`input`)[2].checked;
+        UpdateData(result, user_fields_values);
+      });
+    user_fields
+      .getElementsByTagName(`input`)[3]
+      .addEventListener("change", function () {
+        user_fields_values.settings.daily =
+          user_fields.getElementsByTagName(`input`)[3].checked;
+        user_fields_values.settings.once =
+          !user_fields.getElementsByTagName(`input`)[3].checked;
+        user_fields.getElementsByTagName(`input`)[2].checked =
+          !user_fields.getElementsByTagName(`input`)[3].checked;
+        UpdateData(result, user_fields_values);
+      });
   });
 }
 
 // A function that created the base of the Calendar page that contains all list items.
-function createCalendarPage(array = [base_user_data]) {
+function createCalendarPage(array = []) {
   const ul = document.createElement("ul");
 
-  var new_year = true;
+  var next_year = true;
   var unknown = true;
 
   const svg_arrow_down = document.createElement("img");
@@ -701,11 +981,27 @@ function createCalendarPage(array = [base_user_data]) {
   svg_arrow_down.src = chrome.runtime.getURL(
     "assets/images/arrow_downward_icon.svg"
   );
+
   if (array.length > 0 && array[0].ID != 0) {
     array.forEach((x, i) => {
+      var date = new Date(x.BirthdayDate);
+      if (!/\d/.test(x.BirthdayDate)) {
+        date = new Date(
+          months.find((month) => {
+            var RegExMonth = new RegExp("\\b" + month + "\\b");
+            return RegExMonth.test(x.BirthdayDate.toLowerCase());
+          }) + " 1"
+        );
+      }
       if (
-        new_year &&
-        new Date(x.BirthdayDate).getMonth() < new Date().getMonth()
+        next_year &&
+        months.some((month) => {
+          var RegExMonth = new RegExp("\\b" + month + "\\b");
+          return RegExMonth.test(x.BirthdayDate.toLowerCase());
+        }) &&
+        (date.getMonth() < new Date().getMonth() ||
+          (date.getMonth() == new Date().getMonth() &&
+            new Date().getDate() > date.getDate()))
       ) {
         ul.appendChild(
           elementFromHtml(
@@ -717,14 +1013,14 @@ function createCalendarPage(array = [base_user_data]) {
             `
           )
         );
-        new_year = false;
+        next_year = false;
       }
       if (
         unknown &&
         !months.some((month) => {
-          return x.BirthdayDate.includes(month);
-        }) &&
-        !/\d/.test(x.BirthdayDate)
+          var RegExMonth = new RegExp("\\b" + month + "\\b");
+          return RegExMonth.test(x.BirthdayDate.toLowerCase());
+        })
       ) {
         ul.appendChild(
           elementFromHtml(
@@ -736,6 +1032,7 @@ function createCalendarPage(array = [base_user_data]) {
             `
           )
         );
+        unknown = false;
       }
       ul.appendChild(createListItem(x));
     });
@@ -764,10 +1061,16 @@ function createCalendarPage(array = [base_user_data]) {
                 </div>
                 <div class="name_of_utility_holder">
                   <div class="name_settings utility_name">Settings</div>
-                  <div class="name_add_birthday utility_name">Add New Birthday</div>
+                  <div class="name_add_birthday utility_name">
+                    Add New Birthday
+                  </div>
                 </div>
               </div>
-              <div class="settings"></div>
+              <div class="settings">
+                <div class="main_settings_menu">
+                  <button class="reset_button">Reset All</button>
+                </div>
+              </div>
               <div class="birthday_event_creating_menu">
                 <div class="edit_fields">
                   <div class="edit_field">
@@ -807,7 +1110,7 @@ function createCalendarPage(array = [base_user_data]) {
 }
 
 // A function that deletes item with matching UserID from database.
-function delete_friend(UserID = base_user_data.UserID) {
+function delete_friend(UserID = { ...base_user_data }.UserID) {
   chromeGetValue(save_file).then((result) => {
     const index = result.findIndex((object) => {
       return object.UserID == UserID;
@@ -819,10 +1122,18 @@ function delete_friend(UserID = base_user_data.UserID) {
 }
 
 // A function that opens and closes edit menu as well as it pastes already existing values into the fields for user to edit.
-function edit_friend(UserID = base_user_data.UserID) {
+function edit_friend(UserID = { ...base_user_data }.UserID) {
   chromeGetValue(save_file).then((result) => {
+    if (b_more_options_menu.settings) {
+      document
+        .querySelector(`[tag="menu_div_${UserID}"]`)
+        .classList.toggle("is_open", false);
+      b_more_options_menu.edit = !b_more_options_menu.edit;
+    } else {
+      b_more_options_menu.edit = !b_more_options_menu.edit;
+    }
     document
-      .querySelector(`[tag="edit_div_${UserID}"]`)
+      .querySelector(`[tag="menu_div_${UserID}"]`)
       .classList.toggle("is_open");
 
     document
@@ -853,12 +1164,12 @@ function edit_friend(UserID = base_user_data.UserID) {
 }
 
 // A function that saves all edited data into DataBase.
-function save_edit(user_fields_values = base_user_data) {
+function save_edit(user_fields_values = { ...base_user_data }) {
   if (user_fields_values.ID != 0) {
     var user_fields = document.querySelector(
       `[tag="editing_menu_${user_fields_values.UserID}"]`
     );
-    var update = base_user_data;
+    var update = { ...base_user_data };
     update.ID = user_fields_values.ID;
     update.Icon = user_fields.querySelector(`[id="image_link_input"]`).value;
     update.Name = user_fields.querySelector(`[id="name_input"]`).value;
@@ -879,12 +1190,12 @@ function save_edit(user_fields_values = base_user_data) {
 }
 
 // A function that creates each list item that contains all friend's information and UI elements with all it's classes.
-function createListItem(user_object = base_user_data) {
+function createListItem(user_object = { ...base_user_data }) {
   return elementFromHtml(
     `
       <li class="user">
         <div>
-          <div class="edit_div" tag="edit_div_${user_object.UserID}">
+          <div class="edit_div" tag="menu_div_${user_object.UserID}">
             <a href="${"https://twitter.com/" + user_object.UserID}">
               <div class="list">
                 <img class="icon" src="${user_object.Icon}" />
@@ -923,6 +1234,37 @@ function createListItem(user_object = base_user_data) {
                 />
               </div>
             </div>
+            <div class="event_settings event_settings_${user_object.UserID}">
+              <div>
+                <label class="toggle_container"
+                  >Notifications:
+                  <input type="checkbox" checked="checked" />
+                  <span class="checkmark"></span>
+                </label>
+                <p class="notifications_settings">
+                  When do you want to start recieving notifications?<input
+                  class="notif_start"
+                    type="number"
+                    step="1"
+                    min="1"
+                    max="365"
+                    placeholder="1 - 365"
+                  />
+                </p>
+                <div class="notifications_settings">
+                <label class="toggle_container"
+                  >Onece
+                  <input type="checkbox" checked="checked" />
+                  <span class="checkmark"></span>
+                </label>
+                <label class="toggle_container"
+                  >Daily
+                  <input type="checkbox" checked="checked" />
+                  <span class="checkmark"></span>
+                </label>
+                </div>
+              </div>
+            </div>
           </div>
 
           <a class="more_button_holder" id="${user_object.UserID}">
@@ -935,7 +1277,7 @@ function createListItem(user_object = base_user_data) {
               />
             </div>
             <div
-              class="calendar_icons_button delete_friend"
+              class="calendar_icons_button options_button delete_friend"
               tag="delete_friend"
             >
               <img
@@ -943,10 +1285,25 @@ function createListItem(user_object = base_user_data) {
                 src="${chrome.runtime.getURL("assets/images/delete_icon.svg")}"
               />
             </div>
-            <div class="calendar_icons_button edit_friend" tag="edit_friend">
+            <div
+              class="calendar_icons_button options_button edit_friend"
+              tag="edit_friend"
+            >
               <img
                 class="calendar_icons_svg"
                 src="${chrome.runtime.getURL("assets/images/edit_icon.svg")}"
+              />
+            </div>
+
+            <div
+              class="calendar_icons_button options_button event_settings_button"
+              tag="event_settings_button"
+            >
+              <img
+                class="calendar_icons_svg"
+                src="${chrome.runtime.getURL(
+                  "assets/images/settings_icon.svg"
+                )}"
               />
             </div>
           </a>
