@@ -844,8 +844,7 @@ function update_calendar_page(mainElement, users_db) {
           !months.some((month) => {
             var RegExMonth = new RegExp("\\b" + month + "\\b");
             return RegExMonth.test(x.BirthdayDate.toLowerCase());
-          }) &&
-          /\d/.test(x.BirthdayDate)
+          })
         ) {
           value
             .querySelector(`[class*="event_settings_button"]`)
