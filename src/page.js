@@ -574,30 +574,60 @@ function update_closest_date() {
   const closest_date = document.createElement("a");
   closest_date.className = "closest_date";
   chromeGetValue(save_file).then((result) => {
+    result = result.sort(dateComparison);
+    date = { ...result[0] };
     if (result != null && result.length > 0) {
+      // finding out if event happening this or next year
+      if (
+        months.some((month) => {
+          var RegExMonth = new RegExp("\\b" + month + "\\b");
+          return RegExMonth.test(date.BirthdayDate.toLowerCase());
+        }) &&
+        !/\d/.test(date.BirthdayDate)
+      ) {
+        date.BirthdayDate = new Date(
+          months.find((month) => {
+            var RegExMonth = new RegExp("\\b" + month + "\\b");
+            return RegExMonth.test(date.BirthdayDate.toLowerCase());
+          }) + "1"
+        );
+      } else {
+        date.BirthdayDate = new Date(date.BirthdayDate);
+      }
       var year =
-        new Date(result.sort(dateComparison)[0].BirthdayDate).getMonth() <
-        new Date()
-          ? 0
-          : 1;
+        date.BirthdayDate.getMonth() < new Date().getMonth()
+          ? 1
+          : 0 || date.BirthdayDate.getMonth() == new Date().getMonth()
+          ? date.BirthdayDate.getDate() < new Date().getDate()
+            ? 1
+            : 0
+          : 0;
+
+      console.log(year);
 
       closest_date.innerText =
         "" +
         Math.ceil(
-          (new Date(result.sort(dateComparison)[0].BirthdayDate).getTime() -
+          (date.BirthdayDate.getTime() -
             new Date(
-              new Date().setFullYear(
-                new Date(
-                  result.sort(dateComparison)[0].BirthdayDate
-                ).getFullYear() - year
-              )
+              new Date().setFullYear(date.BirthdayDate.getFullYear() - year)
             ).getTime()) /
             (1000 * 3600 * 24)
         );
+
       if (document.querySelector('[class="closest_date"]') != null) {
         document.querySelector('[class="closest_date"]').remove();
       }
-      document.querySelector('[class="Calendar_button"]').append(closest_date);
+      if (
+        months.some((month) => {
+          var RegExMonth = new RegExp("\\b" + month + "\\b");
+          return RegExMonth.test(result[0].BirthdayDate.toLowerCase());
+        })
+      ) {
+        document
+          .querySelector('[class="Calendar_button"]')
+          .append(closest_date);
+      }
     } else if (document.querySelector('[class="closest_date"]') != null) {
       document.querySelector('[class="closest_date"]').remove();
     }
