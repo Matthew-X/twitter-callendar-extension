@@ -86,6 +86,28 @@ requestAnimationFrame(function () {
         yesterday.setDate(yesterday.getDate() - 1);
         console.log(v);
         if (
+          months.some((month) => {
+            var RegExMonth = new RegExp("\\b" + month + "\\b");
+            return RegExMonth.test(v.BirthdayDate.toLowerCase());
+          }) &&
+          !/\d/.test(v.BirthdayDate)
+        ) {
+          v.BirthdayDate =
+            months.find((month) => {
+              var RegExMonth = new RegExp("\\b" + month + "\\b");
+              if (RegExMonth.test(v.BirthdayDate.toLowerCase())) return month;
+            }) + " 1";
+        }
+        console.log(
+          Math.ceil(
+            (new Date(v.BirthdayDate).getTime() -
+              new Date(
+                new Date().setFullYear(new Date(v.BirthdayDate).getFullYear())
+              ).getTime()) /
+              (1000 * 3600 * 24)
+          )
+        );
+        if (
           v.settings.notification &&
           !(v.notification.last_date > yesterday.getTime()) &&
           months.some((month) => {
@@ -100,15 +122,22 @@ requestAnimationFrame(function () {
                 new Date(v.BirthdayDate).getDate() - v.settings.initial_start
               )
             ) &&
-          new Date(
-            new Date().setFullYear(new Date(v.BirthdayDate).getFullYear())
-          ) <= new Date(v.BirthdayDate) &&
           ((v.settings.once &&
             new Date(v.notification.last_date).getFullYear() <
               new Date().getFullYear()) ||
             v.settings.daily)
         ) {
-          var year = new Date(v.BirthdayDate).getMonth() < new Date() ? 0 : 1;
+          var year =
+            new Date(v.BirthdayDate).getMonth() < new Date().getMonth()
+              ? 1
+              : 0 ||
+                new Date(v.BirthdayDate).getMonth() == new Date().getMonth()
+              ? new Date(v.BirthdayDate).getDate() < new Date().getDate()
+                ? 1
+                : 0
+              : 0;
+
+          console.log(year);
 
           var days_left = Math.ceil(
             (new Date(v.BirthdayDate).getTime() -
@@ -136,6 +165,7 @@ requestAnimationFrame(function () {
           }
           v.notification.last_date = new Date().getTime();
           chrome.storage.sync.set({ save_file: result });
+          console.log("no notification?");
         }
       });
     }
@@ -574,8 +604,10 @@ function update_closest_date() {
   const closest_date = document.createElement("a");
   closest_date.className = "closest_date";
   chromeGetValue(save_file).then((result) => {
-    result = result.sort(dateComparison);
-    date = { ...result[0] };
+    if (result != null && result.length > 0) {
+      result = result.sort(dateComparison);
+      date = { ...result[0] };
+    }
     if (result != null && result.length > 0) {
       // finding out if event happening this or next year
       if (
@@ -1236,7 +1268,7 @@ function save_edit(user_fields_values = { ...base_user_data }) {
     var user_fields = document.querySelector(
       `[tag="editing_menu_${user_fields_values.UserID}"]`
     );
-    var update = { ...base_user_data };
+    var update = { ...user_fields_values };
     update.ID = user_fields_values.ID;
     update.Icon = user_fields.querySelector(`[id="image_link_input"]`).value;
     update.Name = user_fields.querySelector(`[id="name_input"]`).value;
@@ -1253,6 +1285,7 @@ function save_edit(user_fields_values = { ...base_user_data }) {
         update_calendar_page(getMainParent(), result);
       });
     }
+    a_more_options_menus = [];
   }
 }
 
