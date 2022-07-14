@@ -1015,6 +1015,7 @@ function openSettings(UserID) {
       .addEventListener("input", function () {
         user_fields_values.settings.initial_start =
           user_fields.getElementsByTagName(`input`)[1].value;
+        user_fields_values.notification.last_date = new Date("1980").getTime();
         UpdateData(result, user_fields_values);
       });
     user_fields
