@@ -98,15 +98,16 @@ requestAnimationFrame(function () {
               if (RegExMonth.test(v.BirthdayDate.toLowerCase())) return month;
             }) + " 1";
         }
-        console.log(
-          Math.ceil(
-            (new Date(v.BirthdayDate).getTime() -
-              new Date(
-                new Date().setFullYear(new Date(v.BirthdayDate).getFullYear())
-              ).getTime()) /
-              (1000 * 3600 * 24)
-          )
-        );
+
+        var year =
+          new Date(v.BirthdayDate).getMonth() < new Date().getMonth()
+            ? 1
+            : 0 || new Date(v.BirthdayDate).getMonth() == new Date().getMonth()
+            ? new Date(v.BirthdayDate).getDate() < new Date().getDate()
+              ? 1
+              : 0
+            : 0;
+
         if (
           v.settings.notification &&
           !(v.notification.last_date > yesterday.getTime()) &&
@@ -115,7 +116,9 @@ requestAnimationFrame(function () {
             return RegExMonth.test(v.BirthdayDate.toLowerCase());
           }) &&
           new Date(
-            new Date().setFullYear(new Date(v.BirthdayDate).getFullYear())
+            new Date().setFullYear(
+              new Date(v.BirthdayDate).getFullYear() - year
+            )
           ) >=
             new Date(
               new Date(v.BirthdayDate).setDate(
@@ -127,16 +130,6 @@ requestAnimationFrame(function () {
               new Date().getFullYear()) ||
             v.settings.daily)
         ) {
-          var year =
-            new Date(v.BirthdayDate).getMonth() < new Date().getMonth()
-              ? 1
-              : 0 ||
-                new Date(v.BirthdayDate).getMonth() == new Date().getMonth()
-              ? new Date(v.BirthdayDate).getDate() < new Date().getDate()
-                ? 1
-                : 0
-              : 0;
-
           console.log(year);
 
           var days_left = Math.ceil(
