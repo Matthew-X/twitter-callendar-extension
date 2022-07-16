@@ -86,6 +86,29 @@ requestAnimationFrame(function () {
         yesterday.setDate(yesterday.getDate() - 1);
         console.log(v);
         if (
+          months.some((month) => {
+            var RegExMonth = new RegExp("\\b" + month + "\\b");
+            return RegExMonth.test(v.BirthdayDate.toLowerCase());
+          }) &&
+          !/\d/.test(v.BirthdayDate)
+        ) {
+          v.BirthdayDate =
+            months.find((month) => {
+              var RegExMonth = new RegExp("\\b" + month + "\\b");
+              if (RegExMonth.test(v.BirthdayDate.toLowerCase())) return month;
+            }) + " 1";
+        }
+
+        var year =
+          new Date(v.BirthdayDate).getMonth() < new Date().getMonth()
+            ? 1
+            : 0 || new Date(v.BirthdayDate).getMonth() == new Date().getMonth()
+            ? new Date(v.BirthdayDate).getDate() < new Date().getDate()
+              ? 1
+              : 0
+            : 0;
+
+        if (
           v.settings.notification &&
           !(v.notification.last_date > yesterday.getTime()) &&
           months.some((month) => {
@@ -93,22 +116,21 @@ requestAnimationFrame(function () {
             return RegExMonth.test(v.BirthdayDate.toLowerCase());
           }) &&
           new Date(
-            new Date().setFullYear(new Date(v.BirthdayDate).getFullYear())
+            new Date().setFullYear(
+              new Date(v.BirthdayDate).getFullYear() - year
+            )
           ) >=
             new Date(
               new Date(v.BirthdayDate).setDate(
                 new Date(v.BirthdayDate).getDate() - v.settings.initial_start
               )
             ) &&
-          new Date(
-            new Date().setFullYear(new Date(v.BirthdayDate).getFullYear())
-          ) <= new Date(v.BirthdayDate) &&
           ((v.settings.once &&
             new Date(v.notification.last_date).getFullYear() <
               new Date().getFullYear()) ||
             v.settings.daily)
         ) {
-          var year = new Date(v.BirthdayDate).getMonth() < new Date() ? 0 : 1;
+          console.log(year);
 
           var days_left = Math.ceil(
             (new Date(v.BirthdayDate).getTime() -
@@ -136,6 +158,7 @@ requestAnimationFrame(function () {
           }
           v.notification.last_date = new Date().getTime();
           chrome.storage.sync.set({ save_file: result });
+          console.log("no notification?");
         }
       });
     }
@@ -575,29 +598,61 @@ function update_closest_date() {
   closest_date.className = "closest_date";
   chromeGetValue(save_file).then((result) => {
     if (result != null && result.length > 0) {
+      result = result.sort(dateComparison);
+      date = { ...result[0] };
+    }
+    if (result != null && result.length > 0) {
+      // finding out if event happening this or next year
+      if (
+        months.some((month) => {
+          var RegExMonth = new RegExp("\\b" + month + "\\b");
+          return RegExMonth.test(date.BirthdayDate.toLowerCase());
+        }) &&
+        !/\d/.test(date.BirthdayDate)
+      ) {
+        date.BirthdayDate = new Date(
+          months.find((month) => {
+            var RegExMonth = new RegExp("\\b" + month + "\\b");
+            return RegExMonth.test(date.BirthdayDate.toLowerCase());
+          }) + "1"
+        );
+      } else {
+        date.BirthdayDate = new Date(date.BirthdayDate);
+      }
       var year =
-        new Date(result.sort(dateComparison)[0].BirthdayDate).getMonth() <
-        new Date()
-          ? 0
-          : 1;
+        date.BirthdayDate.getMonth() < new Date().getMonth()
+          ? 1
+          : 0 || date.BirthdayDate.getMonth() == new Date().getMonth()
+          ? date.BirthdayDate.getDate() < new Date().getDate()
+            ? 1
+            : 0
+          : 0;
+
+      console.log(year);
 
       closest_date.innerText =
         "" +
         Math.ceil(
-          (new Date(result.sort(dateComparison)[0].BirthdayDate).getTime() -
+          (date.BirthdayDate.getTime() -
             new Date(
-              new Date().setFullYear(
-                new Date(
-                  result.sort(dateComparison)[0].BirthdayDate
-                ).getFullYear() - year
-              )
+              new Date().setFullYear(date.BirthdayDate.getFullYear() - year)
             ).getTime()) /
             (1000 * 3600 * 24)
         );
+
       if (document.querySelector('[class="closest_date"]') != null) {
         document.querySelector('[class="closest_date"]').remove();
       }
-      document.querySelector('[class="Calendar_button"]').append(closest_date);
+      if (
+        months.some((month) => {
+          var RegExMonth = new RegExp("\\b" + month + "\\b");
+          return RegExMonth.test(result[0].BirthdayDate.toLowerCase());
+        })
+      ) {
+        document
+          .querySelector('[class="Calendar_button"]')
+          .append(closest_date);
+      }
     } else if (document.querySelector('[class="closest_date"]') != null) {
       document.querySelector('[class="closest_date"]').remove();
     }
@@ -844,8 +899,7 @@ function update_calendar_page(mainElement, users_db) {
           !months.some((month) => {
             var RegExMonth = new RegExp("\\b" + month + "\\b");
             return RegExMonth.test(x.BirthdayDate.toLowerCase());
-          }) &&
-          /\d/.test(x.BirthdayDate)
+          })
         ) {
           value
             .querySelector(`[class*="event_settings_button"]`)
@@ -879,17 +933,36 @@ function update_calendar_page(mainElement, users_db) {
   update_closest_date();
 }
 
-var b_more_options_menu = { edit: false, settings: false };
+var a_more_options_menus = [];
 
 function openSettings(UserID) {
   chromeGetValue(save_file).then((result) => {
-    if (b_more_options_menu.edit) {
+    if (
+      !a_more_options_menus.some((x, i) => {
+        x.ID == UserID;
+      })
+    ) {
+      a_more_options_menus.push({ ID: UserID, edit: false, settings: false });
+    }
+    if (
+      a_more_options_menus.find((x, i) => {
+        return x.ID == UserID;
+      }).edit
+    ) {
       document
         .querySelector(`[tag="menu_div_${UserID}"]`)
         .classList.toggle("is_open", false);
-      b_more_options_menu.settings = !b_more_options_menu.settings;
+      a_more_options_menus.find((x, i) => {
+        return x.ID == UserID;
+      }).settings = !a_more_options_menus.find((x, i) => {
+        return x.ID == UserID;
+      }).settings;
     } else {
-      b_more_options_menu.settings = !b_more_options_menu.settings;
+      a_more_options_menus.find((x, i) => {
+        return x.ID == UserID;
+      }).settings = !a_more_options_menus.find((x, i) => {
+        return x.ID == UserID;
+      }).settings;
     }
     document
       .querySelector(`[tag="menu_div_${UserID}"]`)
@@ -942,6 +1015,7 @@ function openSettings(UserID) {
       .addEventListener("input", function () {
         user_fields_values.settings.initial_start =
           user_fields.getElementsByTagName(`input`)[1].value;
+        user_fields_values.notification.last_date = new Date("1980").getTime();
         UpdateData(result, user_fields_values);
       });
     user_fields
@@ -1124,13 +1198,32 @@ function delete_friend(UserID = { ...base_user_data }.UserID) {
 // A function that opens and closes edit menu as well as it pastes already existing values into the fields for user to edit.
 function edit_friend(UserID = { ...base_user_data }.UserID) {
   chromeGetValue(save_file).then((result) => {
-    if (b_more_options_menu.settings) {
+    if (
+      !a_more_options_menus.some((x, i) => {
+        x.ID == UserID;
+      })
+    ) {
+      a_more_options_menus.push({ ID: UserID, edit: false, settings: false });
+    }
+    if (
+      a_more_options_menus.find((x, i) => {
+        return x.ID == UserID;
+      }).settings
+    ) {
       document
         .querySelector(`[tag="menu_div_${UserID}"]`)
         .classList.toggle("is_open", false);
-      b_more_options_menu.edit = !b_more_options_menu.edit;
+      a_more_options_menus.find((x, i) => {
+        return x.ID == UserID;
+      }).edit = !a_more_options_menus.find((x, i) => {
+        return x.ID == UserID;
+      }).edit;
     } else {
-      b_more_options_menu.edit = !b_more_options_menu.edit;
+      a_more_options_menus.find((x, i) => {
+        return x.ID == UserID;
+      }).edit = !a_more_options_menus.find((x, i) => {
+        return x.ID == UserID;
+      }).edit;
     }
     document
       .querySelector(`[tag="menu_div_${UserID}"]`)
@@ -1169,7 +1262,7 @@ function save_edit(user_fields_values = { ...base_user_data }) {
     var user_fields = document.querySelector(
       `[tag="editing_menu_${user_fields_values.UserID}"]`
     );
-    var update = { ...base_user_data };
+    var update = { ...user_fields_values };
     update.ID = user_fields_values.ID;
     update.Icon = user_fields.querySelector(`[id="image_link_input"]`).value;
     update.Name = user_fields.querySelector(`[id="name_input"]`).value;
@@ -1177,6 +1270,8 @@ function save_edit(user_fields_values = { ...base_user_data }) {
     update.BirthdayDate = user_fields.querySelector(
       `[id="birthday_date_input"]`
     ).value;
+
+    update.notification.last_date = new Date("1980").getTime();
 
     errors_check = check_fields(update, user_fields);
 
@@ -1186,6 +1281,7 @@ function save_edit(user_fields_values = { ...base_user_data }) {
         update_calendar_page(getMainParent(), result);
       });
     }
+    a_more_options_menus = [];
   }
 }
 
