@@ -1271,6 +1271,8 @@ function save_edit(user_fields_values = { ...base_user_data }) {
       `[id="birthday_date_input"]`
     ).value;
 
+    update.notification.last_date = new Date("1980").getTime();
+
     errors_check = check_fields(update, user_fields);
 
     if (!errors_check.find((e) => e == true)) {
