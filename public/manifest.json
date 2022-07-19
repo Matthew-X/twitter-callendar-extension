@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
-  "name": "Twitter Callendar Extension",
-  "version": "0.1.0",
-  "description": "My Chrome Extension",
+  "name": "Twitter Planner",
+  "version": "0.9.0",
+  "description": "An extension that helps you to keep track of people's birthday events. (Twitter events will get support in the future)",
   "icons": {
     "16": "icons/icon_16.png",
     "32": "icons/icon_32.png",
@@ -12,7 +12,7 @@
   "action": {
     "default_title": "Twitter Callendar Extension"
   },
-  "permissions": ["storage", "notificaton"],
+  "permissions": ["storage", "notifications"],
   "content_scripts": [
     {
       "matches": [

@@ -180,7 +180,7 @@ html {
   align-items: center;
   width: 100%;
   background-color: rgba(231, 233, 234, 0.1);
-  border-radius: 32px;
+  border-radius: 35px;
   transition: background-color 0.2s, box-shadow 0.2s ease-in-out;
   cursor: pointer;
 }
@@ -195,7 +195,7 @@ html {
   align-items: center;
   height: 50px;
   border-radius: 50px;
-  margin: 7px;
+  margin: 10px;
 }
 
 .content {
@@ -363,7 +363,7 @@ html {
   align-self: center;
   width: 100%;
   background-color: trnsparent;
-  border-radius: 32px;
+  border-radius: 35px;
   transition: background-color 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
 }
 
