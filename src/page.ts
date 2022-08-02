@@ -891,19 +891,19 @@ function createCalendarPage(array: user_data[] | null | undefined) {
                 <div class="edit_fields">
                   <div class="edit_field">
                     <div>Image Link:</div>
-                    <input id="image_link_input" />
+                    <input id="image_link_input" placeholder="Example: https://website/lion.gif"/>
                   </div>
                   <div class="edit_field">
                     <div>Name:</div>
-                    <input id="name_input" />
+                    <input id="name_input" placeholder="Example: Matthew"/>
                   </div>
                   <div class="edit_field">
-                    <div>User ID:</div>
-                    <input id="user_id_input" />
+                    <div>Twitter Handle:</div>
+                    <input id="user_id_input" placeholder="Example: @Genshinmem"/>
                   </div>
                   <div class="edit_field">
                     <div>Birthday date:</div>
-                    <input id="birthday_date_input" />
+                    <input id="birthday_date_input" placeholder="Example: July 23"/>
                   </div>
                 </div>
                 <div class="save_changes" tag="save_new_birthday">
@@ -1062,23 +1062,23 @@ function createListItem(user_object = { ...base_user_data }) {
             </a>
             <div class="editing_menu" tag="editing_menu_${user_object.UserID}">
               <div class="edit_fields">
-                <div class="edit_field">
-                  <div>Image Link:</div>
-                  <input id="image_link_input" />
+                  <div class="edit_field">
+                    <div>Image Link:</div>
+                    <input id="image_link_input" placeholder="Example: https://website/lion.gif"/>
+                  </div>
+                  <div class="edit_field">
+                    <div>Name:</div>
+                    <input id="name_input" placeholder="Example: Matthew"/>
+                  </div>
+                  <div class="edit_field">
+                    <div>Twitter Handle:</div>
+                    <input id="user_id_input" placeholder="Example: @Genshinmem"/>
+                  </div>
+                  <div class="edit_field">
+                    <div>Birthday date:</div>
+                    <input id="birthday_date_input" placeholder="Example: July 23"/>
+                  </div>
                 </div>
-                <div class="edit_field">
-                  <div>Name:</div>
-                  <input id="name_input" />
-                </div>
-                <div class="edit_field">
-                  <div>User ID:</div>
-                  <input id="user_id_input" />
-                </div>
-                <div class="edit_field">
-                  <div>Birthday date:</div>
-                  <input id="birthday_date_input" />
-                </div>
-              </div>
               <div class="save_changes">
                 <img
                   class="calendar_icons_svg"
