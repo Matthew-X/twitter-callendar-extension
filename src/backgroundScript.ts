@@ -5,8 +5,15 @@ var today = new Date();
 
 notificationCheck();
 
-chrome.tabs.onUpdated.addListener(function () {
-  notificationCheck();
+chrome.tabs.onUpdated.addListener(function (tabId, changeInfo, tab) {
+  if (
+    (tab.url!.indexOf("https://twitter/") > -1 ||
+      tab.url!.indexOf("https://twitter.com/") ||
+      tab.url!.indexOf("https://mobile.twitter.com/")) &&
+    changeInfo.url === undefined
+  ) {
+    notificationCheck();
+  }
 });
 
 chrome.runtime.onMessage.addListener((message) => {
@@ -22,6 +29,6 @@ setInterval(function () {
     today.getDate() != new Date().getDate()
   ) {
     notificationCheck();
+    today = new Date();
   }
-  console.log("working?");
 }, 500);

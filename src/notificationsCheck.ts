@@ -5,8 +5,6 @@ function notificationCheck() {
   chromeGetValue(save_file).then((result = [{ ...base_user_data }]) => {
     if (result != null && result.length > 0 && result[0].ID != 0) {
       result.forEach(function (v = { ...base_user_data }) {
-        console.log(v);
-        console.log(new Date(v.notification.last_date));
         if (
           months.some((month) => {
             var RegExMonth = new RegExp("\\b" + month + "\\b");
