@@ -12,7 +12,7 @@
   "action": {
     "default_title": "Twitter Callendar Extension"
   },
-  "permissions": ["storage", "notifications", "background"],
+  "permissions": ["storage", "notifications", "background", "tabs"],
   "content_scripts": [
     {
       "matches": [
