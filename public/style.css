@@ -314,7 +314,7 @@ html {
   display: flex;
   white-space: nowrap;
   align-self: center;
-  min-width: 100px;
+  min-width: 110px;
   color: rgb(231, 233, 234);
   cursor: default;
 }
