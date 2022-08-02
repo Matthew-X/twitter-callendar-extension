@@ -25,11 +25,9 @@
       "js": ["contentScript.js"]
     }
   ],
-  "background": [
-    {
-      "service_worker": ["backgroundScript.ts"]
-    }
-  ],
+  "background": {
+    "service_worker": "ServiceWorker.js"
+  },
   "web_accessible_resources": [
     {
       "resources": ["*"],

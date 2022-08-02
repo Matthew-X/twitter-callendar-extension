@@ -10,8 +10,12 @@ const config = (env, argv) =>
   merge(common, {
     entry: {
       contentScript: PATHS.src + "/page.ts",
+      ServiceWorker: PATHS.src + "/backgroundScript.ts",
     },
     devtool: argv.mode === "production" ? false : "source-map",
+    resolve: {
+      extensions: [".ts", ".tsx", ".js"],
+    },
     module: {
       rules: [
         // All files with a '.ts' or '.tsx' extension will be handled by 'ts-loader'.
