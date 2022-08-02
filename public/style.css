@@ -678,7 +678,7 @@ html {
   border: 6px solid transparent;
   background-clip: padding-box;
   background-color: rgba(231, 233, 234, 0.2);
-  transition: 2s ease-in-out;
+  transition: 0.2s ease-in-out;
 }
 
 ::-webkit-scrollbar-thumb:hover {

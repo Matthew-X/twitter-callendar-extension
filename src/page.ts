@@ -1,51 +1,11 @@
-// Variable that saves key for chrome.storage to manage data in it.
-const save_file = "save_file";
-
-const settings_base = {
-  notification: true,
-  initial_start: 10,
-  once: false,
-  daily: true,
-};
-type user_data = {
-  ID: number;
-  Icon: string;
-  Name: string;
-  UserID: string;
-  BirthdayDate: string;
-  settings: typeof settings_base;
-  notification: {
-    last_date: number;
-  };
-};
-// Blank for item in data-base.
-const base_user_data: user_data = {
-  ID: 0,
-  Icon: "",
-  Name: "",
-  UserID: "",
-  BirthdayDate: "",
-  settings: settings_base,
-  notification: {
-    last_date: new Date("1980").getTime(),
-  },
-};
-
-// chrome.storage.sync.clear(save_edit);
-
-// A piece of code that creates initial database for user when user launches code for the first time.
-
-// A function that retrieves data from chrome.storage.
-function chromeGetValue(key: string) {
-  return new Promise<user_data[]>((resolve, reject) => {
-    chrome.storage.sync.get([key], (items) => {
-      if (chrome.runtime.lastError) {
-        return reject(chrome.runtime.lastError);
-      }
-      resolve(items[key]);
-    });
-  })!;
-}
+import {
+  chromeGetValue,
+  base_user_data,
+  user_data,
+  save_file,
+  messages,
+} from "./basics";
+import { dateComparison, months } from "./datesBasics";
 
 // A function that that retrieves a Main-Parent of twitter's left side bar with all the buttons to navigate between pages like (home, messages, bookmarks).
 function getParent(): HTMLElement | null {
@@ -89,93 +49,6 @@ function getBDBParent(): HTMLElement | null {
 requestAnimationFrame(function () {
   initCalendarButton();
   initBDB();
-
-  // notifications initialization
-  chromeGetValue(save_file).then((result = [{ ...base_user_data }]) => {
-    if (result != null && result.length > 0 && result[0].ID != 0) {
-      result.forEach(function (v = { ...base_user_data }) {
-        var yesterday = new Date();
-        yesterday.setDate(yesterday.getDate() - 1);
-        console.log(v);
-        console.log(new Date(v.notification.last_date));
-        if (
-          months.some((month) => {
-            var RegExMonth = new RegExp("\\b" + month + "\\b");
-            return RegExMonth.test(v.BirthdayDate.toLowerCase());
-          }) &&
-          !/\d/.test(v.BirthdayDate)
-        ) {
-          v.BirthdayDate =
-            months.find((month) => {
-              var RegExMonth = new RegExp("\\b" + month + "\\b");
-              if (RegExMonth.test(v.BirthdayDate.toLowerCase())) return month;
-            }) + " 1";
-        }
-
-        var year =
-          new Date(v.BirthdayDate).getMonth() < new Date().getMonth()
-            ? 1
-            : 0 || new Date(v.BirthdayDate).getMonth() == new Date().getMonth()
-            ? new Date(v.BirthdayDate).getDate() < new Date().getDate()
-              ? 1
-              : 0
-            : 0;
-
-        if (
-          v.settings.notification &&
-          !(v.notification.last_date > yesterday.getTime()) &&
-          months.some((month) => {
-            var RegExMonth = new RegExp("\\b" + month + "\\b");
-            return RegExMonth.test(v.BirthdayDate.toLowerCase());
-          }) &&
-          new Date(
-            new Date().setFullYear(
-              new Date(v.BirthdayDate).getFullYear() - year
-            )
-          ) >=
-            new Date(
-              new Date(v.BirthdayDate).setDate(
-                new Date(v.BirthdayDate).getDate() - v.settings.initial_start
-              )
-            ) &&
-          ((v.settings.once &&
-            new Date(v.notification.last_date.toString()).getFullYear() <
-              new Date().getFullYear()) ||
-            v.settings.daily)
-        ) {
-          console.log(year);
-
-          var days_left = Math.ceil(
-            (new Date(v.BirthdayDate).getTime() -
-              new Date(
-                new Date().setFullYear(
-                  new Date(v.BirthdayDate).getFullYear() - year
-                )
-              ).getTime()) /
-              (1000 * 3600 * 24)
-          );
-
-          if (days_left > 0) {
-            new Notification(
-              `${v.Name}'s Birthday will be in ${days_left} days`,
-              {
-                body: `If you had anything planned for that, you better get started`,
-                icon: v.Icon,
-              }
-            );
-          } else {
-            new Notification(`Today is ${v.Name}'s Birthday`, {
-              body: `Horay! Wish that person a Happy Birthday or whatever you wanted to do this day`,
-              icon: v.Icon,
-            });
-          }
-          v.notification.last_date = new Date().getTime();
-          chrome.storage.sync.set({ save_file: result });
-          console.log("no notification?");
-        }
-      });
-    }
-  });
 });
 
 // A function that will keep searching for a twitter's left side bar in order to parse it into the function to inject Calendar button into that bar.
@@ -232,192 +105,6 @@ window.onload = function () {
 
   observer.observe(bodyList, config);
 };
-
-// Array of months for tests.
-var months = [
-  "january",
-  "february",
-  "march",
-  "april",
-  "may",
-  "june",
-  "july",
-  "august",
-  "september",
-  "october",
-  "november",
-  "december",
-  "jan",
-  "feb",
-  "mar",
-  "apr",
-  "may",
-  "jun",
-  "jul",
-  "aug",
-  "sep",
-  "oct",
-  "nov",
-  "dec",
-];
-// A function that will allow us to sort dates in order.
-function dateComparison(
-  a: any = { ...base_user_data },
-  b: any = { ...base_user_data }
-) {
-  let date1 = new Date(a.BirthdayDate);
-  let date2 = new Date(b.BirthdayDate);
-
-  // All "Trash dates" get sorted down
-  if (
-    !months.some((month) => {
-      var RegExMonth = new RegExp("\\b" + month + "\\b");
-      return RegExMonth.test(a.BirthdayDate.toLowerCase());
-    }) &&
-    !/\d/.test(a.BirthdayDate)
-  ) {
-    if (
-      !months.some((month) => {
-        var RegExMonth = new RegExp("\\b" + month + "\\b");
-        return RegExMonth.test(b.BirthdayDate.toLowerCase());
-      }) &&
-      !/\d/.test(b.BirthdayDate)
-    ) {
-      return a.BirthdayDate.localeCompare(b.BirthdayDate);
-    } else {
-      return 1;
-    }
-  } else if (
-    !months.some((month) => {
-      var RegExMonth = new RegExp("\\b" + month + "\\b");
-      return RegExMonth.test(b.BirthdayDate.toLowerCase());
-    }) &&
-    !/\d/.test(b.BirthdayDate)
-  ) {
-    if (
-      !months.some((month) => {
-        var RegExMonth = new RegExp("\\b" + month + "\\b");
-        return RegExMonth.test(a.BirthdayDate.toLowerCase());
-      }) &&
-      !/\d/.test(a.BirthdayDate)
-    ) {
-      return b.BirthdayDate.localeCompare(a.BirthdayDate);
-    } else {
-      return -1;
-    }
-  } else if (
-    // All "Year only" dates get sorted down but above trash dates.
-    !months.some((month) => {
-      var RegExMonth = new RegExp("\\b" + month + "\\b");
-      return RegExMonth.test(a.BirthdayDate.toLowerCase());
-    })
-  ) {
-    if (
-      months.some((month) => {
-        var RegExMonth = new RegExp("\\b" + month + "\\b");
-        return RegExMonth.test(b.BirthdayDate.toLowerCase());
-      })
-    ) {
-      return 1;
-    } else {
-      return date1.getFullYear() - date2.getFullYear();
-    }
-  } else if (
-    !months.some((month) => {
-      var RegExMonth = new RegExp("\\b" + month + "\\b");
-      return RegExMonth.test(b.BirthdayDate.toLowerCase());
-    })
-  ) {
-    if (
-      months.some((month) => {
-        var RegExMonth = new RegExp("\\b" + month + "\\b");
-        return RegExMonth.test(a.BirthdayDate.toLowerCase());
-      })
-    ) {
-      return -1;
-    } else {
-      return date2.getFullYear() - date1.getFullYear();
-    }
-  } else {
-    if (!/\d/.test(a.BirthdayDate)) {
-      date1 = new Date(
-        months.find((month) => {
-          var RegExMonth = new RegExp("\\b" + month + "\\b");
-          return RegExMonth.test(a.BirthdayDate.toLowerCase());
-        }) + "1"
-      );
-    }
-    if (!/\d/.test(b.BirthdayDate)) {
-      date2 = new Date(
-        months.find((month) => {
-          var RegExMonth = new RegExp("\\b" + month + "\\b");
-          return RegExMonth.test(b.BirthdayDate.toLowerCase());
-        }) + "1"
-      );
-    }
-    // All normal months with dates get sorted includeing sorted by year with the same date
-    if (date1.getMonth() != date2.getMonth()) {
-      if (new Date().getMonth() > date1.getMonth()) {
-        if (
-          new Date().getMonth() > date1.getMonth() &&
-          new Date().getMonth() > date2.getMonth()
-        ) {
-          return date1.getMonth() - date2.getMonth();
-        }
-        return 1;
-      } else if (new Date().getMonth() > date2.getMonth()) {
-        if (
-          new Date().getMonth() > date1.getMonth() &&
-          new Date().getMonth() > date2.getMonth()
-        ) {
-          return date1.getMonth() - date2.getMonth();
-        }
-        return -1;
-      } else if (
-        new Date().getMonth() == date1.getMonth() &&
-        new Date().getDate() > date1.getDate()
-      ) {
-        return 1;
-      } else if (
-        new Date().getMonth() == date2.getMonth() &&
-        new Date().getDate() > date2.getDate()
-      ) {
-        return -1;
-      } else {
-        return date1.getMonth() - date2.getMonth();
-      }
-    }
-    if (date1.getMonth() == date2.getMonth()) {
-      if (date1.getDate() == date2.getDate()) {
-        return date1.getFullYear() - date2.getFullYear();
-      }
-      if (
-        new Date().getMonth() == date1.getMonth() &&
-        new Date().getDate() > date1.getDate()
-      ) {
-        if (
-          new Date().getMonth() == date2.getMonth() &&
-          new Date().getDate() > date2.getDate()
-        ) {
-          return date1.getDate() - date2.getDate();
-        }
-        return 1;
-      } else if (
-        new Date().getMonth() == date2.getMonth() &&
-        new Date().getDate() > date2.getDate()
-      ) {
-        if (
-          new Date().getMonth() == date1.getMonth() &&
-          new Date().getDate() > date1.getDate()
-        ) {
-          return date1.getDate() - date2.getDate();
-        }
-        return -1;
-      }
-      return date1.getDate() - date2.getDate();
-    }
-  }
-}
 
 var initBDB_timer = 0;
 // A function that will keep searching for a twitter's birthday date on the page and will create a (save birthday button) upon finding birthday date.
@@ -490,20 +177,23 @@ function setupBDB(BDBElement: HTMLElement | null) {
         var arrPrimary = Array.from(
           document.querySelectorAll('[alt="Opens profile photo"]')
         );
-        user_data.Icon = arrPrimary
-          .find((el) => el.getElementsByTagName("img"))
-          ?.getAttribute("src") as string;
+        user_data.Icon = (
+          arrPrimary.find((el) =>
+            el.getElementsByTagName("img")
+          ) as HTMLImageElement
+        ).src as string;
       }
 
       {
         var arrPrimary = Array.from(
           document.querySelectorAll('[data-testid="UserBirthdate"]')
         );
+        console.log(arrPrimary);
         user_data.BirthdayDate = (
-          arrPrimary
-            .find((el) => el.getElementsByTagName("span"))
-            ?.getAttribute("innerText") as string
-        ).slice(5);
+          arrPrimary.find((el) =>
+            el.getElementsByTagName("span")
+          ) as HTMLElement
+        ).innerText.slice(5);
       }
 
       {
@@ -511,10 +201,9 @@ function setupBDB(BDBElement: HTMLElement | null) {
           document.querySelectorAll('[data-testid="UserName"]')
         );
         user_data.Name = (
-          arrPrimary.find((el) => el.getElementsByTagName("div")) as Element
-        ).children[0].children[0].children[0].getAttribute(
-          "innerText"
-        ) as string;
+          (arrPrimary.find((el) => el.getElementsByTagName("div")) as Element)
+            .children[0].children[0].children[0] as HTMLElement
+        ).innerText;
       }
 
       {
@@ -522,10 +211,9 @@ function setupBDB(BDBElement: HTMLElement | null) {
           document.querySelectorAll('[data-testid="UserName"]')
         );
         user_data.UserID = (
-          arrPrimary.find((el) => el.getElementsByTagName("div")) as Element
-        ).children[0].children[0].children[1].children[0].getAttribute(
-          "innerText"
-        ) as string;
+          (arrPrimary.find((el) => el.getElementsByTagName("div")) as Element)
+            .children[0].children[0].children[1].children[0] as HTMLElement
+        ).innerText;
       }
 
       chromeGetValue(save_file).then((result) => {
@@ -796,6 +484,7 @@ function update_calendar_page(
   mainElement: Element | null | undefined,
   users_db: user_data[] | null | undefined
 ) {
+  chrome.runtime.sendMessage(messages.notificationsUpdate);
   if (
     mainElement!
       .getElementsByTagName("div")[0]
@@ -1109,7 +798,7 @@ function createCalendarPage(array: user_data[] | null | undefined) {
     "assets/images/arrow_downward_icon.svg"
   );
 
-  if (array!.length > 0 && array![0].ID != 0) {
+  if (array != null && array!.length > 0 && array![0].ID != 0) {
     array!.forEach((x, i) => {
       var date = new Date(x.BirthdayDate);
       if (!/\d/.test(x.BirthdayDate)) {
