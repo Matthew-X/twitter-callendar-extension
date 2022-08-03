@@ -1,5 +1,5 @@
 import { base_user_data, chromeGetValue, save_file } from "./basics";
-import { months } from "./datesBasics";
+import { months, normalDates, yearOnlyDate } from "./datesBasics";
 export { notificationCheck };
 function notificationCheck() {
   chromeGetValue(save_file).then((result = [{ ...base_user_data }]) => {
@@ -33,10 +33,7 @@ function notificationCheck() {
           new Date(v.notification.last_date).getMonth() <=
             new Date().getMonth() &&
           new Date(v.notification.last_date).getDate() < new Date().getDate() &&
-          months.some((month) => {
-            var RegExMonth = new RegExp("\\b" + month + "\\b");
-            return RegExMonth.test(v.BirthdayDate.toLowerCase());
-          }) &&
+          new normalDates().dateCheck(v, v) &&
           new Date(
             new Date().setFullYear(
               new Date(v.BirthdayDate).getFullYear() - year

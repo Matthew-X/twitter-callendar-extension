@@ -1,6 +1,6 @@
-import { base_user_data } from "./basics";
+import { base_user_data, user_data } from "./basics";
 
-export { months, dateComparison };
+export { months, dateComparison, yearOnlyDate, normalDates, trashDate };
 
 // Array of months for tests.
 var months = [
@@ -30,39 +30,26 @@ var months = [
   "dec",
 ];
 // A function that will allow us to sort dates in order.
-function dateComparison(
-  a: any = { ...base_user_data },
-  b: any = { ...base_user_data }
-) {
-  let date1 = new Date(a.BirthdayDate);
-  let date2 = new Date(b.BirthdayDate);
 
-  // All "Trash dates" get sorted down
-  if (
-    !months.some((month) => {
-      var RegExMonth = new RegExp("\\b" + month + "\\b");
-      return RegExMonth.test(a.BirthdayDate.toLowerCase());
-    }) &&
-    !/\d/.test(a.BirthdayDate)
+function hasMonth(a: user_data) {
+  return months.some((month) => {
+    var RegExMonth = new RegExp("\\b" + month + "\\b");
+    return RegExMonth.test(a.BirthdayDate.toLowerCase());
+  });
+}
+
+class trashDate {
+  a: any;
+  b: any;
+  constructor(
+    a: user_data = { ...base_user_data },
+    b: user_data = { ...base_user_data }
   ) {
-    if (
-      !months.some((month) => {
-        var RegExMonth = new RegExp("\\b" + month + "\\b");
-        return RegExMonth.test(b.BirthdayDate.toLowerCase());
-      }) &&
-      !/\d/.test(b.BirthdayDate)
-    ) {
-      return a.BirthdayDate.localeCompare(b.BirthdayDate);
-    } else {
-      return 1;
-    }
-  } else if (
-    !months.some((month) => {
-      var RegExMonth = new RegExp("\\b" + month + "\\b");
-      return RegExMonth.test(b.BirthdayDate.toLowerCase());
-    }) &&
-    !/\d/.test(b.BirthdayDate)
-  ) {
+    this.a = a;
+    this.b = b;
+  }
+
+  dateCheck(a: user_data) {
     if (
       !months.some((month) => {
         var RegExMonth = new RegExp("\\b" + month + "\\b");
@@ -70,61 +57,127 @@ function dateComparison(
       }) &&
       !/\d/.test(a.BirthdayDate)
     ) {
-      return b.BirthdayDate.localeCompare(a.BirthdayDate);
+      return true;
     } else {
-      return -1;
+      return false;
     }
-  } else if (
-    // All "Year only" dates get sorted down but above trash dates.
-    !months.some((month) => {
-      var RegExMonth = new RegExp("\\b" + month + "\\b");
-      return RegExMonth.test(a.BirthdayDate.toLowerCase());
-    })
-  ) {
-    if (
-      months.some((month) => {
-        var RegExMonth = new RegExp("\\b" + month + "\\b");
-        return RegExMonth.test(b.BirthdayDate.toLowerCase());
-      })
-    ) {
-      return 1;
-    } else {
-      return date1.getFullYear() - date2.getFullYear();
+  }
+
+  find() {
+    if (this.dateCheck(this.a)) {
+      if (this.dateCheck(this.b)) {
+        return this.a.BirthdayDate.localeCompare(this.b.BirthdayDate);
+      } else {
+        return 1;
+      }
+    } else if (this.dateCheck(this.b)) {
+      if (this.dateCheck(this.a)) {
+        return this.b.BirthdayDate.localeCompare(this.a.BirthdayDate);
+      } else {
+        return -1;
+      }
     }
-  } else if (
-    !months.some((month) => {
-      var RegExMonth = new RegExp("\\b" + month + "\\b");
-      return RegExMonth.test(b.BirthdayDate.toLowerCase());
-    })
+  }
+}
+
+class yearOnlyDate {
+  a: any;
+  b: any;
+  constructor(
+    a: user_data = { ...base_user_data },
+    b: user_data = { ...base_user_data }
   ) {
+    this.a = a;
+    this.b = b;
+  }
+
+  dateCheck(a: user_data) {
     if (
-      months.some((month) => {
+      !months.some((month) => {
         var RegExMonth = new RegExp("\\b" + month + "\\b");
         return RegExMonth.test(a.BirthdayDate.toLowerCase());
-      })
+      }) &&
+      !a.BirthdayDate.includes("/")
     ) {
-      return -1;
+      return true;
     } else {
-      return date2.getFullYear() - date1.getFullYear();
+      return false;
     }
-  } else {
-    if (!/\d/.test(a.BirthdayDate)) {
+  }
+
+  find() {
+    const date1 = new Date(this.a.BirthdayDate);
+    const date2 = new Date(this.b.BirthdayDate);
+    if (
+      // All "Year only" dates get sorted down but above trash dates.
+      this.dateCheck(this.a)
+    ) {
+      if (!this.dateCheck(this.b)) {
+        return 1;
+      } else {
+        return date1.getFullYear() - date2.getFullYear();
+      }
+    } else if (this.dateCheck(this.b)) {
+      if (!this.dateCheck(this.a)) {
+        return -1;
+      } else {
+        return date2.getFullYear() - date1.getFullYear();
+      }
+    }
+  }
+}
+
+class normalDates {
+  a: any;
+  b: any;
+  constructor(
+    a: user_data = { ...base_user_data },
+    b: user_data = { ...base_user_data }
+  ) {
+    this.a = a;
+    this.b = b;
+  }
+
+  dateCheck(a: user_data, b: user_data) {
+    if (
+      new trashDate(a, b).dateCheck(this.a) ||
+      new trashDate(a, b).dateCheck(this.b) ||
+      new yearOnlyDate(a, b).dateCheck(this.a) ||
+      new yearOnlyDate(a, b).dateCheck(this.b)
+    ) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+
+  find() {
+    let date1 = new Date(this.a.BirthdayDate);
+    let date2 = new Date(this.b.BirthdayDate);
+
+    if (this.dateCheck(this.a, this.b)) {
+      console.log(date1);
+      console.log(date2);
+      return;
+    }
+
+    if (!/\d/.test(this.a.BirthdayDate)) {
       date1 = new Date(
         months.find((month) => {
           var RegExMonth = new RegExp("\\b" + month + "\\b");
-          return RegExMonth.test(a.BirthdayDate.toLowerCase());
+          return RegExMonth.test(this.a.BirthdayDate.toLowerCase());
         }) + "1"
       );
     }
-    if (!/\d/.test(b.BirthdayDate)) {
+    if (!/\d/.test(this.b.BirthdayDate)) {
       date2 = new Date(
         months.find((month) => {
           var RegExMonth = new RegExp("\\b" + month + "\\b");
-          return RegExMonth.test(b.BirthdayDate.toLowerCase());
+          return RegExMonth.test(this.b.BirthdayDate.toLowerCase());
         }) + "1"
       );
     }
-    // All normal months with dates get sorted includeing sorted by year with the same date
+
     if (date1.getMonth() != date2.getMonth()) {
       if (new Date().getMonth() > date1.getMonth()) {
         if (
@@ -158,6 +211,11 @@ function dateComparison(
     }
     if (date1.getMonth() == date2.getMonth()) {
       if (date1.getDate() == date2.getDate()) {
+        if (hasMonth(this.a) && !/\d/.test(this.a.BirthdayDate)) {
+          return -1;
+        } else if (hasMonth(this.b) && !/\d/.test(this.b.BirthdayDate)) {
+          return 1;
+        }
         return date1.getFullYear() - date2.getFullYear();
       }
       if (
@@ -186,4 +244,25 @@ function dateComparison(
       return date1.getDate() - date2.getDate();
     }
   }
+}
+
+function dateComparison(
+  a: user_data = { ...base_user_data },
+  b: user_data = { ...base_user_data }
+) {
+  // All "Trash dates" get sorted down
+  if (new trashDate(a, b).dateCheck(a) || new trashDate(a, b).dateCheck(b)) {
+    return new trashDate(a, b).find();
+  }
+
+  // All "Year only dates" get sorted down
+  if (
+    new yearOnlyDate(a, b).dateCheck(a) ||
+    new yearOnlyDate(a, b).dateCheck(b)
+  ) {
+    return new yearOnlyDate(a, b).find();
+  }
+
+  // All normal months with dates get sorted includeing sorted by year with the same date
+  return new normalDates(a, b).find();
 }
