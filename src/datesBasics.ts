@@ -184,7 +184,6 @@ class normalDates {
     }
 
     if (date1.getMonth() != date2.getMonth()) {
-      console.log(this.a.BirthdayDate + " | " + this.b.BirthdayDate);
       if (new Date().getMonth() >= date1.getMonth()) {
         if (
           new Date().getMonth() == date1.getMonth() &&

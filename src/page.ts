@@ -10,6 +10,7 @@ import {
   hasMonth,
   months,
   normalDates,
+  trashDate,
   yearOnlyDate,
 } from "./datesBasics";
 
@@ -627,7 +628,10 @@ function update_calendar_page(
 
       // disables event settings button for events without any specified date
       users_db!.forEach((x, i) => {
-        if (value.id == x.UserID && new yearOnlyDate(x).dateCheck(x)) {
+        if (
+          value.id == x.UserID &&
+          (new yearOnlyDate(x).dateCheck(x) || new trashDate().dateCheck(x))
+        ) {
           value!
             .querySelector(`[class*="event_settings_button"]`)!
             .classList.toggle("is_open", false);
@@ -814,7 +818,10 @@ function createCalendarPage(array: user_data[] | null | undefined) {
         );
         next_year = false;
       }
-      if (unknown && new yearOnlyDate(x).dateCheck(x)) {
+      if (
+        unknown &&
+        (new yearOnlyDate(x).dateCheck(x) || new trashDate().dateCheck(x))
+      ) {
         ul.appendChild(
           elementFromHtml(
             `
