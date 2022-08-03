@@ -7,6 +7,7 @@ import {
 } from "./basics";
 import {
   dateComparison,
+  hasMonth,
   months,
   normalDates,
   yearOnlyDate,
@@ -320,14 +321,7 @@ function update_closest_date() {
       closestDate = { ...result[0] };
     }
     if (result != null && result.length > 0) {
-      // finding out if event happening this or next year
-      if (
-        months.some((month) => {
-          var RegExMonth = new RegExp("\\b" + month + "\\b");
-          return RegExMonth.test(closestDate.BirthdayDate.toLowerCase());
-        }) &&
-        !/\d/.test(closestDate.BirthdayDate)
-      ) {
+      if (hasMonth(closestDate) && !/\d/.test(closestDate.BirthdayDate)) {
         date = new Date(
           months.find((month) => {
             var RegExMonth = new RegExp("\\b" + month + "\\b");
@@ -337,6 +331,7 @@ function update_closest_date() {
       } else {
         date = new Date(closestDate.BirthdayDate);
       }
+      // finding out if event happening this or next year
       var year =
         date.getMonth() < new Date().getMonth()
           ? 1
@@ -359,12 +354,7 @@ function update_closest_date() {
       if (document.querySelector('[class="closest_date"]') != null) {
         document.querySelector('[class="closest_date"]')!.remove();
       }
-      if (
-        months.some((month) => {
-          var RegExMonth = new RegExp("\\b" + month + "\\b");
-          return RegExMonth.test(result![0].BirthdayDate.toLowerCase());
-        })
-      ) {
+      if (new normalDates().dateCheck(closestDate, closestDate)) {
         document
           .querySelector('[class="Calendar_button"]')!
           .append(closest_date);

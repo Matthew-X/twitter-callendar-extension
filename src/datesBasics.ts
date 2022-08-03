@@ -1,6 +1,13 @@
 import { base_user_data, user_data } from "./basics";
 
-export { months, dateComparison, yearOnlyDate, normalDates, trashDate };
+export {
+  months,
+  dateComparison,
+  yearOnlyDate,
+  normalDates,
+  trashDate,
+  hasMonth,
+};
 
 // Array of months for tests.
 var months = [
@@ -180,6 +187,12 @@ class normalDates {
       console.log(this.a.BirthdayDate + " | " + this.b.BirthdayDate);
       if (new Date().getMonth() >= date1.getMonth()) {
         if (
+          new Date().getMonth() == date1.getMonth() &&
+          new Date().getDate() == date1.getDate()
+        ) {
+          return -1;
+        }
+        if (
           new Date().getMonth() >= date1.getMonth() &&
           new Date().getMonth() >= date2.getMonth()
         ) {
@@ -187,6 +200,12 @@ class normalDates {
         }
         return 1;
       } else if (new Date().getMonth() >= date2.getMonth()) {
+        if (
+          new Date().getMonth() == date2.getMonth() &&
+          new Date().getDate() == date2.getDate()
+        ) {
+          return 1;
+        }
         if (
           new Date().getMonth() >= date1.getMonth() &&
           new Date().getMonth() >= date2.getMonth()
