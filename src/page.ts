@@ -5,7 +5,7 @@ import {
   save_file,
   messages,
 } from "./basics";
-import { dateComparison, months } from "./datesBasics";
+import { dateComparison, months, yearOnlyDate } from "./datesBasics";
 
 // A function that that retrieves a Main-Parent of twitter's left side bar with all the buttons to navigate between pages like (home, messages, bookmarks).
 function getParent(): HTMLElement | null {
@@ -188,7 +188,6 @@ function setupBDB(BDBElement: HTMLElement | null) {
         var arrPrimary = Array.from(
           document.querySelectorAll('[data-testid="UserBirthdate"]')
         );
-        console.log(arrPrimary);
         user_data.BirthdayDate = (
           arrPrimary.find((el) =>
             el.getElementsByTagName("span")
@@ -341,8 +340,6 @@ function update_closest_date() {
             ? 1
             : 0
           : 0;
-
-      console.log(year);
 
       closest_date.innerText =
         "" +
@@ -635,13 +632,7 @@ function update_calendar_page(
 
       // disables event settings button for events without any specified date
       users_db!.forEach((x, i) => {
-        if (
-          value.id == x.UserID &&
-          !months.some((month) => {
-            var RegExMonth = new RegExp("\\b" + month + "\\b");
-            return RegExMonth.test(x.BirthdayDate.toLowerCase());
-          })
-        ) {
+        if (value.id == x.UserID && new yearOnlyDate(x).dateCheck(x)) {
           value!
             .querySelector(`[class*="event_settings_button"]`)!
             .classList.toggle("is_open", false);
@@ -831,13 +822,7 @@ function createCalendarPage(array: user_data[] | null | undefined) {
         );
         next_year = false;
       }
-      if (
-        unknown &&
-        !months.some((month) => {
-          var RegExMonth = new RegExp("\\b" + month + "\\b");
-          return RegExMonth.test(x.BirthdayDate.toLowerCase());
-        })
-      ) {
+      if (unknown && new yearOnlyDate(x).dateCheck(x)) {
         ul.appendChild(
           elementFromHtml(
             `
