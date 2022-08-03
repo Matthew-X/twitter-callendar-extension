@@ -51,11 +51,11 @@ class trashDate {
 
   dateCheck(a: user_data) {
     if (
+      isNaN(new Date(a.BirthdayDate) as unknown as number) &&
       !months.some((month) => {
         var RegExMonth = new RegExp("\\b" + month + "\\b");
         return RegExMonth.test(a.BirthdayDate.toLowerCase());
-      }) &&
-      !/\d/.test(a.BirthdayDate)
+      })
     ) {
       return true;
     } else {
@@ -97,7 +97,7 @@ class yearOnlyDate {
         var RegExMonth = new RegExp("\\b" + month + "\\b");
         return RegExMonth.test(a.BirthdayDate.toLowerCase());
       }) &&
-      !a.BirthdayDate.includes("/")
+      /^\d{4}$/.test(a.BirthdayDate)
     ) {
       return true;
     } else {
@@ -156,8 +156,6 @@ class normalDates {
     let date2 = new Date(this.b.BirthdayDate);
 
     if (this.dateCheck(this.a, this.b)) {
-      console.log(date1);
-      console.log(date2);
       return;
     }
 

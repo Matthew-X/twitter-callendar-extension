@@ -5,7 +5,12 @@ import {
   save_file,
   messages,
 } from "./basics";
-import { dateComparison, months, yearOnlyDate } from "./datesBasics";
+import {
+  dateComparison,
+  months,
+  normalDates,
+  yearOnlyDate,
+} from "./datesBasics";
 
 // A function that that retrieves a Main-Parent of twitter's left side bar with all the buttons to navigate between pages like (home, messages, bookmarks).
 function getParent(): HTMLElement | null {
@@ -802,10 +807,7 @@ function createCalendarPage(array: user_data[] | null | undefined) {
       }
       if (
         next_year &&
-        months.some((month) => {
-          var RegExMonth = new RegExp("\\b" + month + "\\b");
-          return RegExMonth.test(x.BirthdayDate.toLowerCase());
-        }) &&
+        new normalDates().dateCheck(x, x) &&
         (date.getMonth() < new Date().getMonth() ||
           (date.getMonth() == new Date().getMonth() &&
             new Date().getDate() > date.getDate()))
@@ -888,7 +890,7 @@ function createCalendarPage(array: user_data[] | null | undefined) {
                   </div>
                   <div class="edit_field">
                     <div>Birthday date:</div>
-                    <input id="birthday_date_input" placeholder="Example: July 23"/>
+                    <input id="birthday_date_input" placeholder="Example: July 23, 2001"/>
                   </div>
                 </div>
                 <div class="save_changes" tag="save_new_birthday">
@@ -1061,7 +1063,7 @@ function createListItem(user_object = { ...base_user_data }) {
                   </div>
                   <div class="edit_field">
                     <div>Birthday date:</div>
-                    <input id="birthday_date_input" placeholder="Example: July 23"/>
+                    <input id="birthday_date_input" placeholder="Example: July 23, 2001 or 07/23/2001"/>
                   </div>
                 </div>
               <div class="save_changes">
