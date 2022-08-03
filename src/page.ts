@@ -5,7 +5,14 @@ import {
   save_file,
   messages,
 } from "./basics";
-import { dateComparison, months, yearOnlyDate } from "./datesBasics";
+import {
+  dateComparison,
+  hasMonth,
+  months,
+  normalDates,
+  trashDate,
+  yearOnlyDate,
+} from "./datesBasics";
 
 // A function that that retrieves a Main-Parent of twitter's left side bar with all the buttons to navigate between pages like (home, messages, bookmarks).
 function getParent(): HTMLElement | null {
@@ -315,14 +322,7 @@ function update_closest_date() {
       closestDate = { ...result[0] };
     }
     if (result != null && result.length > 0) {
-      // finding out if event happening this or next year
-      if (
-        months.some((month) => {
-          var RegExMonth = new RegExp("\\b" + month + "\\b");
-          return RegExMonth.test(closestDate.BirthdayDate.toLowerCase());
-        }) &&
-        !/\d/.test(closestDate.BirthdayDate)
-      ) {
+      if (hasMonth(closestDate) && !/\d/.test(closestDate.BirthdayDate)) {
         date = new Date(
           months.find((month) => {
             var RegExMonth = new RegExp("\\b" + month + "\\b");
@@ -332,6 +332,7 @@ function update_closest_date() {
       } else {
         date = new Date(closestDate.BirthdayDate);
       }
+      // finding out if event happening this or next year
       var year =
         date.getMonth() < new Date().getMonth()
           ? 1
@@ -354,12 +355,7 @@ function update_closest_date() {
       if (document.querySelector('[class="closest_date"]') != null) {
         document.querySelector('[class="closest_date"]')!.remove();
       }
-      if (
-        months.some((month) => {
-          var RegExMonth = new RegExp("\\b" + month + "\\b");
-          return RegExMonth.test(result![0].BirthdayDate.toLowerCase());
-        })
-      ) {
+      if (new normalDates().dateCheck(closestDate, closestDate)) {
         document
           .querySelector('[class="Calendar_button"]')!
           .append(closest_date);
@@ -632,7 +628,10 @@ function update_calendar_page(
 
       // disables event settings button for events without any specified date
       users_db!.forEach((x, i) => {
-        if (value.id == x.UserID && new yearOnlyDate(x).dateCheck(x)) {
+        if (
+          value.id == x.UserID &&
+          (new yearOnlyDate(x).dateCheck(x) || new trashDate().dateCheck(x))
+        ) {
           value!
             .querySelector(`[class*="event_settings_button"]`)!
             .classList.toggle("is_open", false);
@@ -802,10 +801,7 @@ function createCalendarPage(array: user_data[] | null | undefined) {
       }
       if (
         next_year &&
-        months.some((month) => {
-          var RegExMonth = new RegExp("\\b" + month + "\\b");
-          return RegExMonth.test(x.BirthdayDate.toLowerCase());
-        }) &&
+        new normalDates().dateCheck(x, x) &&
         (date.getMonth() < new Date().getMonth() ||
           (date.getMonth() == new Date().getMonth() &&
             new Date().getDate() > date.getDate()))
@@ -822,7 +818,10 @@ function createCalendarPage(array: user_data[] | null | undefined) {
         );
         next_year = false;
       }
-      if (unknown && new yearOnlyDate(x).dateCheck(x)) {
+      if (
+        unknown &&
+        (new yearOnlyDate(x).dateCheck(x) || new trashDate().dateCheck(x))
+      ) {
         ul.appendChild(
           elementFromHtml(
             `
@@ -888,7 +887,7 @@ function createCalendarPage(array: user_data[] | null | undefined) {
                   </div>
                   <div class="edit_field">
                     <div>Birthday date:</div>
-                    <input id="birthday_date_input" placeholder="Example: July 23"/>
+                    <input id="birthday_date_input" placeholder="Example: July 23, 2001"/>
                   </div>
                 </div>
                 <div class="save_changes" tag="save_new_birthday">
@@ -1061,7 +1060,7 @@ function createListItem(user_object = { ...base_user_data }) {
                   </div>
                   <div class="edit_field">
                     <div>Birthday date:</div>
-                    <input id="birthday_date_input" placeholder="Example: July 23"/>
+                    <input id="birthday_date_input" placeholder="Example: July 23, 2001 or 07/23/2001"/>
                   </div>
                 </div>
               <div class="save_changes">

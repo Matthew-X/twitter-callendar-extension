@@ -1,6 +1,13 @@
 import { base_user_data, user_data } from "./basics";
 
-export { months, dateComparison, yearOnlyDate, normalDates, trashDate };
+export {
+  months,
+  dateComparison,
+  yearOnlyDate,
+  normalDates,
+  trashDate,
+  hasMonth,
+};
 
 // Array of months for tests.
 var months = [
@@ -51,11 +58,11 @@ class trashDate {
 
   dateCheck(a: user_data) {
     if (
+      isNaN(new Date(a.BirthdayDate) as unknown as number) &&
       !months.some((month) => {
         var RegExMonth = new RegExp("\\b" + month + "\\b");
         return RegExMonth.test(a.BirthdayDate.toLowerCase());
-      }) &&
-      !/\d/.test(a.BirthdayDate)
+      })
     ) {
       return true;
     } else {
@@ -97,7 +104,7 @@ class yearOnlyDate {
         var RegExMonth = new RegExp("\\b" + month + "\\b");
         return RegExMonth.test(a.BirthdayDate.toLowerCase());
       }) &&
-      !a.BirthdayDate.includes("/")
+      /^\d{4}$/.test(a.BirthdayDate)
     ) {
       return true;
     } else {
@@ -156,8 +163,6 @@ class normalDates {
     let date2 = new Date(this.b.BirthdayDate);
 
     if (this.dateCheck(this.a, this.b)) {
-      console.log(date1);
-      console.log(date2);
       return;
     }
 
@@ -179,35 +184,36 @@ class normalDates {
     }
 
     if (date1.getMonth() != date2.getMonth()) {
-      if (new Date().getMonth() > date1.getMonth()) {
+      if (new Date().getMonth() >= date1.getMonth()) {
         if (
-          new Date().getMonth() > date1.getMonth() &&
-          new Date().getMonth() > date2.getMonth()
+          new Date().getMonth() == date1.getMonth() &&
+          new Date().getDate() == date1.getDate()
+        ) {
+          return -1;
+        }
+        if (
+          new Date().getMonth() >= date1.getMonth() &&
+          new Date().getMonth() >= date2.getMonth()
         ) {
           return date1.getMonth() - date2.getMonth();
         }
         return 1;
-      } else if (new Date().getMonth() > date2.getMonth()) {
+      } else if (new Date().getMonth() >= date2.getMonth()) {
         if (
-          new Date().getMonth() > date1.getMonth() &&
-          new Date().getMonth() > date2.getMonth()
+          new Date().getMonth() == date2.getMonth() &&
+          new Date().getDate() == date2.getDate()
+        ) {
+          return 1;
+        }
+        if (
+          new Date().getMonth() >= date1.getMonth() &&
+          new Date().getMonth() >= date2.getMonth()
         ) {
           return date1.getMonth() - date2.getMonth();
         }
         return -1;
-      } else if (
-        new Date().getMonth() == date1.getMonth() &&
-        new Date().getDate() > date1.getDate()
-      ) {
-        return 1;
-      } else if (
-        new Date().getMonth() == date2.getMonth() &&
-        new Date().getDate() > date2.getDate()
-      ) {
-        return -1;
-      } else {
-        return date1.getMonth() - date2.getMonth();
       }
+      return date1.getMonth() - date2.getMonth();
     }
     if (date1.getMonth() == date2.getMonth()) {
       if (date1.getDate() == date2.getDate()) {
