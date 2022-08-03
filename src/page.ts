@@ -887,7 +887,7 @@ function createCalendarPage(array: user_data[] | null | undefined) {
                   </div>
                   <div class="edit_field">
                     <div>Birthday date:</div>
-                    <input id="birthday_date_input" placeholder="Example: July 23, 2001"/>
+                    <input id="birthday_date_input" placeholder="Example: July 23, 2001 or 07/23/2001"/>
                   </div>
                 </div>
                 <div class="save_changes" tag="save_new_birthday">
