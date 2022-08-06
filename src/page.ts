@@ -56,6 +56,20 @@ function getBDBParent(): HTMLElement | null {
 requestAnimationFrame(function () {
   initCalendarButton();
   initBDB();
+
+  console.log(
+    document.querySelector("body")?.style.backgroundColor ==
+      "rgb(255, 255, 255)"
+  );
+
+  if (
+    document.querySelector("body")?.style.backgroundColor ==
+    "rgb(255, 255, 255)"
+  ) {
+    document.documentElement.className = "light";
+  } else {
+    document.documentElement.className = "dark";
+  }
 });
 
 // A function that will keep searching for a twitter's left side bar in order to parse it into the function to inject Calendar button into that bar.
