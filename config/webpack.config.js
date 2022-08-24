@@ -15,6 +15,9 @@ const config = (env, argv) =>
     devtool: argv.mode === "production" ? false : "source-map",
     resolve: {
       extensions: [".ts", ".tsx", ".js"],
+      alias: {
+        jquery: "jquery/src/jquery",
+      },
     },
     module: {
       rules: [
