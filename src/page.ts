@@ -236,7 +236,7 @@ function setupBDB(BDBElement: HTMLElement | null) {
             >
               <div
                 class="birthday_editing_menu edit_birthday"
-                tag="editing_menu_${user_data.UserID}"
+                tag="editing_menu_${user_data.UserID} user_page_add_new_bd"
               >
                 <div class="edit_fields">
                   <div class="edit_field">
@@ -258,7 +258,7 @@ function setupBDB(BDBElement: HTMLElement | null) {
                     />
                   </div>
                   <div class="edit_field">
-                    <div>Birthday date:</div>
+                    <div>Birthday:</div>
                     <input
                       id="birthday_date_input"
                       placeholder="Example: July 23, 2001 or 07/23/2001"
@@ -317,7 +317,7 @@ function setupBDB(BDBElement: HTMLElement | null) {
 
       // Sets already existing fields such as icon name and handle.
       var user_fields = document.querySelector(
-        `[tag="editing_menu_${user_data.UserID}"]`
+        `[tag*="editing_menu_${user_data.UserID} user_page_add_new_bd"]`
       );
 
       (
@@ -337,10 +337,36 @@ function setupBDB(BDBElement: HTMLElement | null) {
         ) as HTMLInputElement
       ).value = user_data.BirthdayDate;
 
+      console.log(
+        (
+          user_fields!.querySelector(
+            `[id="image_link_input"]`
+          ) as HTMLInputElement
+        ).value +
+          " " +
+          (user_fields!.querySelector(`[id="name_input"]`) as HTMLInputElement)
+            .value +
+          " " +
+          (
+            user_fields!.querySelector(
+              `[id="user_id_input"]`
+            ) as HTMLInputElement
+          ).value +
+          " " +
+          (
+            user_fields!.querySelector(
+              `[id="birthday_date_input"]`
+            ) as HTMLInputElement
+          ).value
+      );
+
+      console.log(user_fields);
+
       // Sets click listener for saving new birthday buttons
       user_fields!
         .querySelector('[class="save_changes"]')!
         .addEventListener("click", function () {
+          console.log("This b#tch aint workin?");
           var update = { ...base_user_data };
           update.ID = 0;
           update.Icon = (user_fields!.querySelector(
@@ -383,7 +409,7 @@ function setupBDB(BDBElement: HTMLElement | null) {
     birthday_button.children[0].className = "custom_button";
 
     (birthday_button.children[0] as HTMLElement).style.display = "inline";
-    if (document.querySelectorAll('[class="Birthday_button"]').length == 0)
+    if (document.querySelectorAll('[class="Birthday_button"]').length == 0) {
       (
         Array.from(
           document.querySelectorAll('[data-testid="UserProfileHeader_Items"]')
@@ -394,6 +420,7 @@ function setupBDB(BDBElement: HTMLElement | null) {
           UserProfileHeader_Items?.children.length - 1
         ] as HTMLElement
       );
+    }
   } else {
     birthday_button.onclick = function () {
       {
@@ -1112,7 +1139,7 @@ function createCalendarPage(array: user_data[] | null | undefined) {
                     <input id="user_id_input" placeholder="Example: @Genshinmem"/>
                   </div>
                   <div class="edit_field">
-                    <div>Birthday date:</div>
+                    <div>Birthday:</div>
                     <input id="birthday_date_input" placeholder="Example: July 23, 2001 or 07/23/2001"/>
                   </div>
                 </div>
@@ -1285,7 +1312,7 @@ function createListItem(user_object = { ...base_user_data }) {
                     <input id="user_id_input" placeholder="Example: @Genshinmem"/>
                   </div>
                   <div class="edit_field">
-                    <div>Birthday date:</div>
+                    <div>Birthday:</div>
                     <input id="birthday_date_input" placeholder="Example: July 23, 2001 or 07/23/2001"/>
                   </div>
                 </div>

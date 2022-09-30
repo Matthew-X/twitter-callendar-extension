@@ -734,6 +734,7 @@ html {
   border-radius: 35px;
   background-color: var(--background-flat-color);
   max-height: 1000px;
+  max-width: 600px;
   opacity: 1;
   visibility: visible;
 }
