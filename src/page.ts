@@ -627,20 +627,19 @@ function calendarPage(
   mainElement: Element | null | undefined,
   users_db: user_data[]
 ) {
+  var main_page = mainElement!
+    .getElementsByTagName("div")[0]
+    .getElementsByTagName("div")[0];
   if (!active) {
     if (mainElement != null) {
-      mainElement
-        .getElementsByTagName("div")[0]
-        .getElementsByTagName("div")[0].style.display = "none";
+      main_page.style.visibility = "hidden";
 
       active = !active;
       update_calendar_page(mainElement, users_db);
     }
   } else {
     if (mainElement != null) {
-      mainElement
-        .getElementsByTagName("div")[0]
-        .getElementsByTagName("div")[0].style.display = "flex";
+      main_page.style.visibility = "visible";
 
       (
         mainElement

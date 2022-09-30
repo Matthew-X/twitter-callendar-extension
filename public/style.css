@@ -133,10 +133,12 @@ html {
 }
 
 .page_div {
+  position: fixed;
   display: flex;
   align-items: center;
   width: 100%;
   max-width: 600px;
+  height: 100%;
 }
 
 .suggestions_div {
@@ -149,6 +151,7 @@ html {
   align-items: center;
   width: 100%;
   max-width: 600px;
+  height: 100%;
 }
 
 .list_wrap {
@@ -156,14 +159,19 @@ html {
   flex-direction: column;
   align-items: center;
   width: 100%;
+  height: 100%;
+  overflow-y: auto;
+  overflow-x: clip;
 }
 
 .list_wrap ul {
-  display: flexbox;
+  display: flex;
+  flex-direction: column;
   align-items: center;
   padding: 0px;
   margin: 10px;
-  width: 100%;
+  width: auto;
+  height: 100%;
 }
 
 .user {
@@ -355,7 +363,6 @@ html {
 .editing_menu {
   display: flex;
   visibility: collapse;
-  align-self: collapse;
   width: 100%;
   background-color: transparent;
   max-height: 0;
@@ -375,6 +382,19 @@ html {
   opacity: 0;
   transform-origin: bottom;
   transition: 0.5s ease-in-out;
+}
+
+.editing_menu * {
+  visibility: collapse;
+  max-height: 0;
+  opacity: 0;
+  transition: 0.5s ease-in-out;
+}
+
+.editing_menu.is_open * {
+  visibility: visible;
+  max-height: 700px;
+  opacity: 1;
 }
 
 .editing_menu.is_open {
@@ -437,6 +457,7 @@ html {
   display: flex;
   align-items: center;
   justify-content: center;
+  box-sizing: border-box;
   width: 100%;
   background-color: transparent;
   border: 2px solid var(--background-color-hover);
@@ -468,11 +489,11 @@ html {
 .utilities {
   display: flex;
   flex-direction: column;
-  width: 100%;
+  width: -webkit-fill-available;
   max-width: 150px;
   background-color: transparent;
   border-radius: 32px;
-  margin: 20px 10px 0px 0px;
+  margin: 20px 10px 0px 10px;
   transition: 0.5s ease-out;
 }
 
@@ -583,6 +604,7 @@ html {
 .event_settings {
   display: flex;
   visibility: collapse;
+  transform-origin: bottom;
   flex-direction: column;
   align-self: center;
   width: 100%;
@@ -606,8 +628,18 @@ html {
   margin: 0px 32px;
 }
 
+.event_settings.is_open * {
+  visibility: visible;
+  max-height: 700px;
+  opacity: 1;
+}
+
 .event_settings * {
+  max-height: 0;
+  opacity: 0;
+  visibility: collapse;
   color: var(--text-color);
+  transition: 0.5s ease-in-out;
 }
 
 .event_settings input {
