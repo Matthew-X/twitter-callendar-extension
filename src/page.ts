@@ -93,13 +93,13 @@ window.onload = function () {
         if (document.querySelector('[class="page_div"]') != null) {
           document.querySelector('[class="page_div"]')?.remove();
           if (
-            getMainParent()!
+            (getMainParent()!
               .getElementsByTagName("div")[0]
-              .getElementsByTagName("div")[0].style.display == "none"
+              .getElementsByTagName("div")[0].style.visibility = "hidden")
           ) {
             getMainParent()!
               .getElementsByTagName("div")[0]
-              .getElementsByTagName("div")[0].style.display = "flex";
+              .getElementsByTagName("div")[0].style.visibility = "visible";
           }
         }
         if (active) {
