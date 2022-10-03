@@ -633,6 +633,7 @@ function calendarPage(
   if (!active) {
     if (mainElement != null) {
       main_page.style.visibility = "hidden";
+      document.querySelector("html")!.style.overflowY = "hidden";
 
       active = !active;
       update_calendar_page(mainElement, users_db);
@@ -640,6 +641,7 @@ function calendarPage(
   } else {
     if (mainElement != null) {
       main_page.style.visibility = "visible";
+      document.querySelector("html")!.style.overflowY = "scroll";
 
       (
         mainElement
