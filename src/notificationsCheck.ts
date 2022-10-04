@@ -75,9 +75,9 @@ function notificationCheck() {
             });
           }
           v.notification.last_date = new Date().getTime();
-          chrome.storage.sync.set({ save_file: result });
         }
       });
+      chrome.storage.sync.set({ save_file: result });
     }
   });
 }

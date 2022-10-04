@@ -1,3 +1,4 @@
+import { show_editing_menu } from "./add_birthday";
 import {
   chromeGetValue,
   base_user_data,
@@ -56,6 +57,15 @@ function getBDBParent(): HTMLElement | null {
 requestAnimationFrame(function () {
   initCalendarButton();
   initBDB();
+
+  if (
+    document.querySelector("body")?.style.backgroundColor ==
+    "rgb(255, 255, 255)"
+  ) {
+    document.documentElement.className = "light";
+  } else {
+    document.documentElement.className = "dark";
+  }
 });
 
 // A function that will keep searching for a twitter's left side bar in order to parse it into the function to inject Calendar button into that bar.
@@ -83,13 +93,13 @@ window.onload = function () {
         if (document.querySelector('[class="page_div"]') != null) {
           document.querySelector('[class="page_div"]')?.remove();
           if (
-            getMainParent()!
+            (getMainParent()!
               .getElementsByTagName("div")[0]
-              .getElementsByTagName("div")[0].style.display == "none"
+              .getElementsByTagName("div")[0].style.visibility = "hidden")
           ) {
             getMainParent()!
               .getElementsByTagName("div")[0]
-              .getElementsByTagName("div")[0].style.display = "flex";
+              .getElementsByTagName("div")[0].style.visibility = "visible";
           }
         }
         if (active) {
@@ -117,10 +127,15 @@ var initBDB_timer = 0;
 // A function that will keep searching for a twitter's birthday date on the page and will create a (save birthday button) upon finding birthday date.
 function initBDB() {
   var BDBElement = getBDBParent();
+  const BDloaded = document.querySelector('[data-testid="UserBirthdate"]');
+  const Ploaded = document.querySelector('[data-testid="UserJoinDate"]');
   initBDB_timer++;
 
-  if (BDBElement != null) {
+  if (BDloaded != null) {
     setupBDB(BDBElement);
+  } else if (Ploaded != null) {
+    setupBDB(BDBElement);
+    requestAnimationFrame(initBDB);
   } else if (initBDB_timer <= 300) {
     requestAnimationFrame(initBDB);
   } else {
@@ -171,14 +186,242 @@ function UpdateData(
 
 // A function that replaces Birthday element on friend's page with a Birthday button that upon clicking will save friend's information (Name/ID/Birthday date/Icon) into the calendar.
 function setupBDB(BDBElement: HTMLElement | null) {
-  if (BDBElement != null || BDBElement!.children.length > 0) {
-    let user_data = { ...base_user_data };
+  let user_data = { ...base_user_data };
+  user_data.ID = 0;
+  const birthday_button = document.createElement("a");
+  birthday_button.className = "Birthday_button";
 
-    user_data.ID = 0;
+  if (BDBElement == null) {
+    birthday_button.onclick = function () {
+      {
+        var arrPrimary = Array.from(
+          document.querySelectorAll('[alt="Opens profile photo"]')
+        );
+        user_data.Icon = (
+          arrPrimary.find((el) =>
+            el.getElementsByTagName("img")
+          ) as HTMLImageElement
+        ).src as string;
+      }
 
-    const birthday_button = document.createElement("a");
-    birthday_button.className = "Birthday_button";
+      {
+        user_data.BirthdayDate = "";
+      }
 
+      {
+        var arrPrimary = Array.from(
+          document.querySelectorAll('[data-testid="UserName"]')
+        );
+        user_data.Name = (
+          (arrPrimary.find((el) => el.getElementsByTagName("div")) as Element)
+            .children[0].children[0].children[0] as HTMLElement
+        ).innerText;
+      }
+
+      {
+        var arrPrimary = Array.from(
+          document.querySelectorAll('[data-testid="UserName"]')
+        );
+        user_data.UserID = (
+          (arrPrimary.find((el) => el.getElementsByTagName("div")) as Element)
+            .children[0].children[0].children[1].children[0] as HTMLElement
+        ).innerText;
+      }
+
+      const edit_menu = elementFromHtml(
+        `
+          <div class="full_window_position">
+            <div
+              style="display: flex;height: 100%;width: 100%;justify-content: center;align-items: center;"
+            >
+              <div
+                class="birthday_editing_menu edit_birthday"
+                tag="editing_menu_${user_data.UserID} user_page_add_new_bd"
+              >
+                <div class="edit_fields">
+                  <div class="edit_field">
+                    <div>Image Link:</div>
+                    <input
+                      id="image_link_input"
+                      placeholder="Example: https://website/lion.gif"
+                    />
+                  </div>
+                  <div class="edit_field">
+                    <div>Name:</div>
+                    <input id="name_input" placeholder="Example: Matthew" />
+                  </div>
+                  <div class="edit_field">
+                    <div>Twitter Handle:</div>
+                    <input
+                      id="user_id_input"
+                      placeholder="Example: @Genshinmem"
+                    />
+                  </div>
+                  <div class="edit_field">
+                    <div>Birthday:</div>
+                    <input
+                      id="birthday_date_input"
+                      placeholder="Example: July 23, 2001 or 07/23/2001"
+                    />
+                  </div>
+                </div>
+                <div class="save_changes">
+                  <img
+                    class="calendar_icons_svg"
+                    src="${chrome.runtime.getURL(
+                      "assets/images/save_icon.svg"
+                    )}"
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+        `
+      );
+
+      if (
+        document.querySelectorAll('[class*="full_window_position"]').length == 0
+      ) {
+        document
+          .querySelector("body")!
+          .insertBefore(
+            edit_menu,
+            document.querySelector("body")?.children[
+              document.querySelector("body")?.children.length! - 1
+            ] as HTMLElement
+          );
+      } else {
+        document
+          .querySelector("body")!
+          .replaceChild(
+            edit_menu,
+            document.querySelector(
+              '[class*="full_window_position"]'
+            ) as HTMLElement
+          );
+      }
+
+      $(".full_window_position").on("click", () => {
+        show_editing_menu(".full_window_position");
+      });
+
+      $(".birthday_editing_menu").on("click", () => {
+        return false;
+      });
+
+      if ($(".full_window_position").is(":visible")) {
+        $(".full_window_position").fadeOut(300);
+      } else {
+        $(".full_window_position").fadeIn(300);
+      }
+
+      // Sets already existing fields such as icon name and handle.
+      var user_fields = document.querySelector(
+        `[tag*="editing_menu_${user_data.UserID} user_page_add_new_bd"]`
+      );
+
+      (
+        user_fields!.querySelector(
+          `[id="image_link_input"]`
+        ) as HTMLInputElement
+      ).value = user_data.Icon;
+      (
+        user_fields!.querySelector(`[id="name_input"]`) as HTMLInputElement
+      ).value = user_data.Name;
+      (
+        user_fields!.querySelector(`[id="user_id_input"]`) as HTMLInputElement
+      ).value = user_data.UserID;
+      (
+        user_fields!.querySelector(
+          `[id="birthday_date_input"]`
+        ) as HTMLInputElement
+      ).value = user_data.BirthdayDate;
+
+      console.log(
+        (
+          user_fields!.querySelector(
+            `[id="image_link_input"]`
+          ) as HTMLInputElement
+        ).value +
+          " " +
+          (user_fields!.querySelector(`[id="name_input"]`) as HTMLInputElement)
+            .value +
+          " " +
+          (
+            user_fields!.querySelector(
+              `[id="user_id_input"]`
+            ) as HTMLInputElement
+          ).value +
+          " " +
+          (
+            user_fields!.querySelector(
+              `[id="birthday_date_input"]`
+            ) as HTMLInputElement
+          ).value
+      );
+
+      console.log(user_fields);
+
+      // Sets click listener for saving new birthday buttons
+      user_fields!
+        .querySelector('[class="save_changes"]')!
+        .addEventListener("click", function () {
+          console.log("This b#tch aint workin?");
+          var update = { ...base_user_data };
+          update.ID = 0;
+          update.Icon = (user_fields!.querySelector(
+            `[id="image_link_input"]`
+          ) as HTMLInputElement)!.value;
+          update.Name = (user_fields!.querySelector(
+            `[id="name_input"]`
+          ) as HTMLInputElement)!.value;
+          update.UserID = (user_fields!.querySelector(
+            `[id="user_id_input"]`
+          ) as HTMLInputElement)!.value;
+          update.BirthdayDate = (user_fields!.querySelector(
+            `[id="birthday_date_input"]`
+          ) as HTMLInputElement)!.value;
+
+          errors_check = check_fields(update, user_fields);
+
+          if (!errors_check.find((e) => e == true)) {
+            console.log("saved?");
+            chromeGetValue(save_file).then((result) => {
+              UpdateData(result, update);
+              show_editing_menu(".full_window_position");
+            });
+          }
+        });
+
+      // chromeGetValue(save_file).then((result) => {
+      //   UpdateData(result!, user_data);
+      // });
+    };
+
+    const UserProfileHeader_Items = document.querySelector(
+      '[data-testid="UserProfileHeader_Items"]'
+    );
+
+    birthday_button.appendChild(
+      elementFromHtml("<span><span>Add Birthday</span></span>")
+    );
+
+    birthday_button.children[0].className = "custom_button";
+
+    (birthday_button.children[0] as HTMLElement).style.display = "inline";
+    if (document.querySelectorAll('[class="Birthday_button"]').length == 0) {
+      (
+        Array.from(
+          document.querySelectorAll('[data-testid="UserProfileHeader_Items"]')
+        ).find((el) => el.getElementsByTagName("span")) as HTMLElement
+      ).insertBefore(
+        birthday_button,
+        UserProfileHeader_Items?.children[
+          UserProfileHeader_Items?.children.length - 1
+        ] as HTMLElement
+      );
+    }
+  } else {
     birthday_button.onclick = function () {
       {
         var arrPrimary = Array.from(
@@ -231,6 +474,14 @@ function setupBDB(BDBElement: HTMLElement | null) {
 
     birthday_button.children[0].className = "custom_button";
 
+    if (document.querySelectorAll('[data-testid="UserBirthdate"]').length > 1) {
+      (
+        document.querySelectorAll(
+          '[data-testid="UserBirthdate"]'
+        )[1] as HTMLElement
+      ).style.display = "none";
+    }
+
     if (document.querySelectorAll('[class="Birthday_button"]').length == 0) {
       BDBElement!.style.display = "none";
       (
@@ -241,6 +492,8 @@ function setupBDB(BDBElement: HTMLElement | null) {
     } else if (
       document.querySelectorAll('[class="Birthday_button"]').length != 0
     ) {
+      if (BDBElement!.style.display != "none")
+        BDBElement!.style.display = "none";
       (birthday_button.children[0] as HTMLElement).style.display = "inline";
       (
         Array.from(
@@ -374,20 +627,21 @@ function calendarPage(
   mainElement: Element | null | undefined,
   users_db: user_data[]
 ) {
+  var main_page = mainElement!
+    .getElementsByTagName("div")[0]
+    .getElementsByTagName("div")[0];
   if (!active) {
     if (mainElement != null) {
-      mainElement
-        .getElementsByTagName("div")[0]
-        .getElementsByTagName("div")[0].style.display = "none";
+      main_page.style.visibility = "hidden";
+      document.querySelector("html")!.style.overflowY = "hidden";
 
       active = !active;
       update_calendar_page(mainElement, users_db);
     }
   } else {
     if (mainElement != null) {
-      mainElement
-        .getElementsByTagName("div")[0]
-        .getElementsByTagName("div")[0].style.display = "flex";
+      main_page.style.visibility = "visible";
+      document.querySelector("html")!.style.overflowY = "scroll";
 
       (
         mainElement
@@ -886,8 +1140,8 @@ function createCalendarPage(array: user_data[] | null | undefined) {
                     <input id="user_id_input" placeholder="Example: @Genshinmem"/>
                   </div>
                   <div class="edit_field">
-                    <div>Birthday date:</div>
-                    <input id="birthday_date_input" placeholder="Example: July 23, 2001"/>
+                    <div>Birthday:</div>
+                    <input id="birthday_date_input" placeholder="Example: July 23, 2001 or 07/23/2001"/>
                   </div>
                 </div>
                 <div class="save_changes" tag="save_new_birthday">
@@ -1059,7 +1313,7 @@ function createListItem(user_object = { ...base_user_data }) {
                     <input id="user_id_input" placeholder="Example: @Genshinmem"/>
                   </div>
                   <div class="edit_field">
-                    <div>Birthday date:</div>
+                    <div>Birthday:</div>
                     <input id="birthday_date_input" placeholder="Example: July 23, 2001 or 07/23/2001"/>
                   </div>
                 </div>

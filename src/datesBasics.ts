@@ -187,7 +187,7 @@ class normalDates {
       if (new Date().getMonth() >= date1.getMonth()) {
         if (
           new Date().getMonth() == date1.getMonth() &&
-          new Date().getDate() == date1.getDate()
+          new Date().getDate() <= date1.getDate()
         ) {
           return -1;
         }
@@ -201,7 +201,7 @@ class normalDates {
       } else if (new Date().getMonth() >= date2.getMonth()) {
         if (
           new Date().getMonth() == date2.getMonth() &&
-          new Date().getDate() == date2.getDate()
+          new Date().getDate() <= date2.getDate()
         ) {
           return 1;
         }
