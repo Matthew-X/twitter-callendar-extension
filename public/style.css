@@ -207,6 +207,31 @@ html {
   cursor: pointer;
 }
 
+.list .note_button {
+  display: flex;
+  align-items: center;
+  height: 30px;
+  border-radius: 15px;
+  margin: 10px;
+  align-self: center;
+  filter: var(--img-filter);
+}
+
+.list .note_button_wrapper {
+  background-color: var(--background-color);
+  display: flex;
+  align-items: center;
+  height: 50px;
+  border-radius: 50px;
+  margin: 10px;
+  transition: 0.2s ease-in-out;
+}
+
+.list .note_button_wrapper:hover {
+  box-shadow: var(--aquamarine-shadow);
+  background-color: var(--background-color-hover);
+}
+
 .list:hover {
   box-shadow: var(--aquamarine-shadow);
   background-color: var(--background-color-hover);
@@ -767,6 +792,24 @@ html {
   background-color: var(--background-flat-color);
   max-height: 1000px;
   max-width: 600px;
+  opacity: 1;
+  visibility: visible;
+}
+
+.note_view {
+  display: flex;
+  justify-content: center;
+  margin: 0px;
+  max-height: 0px;
+  visibility: collapse;
+  opacity: 0;
+  transition: 0.5s ease-in-out;
+  color: aquamarine;
+}
+
+.note_view.is_open {
+  margin: 10px 32px;
+  max-height: 300px;
   opacity: 1;
   visibility: visible;
 }

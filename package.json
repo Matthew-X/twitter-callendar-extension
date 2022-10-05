@@ -21,6 +21,7 @@
     "dependencies": {
         "csv-loader": "^3.0.3",
         "jquery": "^3.6.0",
+        "quill": "^1.3.7",
         "source-map-loader": "^4.0.0",
         "ts-loader": "^9.3.1",
         "typescript": "^4.7.4"

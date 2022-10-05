@@ -366,7 +366,6 @@ function setupBDB(BDBElement: HTMLElement | null) {
       user_fields!
         .querySelector('[class="save_changes"]')!
         .addEventListener("click", function () {
-          console.log("This b#tch aint workin?");
           var update = { ...base_user_data };
           update.ID = 0;
           update.Icon = (user_fields!.querySelector(
@@ -756,7 +755,18 @@ function update_calendar_page(
           : users_db
       ) as HTMLElement
     );
-
+  var notes = document!.querySelectorAll('[tag*="note_button"]');
+  notes.forEach((value) => {
+    value.addEventListener(
+      "click",
+      (e) => {
+        e.preventDefault();
+        console.log("working?");
+        showNotes(value.id);
+      },
+      true
+    );
+  });
   // Sets click listener for saving new birthday buttons
   document!
     .querySelector('[tag="save_new_birthday"]')!
@@ -918,40 +928,16 @@ function update_calendar_page(
   update_closest_date();
 }
 
-var a_more_options_menus: { ID: any; edit: boolean; settings: boolean }[] = [];
+var a_more_options_menus: {
+  ID: any;
+  edit: boolean;
+  settings: boolean;
+  notes: boolean;
+}[] = [];
 
 function openSettings(UserID: string) {
   chromeGetValue(save_file).then((result) => {
-    if (
-      !a_more_options_menus.some((x, i) => {
-        x.ID == UserID;
-      })
-    ) {
-      a_more_options_menus.push({ ID: UserID, edit: false, settings: false });
-    }
-    if (
-      a_more_options_menus.find((x, i) => {
-        return x.ID == UserID;
-      })!.edit
-    ) {
-      document
-        .querySelector(`[tag="menu_div_${UserID}"]`)!
-        .classList.toggle("is_open", false);
-      a_more_options_menus.find((x, i) => {
-        return x.ID == UserID;
-      })!.settings = !a_more_options_menus.find((x, i) => {
-        return x.ID == UserID;
-      })!.settings;
-    } else {
-      a_more_options_menus.find((x, i) => {
-        return x.ID == UserID;
-      })!.settings = !a_more_options_menus.find((x, i) => {
-        return x.ID == UserID;
-      })!.settings;
-    }
-    document
-      .querySelector(`[tag="menu_div_${UserID}"]`)!
-      .classList.toggle("is_open");
+    edit_div_state(UserID, "settings");
 
     document
       .querySelector(`[class*="event_settings_${UserID}"]`)!
@@ -964,7 +950,7 @@ function openSettings(UserID: string) {
       return value.UserID == UserID;
     })!;
 
-    if (user_fields_values.settings.notification) {
+    if (user_fields_values.Settings.notification) {
       user_fields
         .querySelectorAll(`[class*="notifications_settings"]`)[0]
         .classList.toggle("is_open", true);
@@ -974,18 +960,18 @@ function openSettings(UserID: string) {
     }
 
     user_fields.getElementsByTagName(`input`)[0].checked =
-      user_fields_values.settings.notification;
+      user_fields_values.Settings.notification;
     user_fields.getElementsByTagName(`input`)[1].value =
-      user_fields_values.settings.initial_start.toString();
+      user_fields_values.Settings.initial_start.toString();
     user_fields.getElementsByTagName(`input`)[2].checked =
-      user_fields_values.settings.once;
+      user_fields_values.Settings.once;
     user_fields.getElementsByTagName(`input`)[3].checked =
-      user_fields_values.settings.daily;
+      user_fields_values.Settings.daily;
 
     user_fields
       .getElementsByTagName(`input`)[0]
       .addEventListener("change", function () {
-        user_fields_values.settings.notification =
+        user_fields_values.Settings.notification =
           user_fields.getElementsByTagName(`input`)[0].checked;
         UpdateData(result, user_fields_values);
         user_fields
@@ -998,18 +984,18 @@ function openSettings(UserID: string) {
     user_fields
       .getElementsByTagName(`input`)[1]
       .addEventListener("input", function () {
-        user_fields_values.settings.initial_start =
+        user_fields_values.Settings.initial_start =
           user_fields.getElementsByTagName(`input`)[1]
             .value as unknown as number;
-        user_fields_values.notification.last_date = new Date("1980").getTime();
+        user_fields_values.Notification.last_date = new Date("1980").getTime();
         UpdateData(result, user_fields_values);
       });
     user_fields
       .getElementsByTagName(`input`)[2]
       .addEventListener("change", function () {
-        user_fields_values.settings.once =
+        user_fields_values.Settings.once =
           user_fields.getElementsByTagName(`input`)[2].checked;
-        user_fields_values.settings.daily =
+        user_fields_values.Settings.daily =
           !user_fields.getElementsByTagName(`input`)[2].checked;
         user_fields.getElementsByTagName(`input`)[3].checked =
           !user_fields.getElementsByTagName(`input`)[2].checked;
@@ -1018,9 +1004,9 @@ function openSettings(UserID: string) {
     user_fields
       .getElementsByTagName(`input`)[3]
       .addEventListener("change", function () {
-        user_fields_values.settings.daily =
+        user_fields_values.Settings.daily =
           user_fields.getElementsByTagName(`input`)[3].checked;
-        user_fields_values.settings.once =
+        user_fields_values.Settings.once =
           !user_fields.getElementsByTagName(`input`)[3].checked;
         user_fields.getElementsByTagName(`input`)[2].checked =
           !user_fields.getElementsByTagName(`input`)[3].checked;
@@ -1178,36 +1164,7 @@ function delete_friend(UserID = { ...base_user_data }.UserID) {
 // A function that opens and closes edit menu as well as it pastes already existing values into the fields for user to edit.
 function edit_friend(UserID = { ...base_user_data }.UserID) {
   chromeGetValue(save_file).then((result) => {
-    if (
-      !a_more_options_menus.some((x, i) => {
-        x.ID == UserID;
-      })
-    ) {
-      a_more_options_menus.push({ ID: UserID, edit: false, settings: false });
-    }
-    if (
-      a_more_options_menus.find((x, i) => {
-        return x.ID == UserID;
-      })!.settings
-    ) {
-      document
-        .querySelector(`[tag="menu_div_${UserID}"]`)!
-        .classList.toggle("is_open", false);
-      a_more_options_menus.find((x, i) => {
-        return x.ID == UserID;
-      })!.edit = !a_more_options_menus.find((x, i) => {
-        return x.ID == UserID;
-      })!.edit;
-    } else {
-      a_more_options_menus.find((x, i) => {
-        return x.ID == UserID;
-      })!.edit = !a_more_options_menus.find((x, i) => {
-        return x.ID == UserID;
-      })!.edit;
-    }
-    document
-      .querySelector(`[tag="menu_div_${UserID}"]`)!
-      .classList.toggle("is_open");
+    edit_div_state(UserID, "edit");
 
     document
       .querySelector(`[tag="editing_menu_${UserID}"]`)!
@@ -1265,7 +1222,7 @@ function save_edit(user_fields_values = { ...base_user_data }) {
       )! as HTMLInputElement
     ).value;
 
-    update.notification.last_date = new Date("1980").getTime();
+    update.Notification.last_date = new Date("1980").getTime();
 
     errors_check = check_fields(update, user_fields);
 
@@ -1296,27 +1253,49 @@ function createListItem(user_object = { ...base_user_data }) {
                   </div>
                   <p class="list_item_bd">${user_object.BirthdayDate}</p>
                 </div>
+                <div class="note_button_wrapper">
+                  <img
+                    class="note_button"
+                    tag="note_button"
+                    id="${user_object.UserID}"
+                    src="${chrome.runtime.getURL(
+                      "assets/images/note_icon.svg"
+                    )}"
+                  />
+                </div>
               </div>
             </a>
+            <p class="note_view" tag="note_view_${user_object.UserID}" id="${
+      user_object.UserID
+    }">${user_object.Note} Helo!</p>
             <div class="editing_menu" tag="editing_menu_${user_object.UserID}">
               <div class="edit_fields">
-                  <div class="edit_field">
-                    <div>Image Link:</div>
-                    <input id="image_link_input" placeholder="Example: https://website/lion.gif"/>
-                  </div>
-                  <div class="edit_field">
-                    <div>Name:</div>
-                    <input id="name_input" placeholder="Example: Matthew"/>
-                  </div>
-                  <div class="edit_field">
-                    <div>Twitter Handle:</div>
-                    <input id="user_id_input" placeholder="Example: @Genshinmem"/>
-                  </div>
-                  <div class="edit_field">
-                    <div>Birthday:</div>
-                    <input id="birthday_date_input" placeholder="Example: July 23, 2001 or 07/23/2001"/>
-                  </div>
+                <div class="edit_field">
+                  <div>Image Link:</div>
+                  <input
+                    id="image_link_input"
+                    placeholder="Example: https://website/lion.gif"
+                  />
                 </div>
+                <div class="edit_field">
+                  <div>Name:</div>
+                  <input id="name_input" placeholder="Example: Matthew" />
+                </div>
+                <div class="edit_field">
+                  <div>Twitter Handle:</div>
+                  <input
+                    id="user_id_input"
+                    placeholder="Example: @Genshinmem"
+                  />
+                </div>
+                <div class="edit_field">
+                  <div>Birthday:</div>
+                  <input
+                    id="birthday_date_input"
+                    placeholder="Example: July 23, 2001 or 07/23/2001"
+                  />
+                </div>
+              </div>
               <div class="save_changes">
                 <img
                   class="calendar_icons_svg"
@@ -1333,7 +1312,7 @@ function createListItem(user_object = { ...base_user_data }) {
                 </label>
                 <p class="notifications_settings">
                   When do you want to start recieving notifications?<input
-                  class="notif_start"
+                    class="notif_start"
                     type="number"
                     step="1"
                     min="1"
@@ -1342,16 +1321,16 @@ function createListItem(user_object = { ...base_user_data }) {
                   />
                 </p>
                 <div class="notifications_settings">
-                <label class="toggle_container"
-                  >Onece
-                  <input type="checkbox" checked="checked" />
-                  <span class="checkmark"></span>
-                </label>
-                <label class="toggle_container"
-                  >Daily
-                  <input type="checkbox" checked="checked" />
-                  <span class="checkmark"></span>
-                </label>
+                  <label class="toggle_container"
+                    >Onece
+                    <input type="checkbox" checked="checked" />
+                    <span class="checkmark"></span>
+                  </label>
+                  <label class="toggle_container"
+                    >Daily
+                    <input type="checkbox" checked="checked" />
+                    <span class="checkmark"></span>
+                  </label>
                 </div>
               </div>
             </div>
@@ -1401,4 +1380,48 @@ function createListItem(user_object = { ...base_user_data }) {
       </li>
     `
   );
+}
+
+function showNotes(UserID: string) {
+  chromeGetValue(save_file).then((result) => {
+    edit_div_state(UserID, "notes");
+    document
+      .querySelector(`[tag*="note_view_${UserID}"]`)!
+      .classList.toggle("is_open");
+  });
+}
+
+function edit_div_state(UserID: string, menu: string) {
+  if (
+    !a_more_options_menus.some((x, i) => {
+      x.ID == UserID;
+    })
+  ) {
+    a_more_options_menus.push({
+      ID: UserID,
+      edit: false,
+      settings: false,
+      notes: false,
+    });
+  }
+  var currentUser = a_more_options_menus.find((x, i) => {
+    return x.ID == UserID;
+  });
+  switch (menu) {
+    case "edit":
+      currentUser!.edit = !currentUser!.edit;
+    case "settings":
+      currentUser!.settings = !currentUser!.settings;
+    case "notes":
+      currentUser!.notes = !currentUser!.notes;
+  }
+  if (currentUser?.edit || currentUser?.notes || currentUser?.settings) {
+    document
+      .querySelector(`[tag="menu_div_${UserID}"]`)!
+      .classList.toggle("is_open", true);
+  } else {
+    document
+      .querySelector(`[tag="menu_div_${UserID}"]`)!
+      .classList.toggle("is_open", false);
+  }
 }

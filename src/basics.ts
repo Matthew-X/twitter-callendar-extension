@@ -19,10 +19,11 @@ type user_data = {
   Name: string;
   UserID: string;
   BirthdayDate: string;
-  settings: typeof settings_base;
-  notification: {
+  Settings: typeof settings_base;
+  Notification: {
     last_date: number;
   };
+  Note: string;
 };
 // Blank for item in data-base.
 const base_user_data: user_data = {
@@ -31,10 +32,11 @@ const base_user_data: user_data = {
   Name: "",
   UserID: "",
   BirthdayDate: "",
-  settings: settings_base,
-  notification: {
+  Settings: settings_base,
+  Notification: {
     last_date: new Date("1980").getTime(),
   },
+  Note: "",
 };
 
 // A function that retrieves data from chrome.storage.
