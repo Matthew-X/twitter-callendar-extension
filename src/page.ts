@@ -337,31 +337,6 @@ function setupBDB(BDBElement: HTMLElement | null) {
         ) as HTMLInputElement
       ).value = user_data.BirthdayDate;
 
-      console.log(
-        (
-          user_fields!.querySelector(
-            `[id="image_link_input"]`
-          ) as HTMLInputElement
-        ).value +
-          " " +
-          (user_fields!.querySelector(`[id="name_input"]`) as HTMLInputElement)
-            .value +
-          " " +
-          (
-            user_fields!.querySelector(
-              `[id="user_id_input"]`
-            ) as HTMLInputElement
-          ).value +
-          " " +
-          (
-            user_fields!.querySelector(
-              `[id="birthday_date_input"]`
-            ) as HTMLInputElement
-          ).value
-      );
-
-      console.log(user_fields);
-
       // Sets click listener for saving new birthday buttons
       user_fields!
         .querySelector('[class="save_changes"]')!
@@ -384,7 +359,6 @@ function setupBDB(BDBElement: HTMLElement | null) {
           errors_check = check_fields(update, user_fields);
 
           if (!errors_check.find((e) => e == true)) {
-            console.log("saved?");
             chromeGetValue(save_file).then((result) => {
               UpdateData(result, update);
               show_editing_menu(".full_window_position");
@@ -755,18 +729,26 @@ function update_calendar_page(
           : users_db
       ) as HTMLElement
     );
+
   var notes = document!.querySelectorAll('[tag*="note_button"]');
   notes.forEach((value) => {
     value.addEventListener(
       "click",
       (e) => {
         e.preventDefault();
-        console.log("working?");
         showNotes(value.id);
       },
       true
     );
+    if (
+      users_db?.find((x) => {
+        return x.UserID == value.id;
+      })
+    ) {
+      (value.parentElement as HTMLElement).style.display = "flex";
+    }
   });
+
   // Sets click listener for saving new birthday buttons
   document!
     .querySelector('[tag="save_new_birthday"]')!

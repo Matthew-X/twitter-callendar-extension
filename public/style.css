@@ -219,7 +219,7 @@ html {
 
 .list .note_button_wrapper {
   background-color: var(--background-color);
-  display: flex;
+  display: none;
   align-items: center;
   height: 50px;
   border-radius: 50px;
