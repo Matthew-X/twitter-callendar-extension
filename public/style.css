@@ -387,6 +387,7 @@ html {
 
 .editing_menu {
   display: flex;
+  flex-direction: column;
   visibility: collapse;
   width: 100%;
   background-color: transparent;

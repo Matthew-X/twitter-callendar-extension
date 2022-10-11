@@ -14,6 +14,7 @@ import {
   trashDate,
   yearOnlyDate,
 } from "./datesBasics";
+import Quill from "quill";
 
 // A function that that retrieves a Main-Parent of twitter's left side bar with all the buttons to navigate between pages like (home, messages, bookmarks).
 function getParent(): HTMLElement | null {
@@ -907,6 +908,23 @@ function update_calendar_page(
         openSettings(value.id);
       });
   });
+
+  // Initializing editor for notes
+  var quill = new Quill("#editor", {
+    debug: "info",
+    modules: {
+      toolbar: ["bold", "italic", "underline", "strike"],
+    },
+    placeholder: "Compose an epic...",
+    readOnly: true,
+    theme: "snow",
+  });
+
+  //TODO
+  Quill.register({
+    "themes/snow.js": Snow,
+  });
+
   update_closest_date();
 }
 
@@ -1247,9 +1265,13 @@ function createListItem(user_object = { ...base_user_data }) {
                 </div>
               </div>
             </a>
-            <p class="note_view" tag="note_view_${user_object.UserID}" id="${
-      user_object.UserID
-    }">${user_object.Note} Helo!</p>
+            <p
+              class="note_view"
+              tag="note_view_${user_object.UserID}"
+              id="${user_object.UserID}"
+            >
+              ${user_object.Note} Helo!
+            </p>
             <div class="editing_menu" tag="editing_menu_${user_object.UserID}">
               <div class="edit_fields">
                 <div class="edit_field">
@@ -1283,6 +1305,11 @@ function createListItem(user_object = { ...base_user_data }) {
                   class="calendar_icons_svg"
                   src="${chrome.runtime.getURL("assets/images/save_icon.svg")}"
                 />
+              </div>
+              <div id="editor">
+                <p>Hello World!</p>
+                <p>Some initial <strong>bold</strong> text</p>
+                <p><br /></p>
               </div>
             </div>
             <div class="event_settings event_settings_${user_object.UserID}">
