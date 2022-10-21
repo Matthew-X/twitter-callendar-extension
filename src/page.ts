@@ -14,7 +14,11 @@ import {
   trashDate,
   yearOnlyDate,
 } from "./datesBasics";
-import Quill from "quill";
+import Quill, { QuillOptionsStatic } from "quill";
+import Snow from "quill";
+import "../node_modules/quill/dist/quill.snow.css";
+import "../node_modules/quill/dist/quill.bubble.css";
+import "../node_modules/quill/dist/quill.core.css";
 
 // A function that that retrieves a Main-Parent of twitter's left side bar with all the buttons to navigate between pages like (home, messages, bookmarks).
 function getParent(): HTMLElement | null {
@@ -58,10 +62,12 @@ function getBDBParent(): HTMLElement | null {
 requestAnimationFrame(function () {
   initCalendarButton();
   initBDB();
+  console.log(document.querySelector("body")?.style.backgroundColor);
 
   if (
     document.querySelector("body")?.style.backgroundColor ==
-    "rgb(255, 255, 255)"
+      "rgb(255, 255, 255)" ||
+    document.querySelector("body")?.style.backgroundColor == "#FFFFFF"
   ) {
     document.documentElement.className = "light";
   } else {
@@ -101,6 +107,8 @@ window.onload = function () {
             getMainParent()!
               .getElementsByTagName("div")[0]
               .getElementsByTagName("div")[0].style.visibility = "visible";
+
+            document.querySelector("html")!.style.overflowY = "scroll";
           }
         }
         if (active) {
@@ -909,21 +917,37 @@ function update_calendar_page(
       });
   });
 
-  // Initializing editor for notes
-  var quill = new Quill("#editor", {
-    debug: "info",
-    modules: {
-      toolbar: ["bold", "italic", "underline", "strike"],
-    },
-    placeholder: "Compose an epic...",
-    readOnly: true,
-    theme: "snow",
-  });
-
-  //TODO
   Quill.register({
     "themes/snow.js": Snow,
   });
+
+  var toolbarOptions = [
+    [
+      "bold",
+      "italic",
+      "underline",
+      "strike",
+      { color: [] },
+      { background: [] },
+      { direction: "rtl" },
+      { size: ["small", false, "large", "huge"] },
+      { header: [1, 2, 3, 4, 5, 6, false] },
+      { align: [] },
+    ],
+  ];
+
+  var quillOptions: QuillOptionsStatic = {
+    debug: "info",
+    modules: {
+      toolbar: toolbarOptions,
+    },
+    placeholder: "Write your notes here...",
+    readOnly: false,
+    theme: "snow",
+  };
+
+  // Initializing editor for notes
+  var quill = new Quill("#editor", quillOptions);
 
   update_closest_date();
 }
@@ -1273,43 +1297,46 @@ function createListItem(user_object = { ...base_user_data }) {
               ${user_object.Note} Helo!
             </p>
             <div class="editing_menu" tag="editing_menu_${user_object.UserID}">
-              <div class="edit_fields">
-                <div class="edit_field">
-                  <div>Image Link:</div>
-                  <input
-                    id="image_link_input"
-                    placeholder="Example: https://website/lion.gif"
-                  />
+              <div class="profile_info_edit_wrapper">
+                <div class="edit_fields">
+                  <div class="edit_field">
+                    <div>Image Link:</div>
+                    <input
+                      id="image_link_input"
+                      placeholder="Example: https://website/lion.gif"
+                    />
+                  </div>
+                  <div class="edit_field">
+                    <div>Name:</div>
+                    <input id="name_input" placeholder="Example: Matthew" />
+                  </div>
+                  <div class="edit_field">
+                    <div>Twitter Handle:</div>
+                    <input
+                      id="user_id_input"
+                      placeholder="Example: @Genshinmem"
+                    />
+                  </div>
+                  <div class="edit_field">
+                    <div>Birthday:</div>
+                    <input
+                      id="birthday_date_input"
+                      placeholder="Example: July 23, 2001 or 07/23/2001"
+                    />
+                  </div>
                 </div>
-                <div class="edit_field">
-                  <div>Name:</div>
-                  <input id="name_input" placeholder="Example: Matthew" />
-                </div>
-                <div class="edit_field">
-                  <div>Twitter Handle:</div>
-                  <input
-                    id="user_id_input"
-                    placeholder="Example: @Genshinmem"
-                  />
-                </div>
-                <div class="edit_field">
-                  <div>Birthday:</div>
-                  <input
-                    id="birthday_date_input"
-                    placeholder="Example: July 23, 2001 or 07/23/2001"
+                <div class="save_changes">
+                  <img
+                    class="calendar_icons_svg"
+                    src="${chrome.runtime.getURL(
+                      "assets/images/save_icon.svg"
+                    )}"
                   />
                 </div>
               </div>
-              <div class="save_changes">
-                <img
-                  class="calendar_icons_svg"
-                  src="${chrome.runtime.getURL("assets/images/save_icon.svg")}"
-                />
-              </div>
+              <div class="editor_wrapper">
               <div id="editor">
-                <p>Hello World!</p>
-                <p>Some initial <strong>bold</strong> text</p>
-                <p><br /></p>
+              </div>
               </div>
             </div>
             <div class="event_settings event_settings_${user_object.UserID}">

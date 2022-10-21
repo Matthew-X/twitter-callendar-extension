@@ -21,7 +21,7 @@
         "https://mobile.twitter.com/*"
       ],
       "run_at": "document_idle",
-      "css": ["style.css"],
+      "css": ["style.css", "contentScript.css"],
       "js": ["contentScript.js"]
     }
   ],
