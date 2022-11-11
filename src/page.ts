@@ -19,6 +19,13 @@ import Snow from "quill";
 import "../node_modules/quill/dist/quill.snow.css";
 import "../node_modules/quill/dist/quill.bubble.css";
 import "../node_modules/quill/dist/quill.core.css";
+import Delta from "quill-delta";
+
+var loaded_activities = {
+  calendarButton: false,
+  BDB: false,
+  theme: false,
+};
 
 // A function that that retrieves a Main-Parent of twitter's left side bar with all the buttons to navigate between pages like (home, messages, bookmarks).
 function getParent(): HTMLElement | null {
@@ -58,29 +65,44 @@ function getBDBParent(): HTMLElement | null {
   }) as HTMLElement;
 }
 
-// A part of code that initiates the piece of code that creates Calendar button & Birthday save button.
-requestAnimationFrame(function () {
-  initCalendarButton();
-  initBDB();
-  console.log(document.querySelector("body")?.style.backgroundColor);
+var themeCheck_timer = 0;
 
-  if (
-    document.querySelector("body")?.style.backgroundColor ==
-      "rgb(255, 255, 255)" ||
-    document.querySelector("body")?.style.backgroundColor == "#FFFFFF"
-  ) {
-    document.documentElement.className = "light";
-  } else {
-    document.documentElement.className = "dark";
+// A part of code that initiates the piece of code that creates Calendar button & Birthday save button.
+requestAnimationFrame(update);
+
+function update() {
+  if (!loaded_activities.calendarButton) {
+    initCalendarButton();
   }
-});
+  if (!loaded_activities.BDB) {
+    initBDB();
+  }
+  if (!loaded_activities.theme && themeCheck_timer <= 300) {
+    if (themeCheck_timer == 300) {
+      loaded_activities.theme = true;
+      themeCheck_timer = 0;
+    }
+    themeCheck_timer++;
+    if (
+      document.querySelector("body")?.style.backgroundColor ==
+        "rgb(255, 255, 255)" ||
+      document.querySelector("body")?.style.backgroundColor == "#FFFFFF"
+    ) {
+      document.documentElement.className = "light";
+    } else {
+      document.documentElement.className = "dark";
+    }
+  }
+  window.setTimeout(update, 500);
+}
 
 // A function that will keep searching for a twitter's left side bar in order to parse it into the function to inject Calendar button into that bar.
 function initCalendarButton() {
   var parentElement = getParent();
 
-  if (parentElement != null) {
+  if (parentElement != null && loaded_activities.calendarButton != true) {
     setupCalendar(parentElement);
+    loaded_activities.calendarButton = true;
   } else {
     requestAnimationFrame(initCalendarButton);
   }
@@ -88,7 +110,7 @@ function initCalendarButton() {
 
 // Variable that saves initial page's url/href upon loading on the page.
 var oldHref = document.location.href;
-
+console.log(loaded_activities);
 // Piece of code that upon loading starts an observer that tracks every change on the page and upon url change it re-initiates function that make's Birthday button to appear.
 window.onload = function () {
   var bodyList = document.querySelector("body")!;
@@ -96,7 +118,16 @@ window.onload = function () {
   var observer = new MutationObserver(function (mutations) {
     mutations.forEach(function (mutation) {
       if (oldHref != document.location.href) {
+        console.log("style change");
         oldHref = document.location.href;
+        loaded_activities.BDB = false;
+        loaded_activities.theme = false;
+
+        if (
+          document.querySelector('[class="Calendar_button_holder"]') == null
+        ) {
+          loaded_activities.calendarButton = false;
+        }
         if (document.querySelector('[class="page_div"]') != null) {
           document.querySelector('[class="page_div"]')?.remove();
           if (
@@ -127,6 +158,8 @@ window.onload = function () {
   var config = {
     childList: true,
     subtree: true,
+    attributes: true,
+    attributeFilter: ["style"],
   };
 
   observer.observe(bodyList, config);
@@ -136,19 +169,11 @@ var initBDB_timer = 0;
 // A function that will keep searching for a twitter's birthday date on the page and will create a (save birthday button) upon finding birthday date.
 function initBDB() {
   var BDBElement = getBDBParent();
-  const BDloaded = document.querySelector('[data-testid="UserBirthdate"]');
-  const Ploaded = document.querySelector('[data-testid="UserJoinDate"]');
-  initBDB_timer++;
-
-  if (BDloaded != null) {
+  var composeBox = document.querySelector('[data-testid="UserBirthdate"]');
+  if (composeBox) {
+    console.log("Worked!");
     setupBDB(BDBElement);
-  } else if (Ploaded != null) {
-    setupBDB(BDBElement);
-    requestAnimationFrame(initBDB);
-  } else if (initBDB_timer <= 300) {
-    requestAnimationFrame(initBDB);
-  } else {
-    initBDB_timer = 0;
+    loaded_activities.BDB = true;
   }
 }
 
@@ -707,12 +732,18 @@ function check_fields(
 
 var errors_check;
 var b_util_menu = { settings: false, add_birthday: false };
+//Array for all editor QuillJS items
+var editQuillArray: Quill[] = [];
+//Array for all note views
+var noteQuillArray: Quill[] = [];
 
 // A function that updates calendar page by deleting existing content and creating a new list of elements with updated information as well as it assigns a delete button functions for each element.
 function update_calendar_page(
   mainElement: Element | null | undefined,
   users_db: user_data[] | null | undefined
 ) {
+  noteQuillArray = [];
+  editQuillArray = [];
   chrome.runtime.sendMessage(messages.notificationsUpdate);
   if (
     mainElement!
@@ -727,6 +758,7 @@ function update_calendar_page(
   chromeGetValue(save_file).then((result) => {
     if (result != null && result.length > 1)
       chrome.storage.sync.set({ save_file: result.sort(dateComparison) });
+    console.log(result);
   });
 
   mainElement!
@@ -749,11 +781,27 @@ function update_calendar_page(
       },
       true
     );
-    if (
-      users_db?.find((x) => {
-        return x.UserID == value.id;
-      })
-    ) {
+    var userNote = users_db?.find((x) => {
+      return x.UserID == value.id;
+    })?.Note;
+    if (userNote != "") {
+      var quillOptions: QuillOptionsStatic = {
+        debug: "false",
+        placeholder: "Note Is supposed to be here",
+        modules: {
+          toolbar: false,
+        },
+        readOnly: true,
+        theme: "snow",
+      };
+      console.log(value.id);
+      noteQuillArray.push(
+        new Quill(`[tag*="note_view_${value.id}"]`, quillOptions)
+      );
+      noteQuillArray[noteQuillArray.length - 1].setContents(
+        JSON.parse(userNote!)
+      );
+      console.log(userNote!);
       (value.parentElement as HTMLElement).style.display = "flex";
     }
   });
@@ -937,7 +985,7 @@ function update_calendar_page(
   ];
 
   var quillOptions: QuillOptionsStatic = {
-    debug: "info",
+    debug: "false",
     modules: {
       toolbar: toolbarOptions,
     },
@@ -946,8 +994,24 @@ function update_calendar_page(
     theme: "snow",
   };
 
-  // Initializing editor for notes
-  var quill = new Quill("#editor", quillOptions);
+  users_db?.forEach((value, i) => {
+    // Initializing all instances of editor for notes
+    editQuillArray.push(new Quill(`#editor_${value.ID}`, quillOptions));
+    if (value.Note != "") {
+      editQuillArray[editQuillArray.length - 1].setContents(
+        JSON.parse(value.Note)
+      );
+    }
+    console.log(editQuillArray);
+    editQuillArray[i].on("text-change", function () {
+      var update = users_db![i];
+      update.Note = JSON.stringify(editQuillArray[i].getContents());
+      noteQuillArray[i].setContents(
+        JSON.parse(JSON.stringify(editQuillArray[i].getContents()))
+      );
+      chrome.storage.sync.set({ save_file: users_db!.sort(dateComparison) });
+    });
+  });
 
   update_closest_date();
 }
@@ -1245,6 +1309,9 @@ function save_edit(user_fields_values = { ...base_user_data }) {
         `[id="birthday_date_input"]`
       )! as HTMLInputElement
     ).value;
+    update.Note = JSON.stringify(
+      editQuillArray[user_fields_values.ID - 1].getContents()
+    );
 
     update.Notification.last_date = new Date("1980").getTime();
 
@@ -1289,13 +1356,14 @@ function createListItem(user_object = { ...base_user_data }) {
                 </div>
               </div>
             </a>
+            <div class="editor_wrapper">
             <p
               class="note_view"
               tag="note_view_${user_object.UserID}"
               id="${user_object.UserID}"
             >
-              ${user_object.Note} Helo!
             </p>
+            </div>
             <div class="editing_menu" tag="editing_menu_${user_object.UserID}">
               <div class="profile_info_edit_wrapper">
                 <div class="edit_fields">
@@ -1335,7 +1403,7 @@ function createListItem(user_object = { ...base_user_data }) {
                 </div>
               </div>
               <div class="editor_wrapper">
-              <div id="editor">
+              <div id="editor_${user_object.ID}">
               </div>
               </div>
             </div>
@@ -1419,12 +1487,10 @@ function createListItem(user_object = { ...base_user_data }) {
 }
 
 function showNotes(UserID: string) {
-  chromeGetValue(save_file).then((result) => {
-    edit_div_state(UserID, "notes");
-    document
-      .querySelector(`[tag*="note_view_${UserID}"]`)!
-      .classList.toggle("is_open");
-  });
+  edit_div_state(UserID, "notes");
+  document
+    .querySelector(`[tag*="note_view_${UserID}"]`)!
+    .classList.toggle("is_open");
 }
 
 function edit_div_state(UserID: string, menu: string) {

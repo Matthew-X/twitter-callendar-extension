@@ -20,6 +20,8 @@
     brightness(98%) contrast(88%);
   --text-color: rgb(231, 233, 234);
   --aquamarine-shadow: 0px 0px 5px 0 rgb(161, 233, 211);
+  --icon-filter-editor: brightness(2.5);
+  --icon-mix-blend-mode: screen;
 }
 
 :root,
@@ -33,6 +35,8 @@
     brightness(95%) contrast(91%);
   --text-color: rgb(15, 20, 25);
   --aquamarine-shadow: 0px 0px 5px 0 rgb(161, 233, 211);
+  --icon-filter-editor: none;
+  --icon-mix-blend-mode: normal;
 }
 
 .Calendar_button_holder {
@@ -410,16 +414,16 @@ html {
   transition: 0.5s ease-in-out;
 }
 
-.editing_menu * {
+.editing_menu > div {
   visibility: collapse;
   max-height: 0;
   opacity: 0;
   transition: 0.5s ease-in-out;
 }
 
-.editing_menu.is_open * {
+.editing_menu.is_open > div {
   visibility: visible;
-  max-height: 700px;
+  max-height: 500px;
   opacity: 1;
 }
 
@@ -805,7 +809,7 @@ html {
   visibility: collapse;
   opacity: 0;
   transition: 0.5s ease-in-out;
-  color: aquamarine;
+  color: var(--text-color);
 }
 
 .note_view.is_open {
@@ -834,8 +838,8 @@ html {
 
 .ql-formats > svg,
 .ql-formats > button > svg {
-  mix-blend-mode: screen;
-  filter: brightness(2.5);
+  mix-blend-mode: var(--icon-mix-blend-mode);
+  filter: var(--icon-filter-editor);
 }
 
 .editor_wrapper .ql-toolbar,
@@ -860,16 +864,21 @@ html {
 }
 
 .ql-formats > span .ql-picker-label {
-  mix-blend-mode: screen;
-  filter: brightness(2.5);
+  mix-blend-mode: var(--icon-mix-blend-mode);
+  filter: var(--icon-filter-editor);
 }
 
 .editor_wrapper .ql-container {
   color: var(--text-color);
+  overflow-y: scroll;
 }
 
 .ql-editor.ql-blank::before {
   color: var(--background-color-hover-scrollBar) !important;
+}
+
+.ql-editor {
+  overflow-wrap: anywhere !important;
 }
 
 /* .event_settings_button {
