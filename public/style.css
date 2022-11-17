@@ -448,6 +448,10 @@ html {
   background-color: var(--background-color);
 }
 
+.edit_div.is_open .editor_wrapper {
+  margin: 15px;
+}
+
 .save_changes {
   height: fit-content;
   align-self: center;
@@ -803,7 +807,6 @@ html {
 
 .note_view {
   display: flex;
-  justify-content: center;
   margin: 0px;
   max-height: 0px;
   visibility: collapse;
@@ -813,8 +816,7 @@ html {
 }
 
 .note_view.is_open {
-  margin: 10px 32px;
-  max-height: 300px;
+  max-height: 500px;
   opacity: 1;
   visibility: visible;
 }
@@ -828,7 +830,7 @@ html {
   align-items: center;
   flex-direction: column;
   align-self: center;
-  margin: 5px 15px 15px 15px;
+  margin: 0px;
   width: -webkit-fill-available;
   max-height: fit-content;
   background-color: var(--background-color);
@@ -879,6 +881,12 @@ html {
 
 .ql-editor {
   overflow-wrap: anywhere !important;
+  width: -webkit-fill-available;
+  padding: 15px;
+}
+
+.ql-editor img {
+  border-radius: 10px;
 }
 
 /* .event_settings_button {

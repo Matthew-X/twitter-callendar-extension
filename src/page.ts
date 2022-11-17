@@ -71,29 +71,25 @@ var themeCheck_timer = 0;
 requestAnimationFrame(update);
 
 function update() {
+  if (!document.querySelector('[class="Calendar_button"]')) {
+    loaded_activities.calendarButton = false;
+  }
   if (!loaded_activities.calendarButton) {
     initCalendarButton();
   }
   if (!loaded_activities.BDB) {
     initBDB();
   }
-  if (!loaded_activities.theme && themeCheck_timer <= 300) {
-    if (themeCheck_timer == 300) {
-      loaded_activities.theme = true;
-      themeCheck_timer = 0;
-    }
-    themeCheck_timer++;
-    if (
-      document.querySelector("body")?.style.backgroundColor ==
-        "rgb(255, 255, 255)" ||
-      document.querySelector("body")?.style.backgroundColor == "#FFFFFF"
-    ) {
-      document.documentElement.className = "light";
-    } else {
-      document.documentElement.className = "dark";
-    }
+  if (
+    document.querySelector("body")?.style.backgroundColor ==
+      "rgb(255, 255, 255)" ||
+    document.querySelector("body")?.style.backgroundColor == "#FFFFFF"
+  ) {
+    document.documentElement.className = "light";
+  } else {
+    document.documentElement.className = "dark";
   }
-  window.setTimeout(update, 500);
+  window.setTimeout(update, 200);
 }
 
 // A function that will keep searching for a twitter's left side bar in order to parse it into the function to inject Calendar button into that bar.
@@ -169,11 +165,19 @@ var initBDB_timer = 0;
 // A function that will keep searching for a twitter's birthday date on the page and will create a (save birthday button) upon finding birthday date.
 function initBDB() {
   var BDBElement = getBDBParent();
-  var composeBox = document.querySelector('[data-testid="UserBirthdate"]');
-  if (composeBox) {
-    console.log("Worked!");
-    setupBDB(BDBElement);
+  initBDB_timer++;
+  if (
+    initBDB_timer <= 35 &&
+    !document.querySelector('[class="Birthday_button"]')
+  ) {
+    if (document.querySelector('[data-testid="UserBirthdate"]')) {
+      setupBDB(BDBElement);
+    } else if (document.querySelector('[data-testid="UserJoinDate"]')) {
+      setupBDB(BDBElement);
+    }
+  } else {
     loaded_activities.BDB = true;
+    initBDB_timer = 0;
   }
 }
 
@@ -784,24 +788,23 @@ function update_calendar_page(
     var userNote = users_db?.find((x) => {
       return x.UserID == value.id;
     })?.Note;
+    var quillOptions: QuillOptionsStatic = {
+      debug: "false",
+      placeholder: "Note Is supposed to be here",
+      modules: {
+        toolbar: false,
+      },
+      readOnly: true,
+      theme: "snow",
+    };
+    console.log(value.id);
+    noteQuillArray.push(
+      new Quill(`[tag*="note_view_${value.id}"]`, quillOptions)
+    );
     if (userNote != "") {
-      var quillOptions: QuillOptionsStatic = {
-        debug: "false",
-        placeholder: "Note Is supposed to be here",
-        modules: {
-          toolbar: false,
-        },
-        readOnly: true,
-        theme: "snow",
-      };
-      console.log(value.id);
-      noteQuillArray.push(
-        new Quill(`[tag*="note_view_${value.id}"]`, quillOptions)
-      );
       noteQuillArray[noteQuillArray.length - 1].setContents(
         JSON.parse(userNote!)
       );
-      console.log(userNote!);
       (value.parentElement as HTMLElement).style.display = "flex";
     }
   });
@@ -1005,11 +1008,14 @@ function update_calendar_page(
     console.log(editQuillArray);
     editQuillArray[i].on("text-change", function () {
       var update = users_db![i];
-      update.Note = JSON.stringify(editQuillArray[i].getContents());
-      noteQuillArray[i].setContents(
-        JSON.parse(JSON.stringify(editQuillArray[i].getContents()))
-      );
+      if (editQuillArray[i].getLength() > 1) {
+        update.Note = JSON.stringify(editQuillArray[i].getContents());
+      } else {
+        console.log(editQuillArray[i].getLength());
+        update.Note = "";
+      }
       chrome.storage.sync.set({ save_file: users_db!.sort(dateComparison) });
+      noteQuillArray[i].setContents(editQuillArray[i].getContents());
     });
   });
 
@@ -1309,9 +1315,14 @@ function save_edit(user_fields_values = { ...base_user_data }) {
         `[id="birthday_date_input"]`
       )! as HTMLInputElement
     ).value;
-    update.Note = JSON.stringify(
-      editQuillArray[user_fields_values.ID - 1].getContents()
-    );
+    if (editQuillArray[user_fields_values.ID - 1].getLength() > 1) {
+      update.Note = JSON.stringify(
+        editQuillArray[user_fields_values.ID - 1].getContents()
+      );
+    } else {
+      console.log(editQuillArray[user_fields_values.ID - 1].getLength());
+      update.Note = "";
+    }
 
     update.Notification.last_date = new Date("1980").getTime();
 
