@@ -106,7 +106,6 @@ function initCalendarButton() {
 
 // Variable that saves initial page's url/href upon loading on the page.
 var oldHref = document.location.href;
-console.log(loaded_activities);
 // Piece of code that upon loading starts an observer that tracks every change on the page and upon url change it re-initiates function that make's Birthday button to appear.
 window.onload = function () {
   var bodyList = document.querySelector("body")!;
@@ -114,7 +113,6 @@ window.onload = function () {
   var observer = new MutationObserver(function (mutations) {
     mutations.forEach(function (mutation) {
       if (oldHref != document.location.href) {
-        console.log("style change");
         oldHref = document.location.href;
         loaded_activities.BDB = false;
         loaded_activities.theme = false;
@@ -762,7 +760,6 @@ function update_calendar_page(
   chromeGetValue(save_file).then((result) => {
     if (result != null && result.length > 1)
       chrome.storage.sync.set({ save_file: result.sort(dateComparison) });
-    console.log(result);
   });
 
   mainElement!
@@ -797,7 +794,6 @@ function update_calendar_page(
       readOnly: true,
       theme: "snow",
     };
-    console.log(value.id);
     noteQuillArray.push(
       new Quill(`[tag*="note_view_${value.id}"]`, quillOptions)
     );
@@ -1005,13 +1001,11 @@ function update_calendar_page(
         JSON.parse(value.Note)
       );
     }
-    console.log(editQuillArray);
     editQuillArray[i].on("text-change", function () {
       var update = users_db![i];
       if (editQuillArray[i].getLength() > 1) {
         update.Note = JSON.stringify(editQuillArray[i].getContents());
       } else {
-        console.log(editQuillArray[i].getLength());
         update.Note = "";
       }
       chrome.storage.sync.set({ save_file: users_db!.sort(dateComparison) });
@@ -1320,7 +1314,6 @@ function save_edit(user_fields_values = { ...base_user_data }) {
         editQuillArray[user_fields_values.ID - 1].getContents()
       );
     } else {
-      console.log(editQuillArray[user_fields_values.ID - 1].getLength());
       update.Note = "";
     }
 
