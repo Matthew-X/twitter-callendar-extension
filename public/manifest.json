@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Twitter Planner",
-  "version": "0.10.3",
+  "version": "0.11.0",
   "description": "An extension that helps you to keep track of people's birthday events. (Twitter events will get support in the future)",
   "icons": {
     "16": "icons/icon_16.png",
@@ -21,7 +21,7 @@
         "https://mobile.twitter.com/*"
       ],
       "run_at": "document_idle",
-      "css": ["style.css"],
+      "css": ["style.css", "contentScript.css"],
       "js": ["contentScript.js"]
     }
   ],

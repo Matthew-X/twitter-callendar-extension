@@ -29,10 +29,10 @@ function notificationCheck() {
             : 0;
 
         if (
-          v.settings.notification &&
-          new Date(v.notification.last_date).getMonth() <=
+          v.Settings.notification &&
+          new Date(v.Notification.last_date).getMonth() <=
             new Date().getMonth() &&
-          new Date(v.notification.last_date).getDate() < new Date().getDate() &&
+          new Date(v.Notification.last_date).getDate() < new Date().getDate() &&
           new normalDates().dateCheck(v, v) &&
           new Date(
             new Date().setFullYear(
@@ -41,13 +41,13 @@ function notificationCheck() {
           ) >=
             new Date(
               new Date(v.BirthdayDate).setDate(
-                new Date(v.BirthdayDate).getDate() - v.settings.initial_start
+                new Date(v.BirthdayDate).getDate() - v.Settings.initial_start
               )
             ) &&
-          ((v.settings.once &&
-            new Date(v.notification.last_date.toString()).getFullYear() <
+          ((v.Settings.once &&
+            new Date(v.Notification.last_date.toString()).getFullYear() <
               new Date().getFullYear()) ||
-            v.settings.daily)
+            v.Settings.daily)
         ) {
           var days_left = Math.ceil(
             (new Date(v.BirthdayDate).getTime() -
@@ -74,7 +74,7 @@ function notificationCheck() {
               message: `Horay! Wish that person a Happy Birthday or whatever you wanted to do this day`,
             });
           }
-          v.notification.last_date = new Date().getTime();
+          v.Notification.last_date = new Date().getTime();
         }
       });
       chrome.storage.sync.set({ save_file: result });

@@ -14,7 +14,7 @@ const config = (env, argv) =>
     },
     devtool: argv.mode === "production" ? false : "source-map",
     resolve: {
-      extensions: [".ts", ".tsx", ".js"],
+      extensions: [".ts", ".tsx", ".js", ".svg"],
       alias: {
         jquery: "jquery/src/jquery",
       },
@@ -25,6 +25,17 @@ const config = (env, argv) =>
         { test: /\.tsx?$/, loader: "ts-loader" },
         // All output '.js' files will have any sourcemaps re-processed by 'source-map-loader'.
         { test: /\.js$/, loader: "source-map-loader" },
+        {
+          test: /\.svg$/,
+          use: [
+            {
+              loader: "html-loader",
+              options: {
+                minimize: true,
+              },
+            },
+          ],
+        },
       ],
     },
   });

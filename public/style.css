@@ -16,10 +16,12 @@
   --background-color: rgba(231, 233, 234, 0.1);
   --background-color-hover: rgba(231, 233, 234, 0.2);
   --background-color-hover-scrollBar: rgba(231, 233, 234, 0.4);
-  --img-filter: invert(99%) sepia(0%) saturate(255%) hue-rotate(261deg)
+  --icon-filter: invert(99%) sepia(0%) saturate(255%) hue-rotate(261deg)
     brightness(98%) contrast(88%);
   --text-color: rgb(231, 233, 234);
   --aquamarine-shadow: 0px 0px 5px 0 rgb(161, 233, 211);
+  --icon-filter-editor: brightness(2.5);
+  --icon-mix-blend-mode: screen;
 }
 
 :root,
@@ -29,10 +31,12 @@
   --background-color: rgba(15, 20, 25, 0.1);
   --background-color-hover: rgba(15, 20, 25, 0.2);
   --background-color-hover-scrollBar: rgba(15, 20, 25, 0.4);
-  --img-filter: invert(4%) sepia(5%) saturate(6463%) hue-rotate(169deg)
+  --icon-filter: invert(4%) sepia(5%) saturate(6463%) hue-rotate(169deg)
     brightness(95%) contrast(91%);
   --text-color: rgb(15, 20, 25);
   --aquamarine-shadow: 0px 0px 5px 0 rgb(161, 233, 211);
+  --icon-filter-editor: none;
+  --icon-mix-blend-mode: normal;
 }
 
 .Calendar_button_holder {
@@ -91,7 +95,7 @@
 
 .Calendar_button img {
   height: 1.75rem;
-  filter: var(--img-filter);
+  filter: var(--icon-filter);
   padding: 0px;
   margin: 0px;
   padding: 12px 0px;
@@ -205,6 +209,31 @@ html {
   border-radius: 35px;
   transition: background-color 0.2s, box-shadow 0.2s ease-in-out;
   cursor: pointer;
+}
+
+.list .note_button {
+  display: flex;
+  align-items: center;
+  height: 30px;
+  border-radius: 15px;
+  margin: 10px;
+  align-self: center;
+  filter: var(--icon-filter);
+}
+
+.list .note_button_wrapper {
+  background-color: var(--background-color);
+  display: none;
+  align-items: center;
+  height: 50px;
+  border-radius: 50px;
+  margin: 10px;
+  transition: 0.2s ease-in-out;
+}
+
+.list .note_button_wrapper:hover {
+  box-shadow: var(--aquamarine-shadow);
+  background-color: var(--background-color-hover);
 }
 
 .list:hover {
@@ -323,8 +352,8 @@ html {
   height: 1.75rem;
   padding: 0px;
   margin: 0px;
-  -webkit-filter: var(--img-filter);
-  filter: var(--img-filter);
+  -webkit-filter: var(--icon-filter);
+  filter: var(--icon-filter);
 }
 
 .edit_field {
@@ -362,6 +391,7 @@ html {
 
 .editing_menu {
   display: flex;
+  flex-direction: column;
   visibility: collapse;
   width: 100%;
   background-color: transparent;
@@ -384,16 +414,16 @@ html {
   transition: 0.5s ease-in-out;
 }
 
-.editing_menu * {
+.editing_menu > div {
   visibility: collapse;
   max-height: 0;
   opacity: 0;
   transition: 0.5s ease-in-out;
 }
 
-.editing_menu.is_open * {
+.editing_menu.is_open > div {
   visibility: visible;
-  max-height: 700px;
+  max-height: 500px;
   opacity: 1;
 }
 
@@ -416,6 +446,10 @@ html {
 
 .edit_div.is_open {
   background-color: var(--background-color);
+}
+
+.edit_div.is_open .editor_wrapper {
+  margin: 15px;
 }
 
 .save_changes {
@@ -483,7 +517,7 @@ html {
   display: flex;
   align-self: center;
   height: 1.75rem;
-  filter: var(--img-filter);
+  filter: var(--icon-filter);
 }
 
 .utilities {
@@ -533,7 +567,7 @@ html {
 
 .utilities img {
   height: 30px;
-  filter: var(--img-filter);
+  filter: var(--icon-filter);
 }
 
 .name_of_utility_holder {
@@ -769,6 +803,90 @@ html {
   max-width: 600px;
   opacity: 1;
   visibility: visible;
+}
+
+.note_view {
+  display: flex;
+  margin: 0px;
+  max-height: 0px;
+  visibility: collapse;
+  opacity: 0;
+  transition: 0.5s ease-in-out;
+  color: var(--text-color);
+}
+
+.note_view.is_open {
+  max-height: 500px;
+  opacity: 1;
+  visibility: visible;
+}
+
+.profile_info_edit_wrapper {
+  display: flex;
+}
+
+.editor_wrapper {
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  align-self: center;
+  margin: 0px;
+  width: -webkit-fill-available;
+  max-height: fit-content;
+  background-color: var(--background-color);
+  border-radius: 20px;
+  transition: all 0.2s ease-in-out;
+}
+
+.ql-formats > svg,
+.ql-formats > button > svg {
+  mix-blend-mode: var(--icon-mix-blend-mode);
+  filter: var(--icon-filter-editor);
+}
+
+.editor_wrapper .ql-toolbar,
+.editor_wrapper .ql-container {
+  border: none !important;
+  width: -webkit-fill-available;
+}
+
+.editor_wrapper .ql-formats {
+  display: flex;
+  justify-content: center;
+  padding: 3px !important;
+  margin: 5px !important;
+  border-radius: 100vh;
+  background-color: var(--background-color);
+}
+
+.editor_wrapper .ql-toolbar {
+  display: flex;
+  justify-content: center;
+  padding: unset !important;
+}
+
+.ql-formats > span .ql-picker-label {
+  mix-blend-mode: var(--icon-mix-blend-mode);
+  filter: var(--icon-filter-editor);
+}
+
+.editor_wrapper .ql-container {
+  color: var(--text-color);
+  overflow-y: scroll;
+}
+
+.ql-editor.ql-blank::before {
+  color: var(--background-color-hover-scrollBar) !important;
+}
+
+.ql-editor {
+  overflow-wrap: anywhere !important;
+  width: -webkit-fill-available;
+  padding: 15px;
+}
+
+.ql-editor img {
+  border-radius: 10px;
 }
 
 /* .event_settings_button {
